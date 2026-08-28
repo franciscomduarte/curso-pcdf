@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistemas Multiagentes com IA · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/estilo.css">
+<style>
+  .aula-card { display:block; text-decoration:none; color:inherit; position:relative; }
+  .aula-card .num { font-family:'JetBrains Mono',monospace; color:var(--ouro); font-size:13px; }
+  .aula-card.pronta { border-left:4px solid var(--teal); }
+  .aula-card.breve { opacity:.62; }
+  .selo { position:absolute; top:16px; right:16px; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+          letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:999px; }
+  .selo.ok { background:#E9F4F2; color:var(--teal); } .selo.wip { background:var(--papel-2); color:var(--tinta-suave); }
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="assets/logo-pcdf.svg" alt="PCDF">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Sistemas Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>50h · 70% prática</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">PCDF · Curso de IA</p>
+    <h1>Sistemas Multiagentes <span class="destaque">com IA</span></h1>
+    <p class="sub">Do loop de um único agente até times de agentes coordenados em produção — construindo, testando e avaliando cada peça. Exemplos rodam sem chave de API.</p>
+    <div class="meta">
+      <span class="tag">7 aulas · 50h</span>
+      <span class="tag">Python + Claude</span>
+      <span class="tag">turma mista</span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section class="reveal">
+    <p class="rotulo">Trilha</p>
+    <h2>As aulas</h2>
+    <div class="grade col-2">
+
+      <a class="aula-card cartao pronta" href="aulas/aula-01-fundamentos.html">
+        <span class="selo ok">Pronta</span>
+        <span class="num">Aula 1 · 4h</span>
+        <h4>Fundamentos e critério single vs. multi-agente</h4>
+        <p>O que é um agente, o que não é, e a pergunta que evita 90% dos erros: preciso mesmo de vários?</p>
+      </a>
+
+      <a class="aula-card cartao pronta" href="aulas/aula-02-agente-do-zero.html">
+        <span class="selo ok">Pronta</span>
+        <span class="num">Aula 2 · 6h</span>
+        <h4>Um agente do zero (sem framework)</h4>
+        <p>Escreva o loop na mão: ferramentas, memória, interface do LLM e a trava anti-loop.</p>
+      </a>
+
+      <div class="aula-card cartao breve">
+        <span class="selo wip">Em breve</span>
+        <span class="num">Aula 3 · 8h</span>
+        <h4>Padrões de coordenação</h4>
+        <p>Sequencial, supervisor, paralelo e debate — ainda sem framework.</p>
+      </div>
+
+      <div class="aula-card cartao breve">
+        <span class="selo wip">Em breve</span>
+        <span class="num">Aula 4 · 10h</span>
+        <h4>Frameworks de produção (LangGraph + CrewAI)</h4>
+        <p>O mesmo projeto reescrito, para sentir os trade-offs de cada abstração.</p>
+      </div>
+
+      <div class="aula-card cartao breve">
+        <span class="selo wip">Em breve</span>
+        <span class="num">Aula 5 · 8h</span>
+        <h4>Estado, memória e interoperabilidade (MCP / A2A)</h4>
+        <p>Como agentes compartilham contexto e conversam entre frameworks.</p>
+      </div>
+
+      <div class="aula-card cartao breve">
+        <span class="selo wip">Em breve</span>
+        <span class="num">Aula 6 · 6h</span>
+        <h4>Avaliação, observabilidade e segurança</h4>
+        <p>Onde os projetos morrem: tracing, avaliação de trajetória e injeção de prompt.</p>
+      </div>
+
+      <div class="aula-card cartao breve">
+        <span class="selo wip">Em breve</span>
+        <span class="num">Aula 7 · 8h</span>
+        <h4>Projeto final (capstone)</h4>
+        <p>Sistema multiagente ponta a ponta, com avaliação embutida.</p>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Sistemas Multiagentes com IA</strong></p>
+  <p>Prof. Francisco Molina Jr</p>
+</footer>
+
+<script src="assets/aula.js"></script>
+</body>
+</html>

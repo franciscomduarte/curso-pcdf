@@ -1,0 +1,259 @@
+/* =========================================================================
+   Curso PCDF — Sistemas Multiagentes com IA
+   Sistema de design compartilhado (baseado no padrão visual do curso TRF1)
+   Tinta navy #0F1C36 · Ouro #B8892B · Teal de apoio
+   Fraunces (display) · Inter (texto) · JetBrains Mono (código)
+   ========================================================================= */
+
+:root {
+  --tinta:        #0F1C36;   /* navy — texto e hero */
+  --tinta-2:      #1B2A47;
+  --tinta-suave:  #3A4762;   /* texto secundário */
+  --ouro:         #B8892B;   /* dourado — acento institucional */
+  --ouro-claro:   #D9B15A;
+  --teal:         #1C7C74;   /* teal de apoio */
+  --teal-claro:   #35A79D;
+  --papel:        #FBFAF6;   /* fundo do corpo */
+  --papel-2:      #F2EEE3;   /* blocos suaves */
+  --linha:        #E4DFD3;   /* filetes */
+  --branco:       #FFFFFF;
+  --sombra:       0 12px 40px rgba(15, 28, 54, .10);
+  --sombra-sutil: 0 4px 18px rgba(15, 28, 54, .07);
+  --raio:         16px;
+  --largura:      920px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--tinta);
+  background: var(--papel);
+  line-height: 1.65;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Barra de progresso de rolagem ---------------------------------- */
+#progresso {
+  position: fixed; top: 0; left: 0; height: 4px; width: 0;
+  background: linear-gradient(90deg, var(--ouro), var(--teal-claro));
+  z-index: 100; transition: width .1s linear;
+}
+
+/* ---- Topbar --------------------------------------------------------- */
+.topbar {
+  position: sticky; top: 0; z-index: 90;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 28px;
+  background: rgba(251, 250, 246, .88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--linha);
+}
+.topbar .marca { display: flex; align-items: center; gap: 12px; }
+.topbar .marca img, .topbar .marca svg { height: 40px; width: auto; display: block; }
+.topbar .marca .sep { width: 1px; height: 28px; background: var(--linha); }
+.topbar .prof {
+  font-size: 13px; color: var(--tinta-suave); font-weight: 500; text-align: right;
+}
+.topbar .prof strong { color: var(--tinta); display: block; font-weight: 700; }
+
+/* ---- Hero ----------------------------------------------------------- */
+.hero {
+  position: relative; overflow: hidden;
+  color: #EAF0FA;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #22406e 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #143a57 0%, transparent 50%),
+    linear-gradient(160deg, #0F1C36 0%, #0b1428 100%);
+  padding: 72px 28px 64px;
+}
+.hero .wrap { max-width: var(--largura); margin: 0 auto; }
+.hero .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ouro-claro); margin: 0 0 16px;
+}
+.hero h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600; font-size: clamp(30px, 5vw, 52px);
+  line-height: 1.08; margin: 0 0 18px; letter-spacing: -.01em;
+}
+.hero h1 .destaque { color: var(--ouro-claro); font-style: italic; }
+.hero .sub { font-size: 18px; color: #C4D0E4; max-width: 640px; margin: 0; }
+.hero .meta {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px;
+}
+.hero .tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  padding: 7px 13px; border-radius: 999px;
+  border: 1px solid rgba(216, 177, 90, .4); color: var(--ouro-claro);
+  background: rgba(184, 137, 43, .08);
+}
+
+/* ---- Corpo / seções ------------------------------------------------- */
+main { max-width: var(--largura); margin: 0 auto; padding: 8px 28px 90px; }
+
+section { padding: 40px 0; border-bottom: 1px solid var(--linha); }
+section:last-child { border-bottom: none; }
+
+.rotulo {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--ouro);
+  display: flex; align-items: center; gap: 10px; margin: 0 0 14px;
+}
+.rotulo::before { content: ""; width: 26px; height: 2px; background: var(--ouro); }
+
+h2 {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+  font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15;
+  margin: 0 0 18px; letter-spacing: -.01em;
+}
+h3 {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+  font-size: 21px; margin: 30px 0 10px;
+}
+p { margin: 0 0 16px; }
+a { color: var(--teal); }
+strong { color: var(--tinta); }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 8px; }
+
+/* ---- Cartões e grades ---------------------------------------------- */
+.grade { display: grid; gap: 16px; }
+.grade.col-2 { grid-template-columns: repeat(2, 1fr); }
+.grade.col-3 { grid-template-columns: repeat(3, 1fr); }
+
+.cartao {
+  background: var(--branco); border: 1px solid var(--linha);
+  border-radius: var(--raio); padding: 22px; box-shadow: var(--sombra-sutil);
+}
+.cartao .ic { font-size: 22px; }
+.cartao h4 {
+  font-family: 'Fraunces', serif; font-size: 18px; margin: 10px 0 8px;
+}
+.cartao p { font-size: 15px; color: var(--tinta-suave); margin: 0; }
+
+/* ---- Callouts ------------------------------------------------------- */
+.aviso {
+  border-radius: var(--raio); padding: 18px 20px; margin: 22px 0;
+  border-left: 4px solid var(--ouro); background: var(--papel-2);
+  font-size: 15.5px;
+}
+.aviso.perigo { border-left-color: #B5462F; background: #FBEDE9; }
+.aviso.ok     { border-left-color: var(--teal); background: #E9F4F2; }
+.aviso .titulo {
+  font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.aviso p:last-child { margin-bottom: 0; }
+
+/* ---- Tabela --------------------------------------------------------- */
+.tabela-wrap { overflow-x: auto; margin: 20px 0; }
+table {
+  width: 100%; border-collapse: collapse; font-size: 15px;
+  background: var(--branco); border-radius: var(--raio); overflow: hidden;
+  box-shadow: var(--sombra-sutil);
+}
+th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--linha); vertical-align: top; }
+th { background: var(--tinta); color: #EAF0FA; font-weight: 600; font-size: 13.5px;
+     letter-spacing: .02em; text-transform: uppercase; }
+tr:last-child td { border-bottom: none; }
+td.sim { color: var(--teal); font-weight: 600; }
+td.nao { color: #B5462F; font-weight: 600; }
+
+/* ---- Blocos de código ---------------------------------------------- */
+.codigo {
+  background: var(--tinta); border-radius: var(--raio);
+  margin: 20px 0; box-shadow: var(--sombra); overflow: hidden;
+}
+.codigo .barra {
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.codigo .barra .ponto { width: 11px; height: 11px; border-radius: 50%; }
+.codigo .barra .p1 { background: #E06C5A; } .codigo .barra .p2 { background: #E0B44E; } .codigo .barra .p3 { background: #7BB86F; }
+.codigo .barra .arq {
+  margin-left: 8px; font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #9FB0CC;
+}
+.codigo pre {
+  margin: 0; padding: 18px 20px; overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.7;
+  color: #E6ECF6;
+}
+/* tokens do realçador */
+.tok-kw  { color: #E0B44E; }             /* palavras-chave */
+.tok-str { color: #7BB86F; }             /* strings */
+.tok-com { color: #6B7A96; font-style: italic; } /* comentários */
+.tok-num { color: #D99A6C; }             /* números */
+.tok-fn  { color: #5AB6C7; }             /* funções/def */
+.tok-self{ color: #C98BD9; }             /* self / cls */
+.tok-dec { color: #D9B15A; }             /* decoradores */
+
+code.inline {
+  font-family: 'JetBrains Mono', monospace; font-size: .9em;
+  background: var(--papel-2); padding: 2px 6px; border-radius: 6px; color: var(--tinta-2);
+}
+
+/* ---- Diagramas SVG -------------------------------------------------- */
+.diagrama { margin: 26px 0; text-align: center; }
+.diagrama svg { max-width: 100%; height: auto; }
+.legenda { font-size: 13.5px; color: var(--tinta-suave); margin-top: 8px; font-style: italic; }
+
+/* ---- Caixa de exercício -------------------------------------------- */
+.exercicio {
+  background: linear-gradient(160deg, #12233f, #0d1a30);
+  color: #EAF0FA; border-radius: var(--raio); padding: 28px; margin: 26px 0;
+  box-shadow: var(--sombra);
+}
+.exercicio .rotulo { color: var(--ouro-claro); }
+.exercicio .rotulo::before { background: var(--ouro-claro); }
+.exercicio h3 { color: var(--branco); margin-top: 0; }
+.exercicio ol { color: #D3DCEC; }
+.exercicio strong { color: var(--ouro-claro); }
+
+/* ---- Citação de âncora --------------------------------------------- */
+.ancora {
+  font-family: 'Fraunces', serif; font-size: clamp(20px, 3vw, 27px);
+  font-style: italic; line-height: 1.35; color: var(--tinta);
+  border-left: 4px solid var(--ouro); padding: 6px 0 6px 24px; margin: 30px 0;
+}
+
+/* ---- Rodapé --------------------------------------------------------- */
+footer {
+  background: var(--tinta); color: #A9B7D0; padding: 34px 28px; text-align: center;
+  font-size: 13.5px;
+}
+footer strong { color: #EAF0FA; }
+
+/* ---- Reveal on scroll ---------------------------------------------- */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visivel { opacity: 1; transform: none; }
+
+/* ---- Navegação entre aulas ----------------------------------------- */
+.nav-aulas { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+.nav-aulas a {
+  text-decoration: none; color: var(--tinta); background: var(--branco);
+  border: 1px solid var(--linha); border-radius: var(--raio); padding: 14px 18px;
+  font-size: 14px; box-shadow: var(--sombra-sutil); transition: transform .15s ease;
+}
+.nav-aulas a:hover { transform: translateY(-2px); }
+.nav-aulas a span { display: block; font-size: 12px; color: var(--tinta-suave); }
+
+/* ---- Responsivo ----------------------------------------------------- */
+@media (max-width: 720px) {
+  .grade.col-2, .grade.col-3 { grid-template-columns: 1fr; }
+  .hero { padding: 52px 20px 44px; }
+  main { padding: 8px 20px 70px; }
+  .topbar .prof { display: none; }
+}
+
+/* ---- Acessibilidade ------------------------------------------------- */
+:focus-visible { outline: 3px solid var(--teal-claro); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
