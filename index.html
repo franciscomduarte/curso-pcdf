@@ -9,13 +9,53 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css">
 <style>
-  .aula-card { display:block; text-decoration:none; color:inherit; position:relative; }
-  .aula-card .num { font-family:'JetBrains Mono',monospace; color:var(--ouro); font-size:13px; }
-  .aula-card.pronta { border-left:4px solid var(--teal); }
-  .aula-card.breve { opacity:.62; }
-  .selo { position:absolute; top:16px; right:16px; font-family:'JetBrains Mono',monospace; font-size:10.5px;
-          letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:999px; }
-  .selo.ok { background:#E9F4F2; color:var(--teal); } .selo.wip { background:var(--papel-2); color:var(--tinta-suave); }
+  /* ---- Índice do curso -------------------------------------------------- */
+  .bloco { padding: 34px 0; border-bottom: 1px solid var(--linha); }
+  .bloco:last-of-type { border-bottom: none; }
+  .bloco-cab { display: flex; align-items: baseline; gap: 14px; margin: 0 0 6px; flex-wrap: wrap; }
+  .bloco-cab h3 { font-family: 'Fraunces', serif; font-size: 22px; margin: 0; }
+  .bloco-cab .faixa {
+    font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ouro);
+  }
+  .bloco-desc { font-size: 15px; color: var(--tinta-suave); margin: 0 0 20px; max-width: 620px; }
+
+  .aula-card { display: block; text-decoration: none; color: inherit; position: relative; transition: transform .15s ease, box-shadow .15s ease; }
+  a.aula-card:hover { transform: translateY(-3px); box-shadow: var(--sombra); }
+  .aula-card .num { font-family: 'JetBrains Mono', monospace; color: var(--ouro); font-size: 12.5px; }
+  .aula-card h4 { font-family: 'Fraunces', serif; font-size: 18px; margin: 8px 0; }
+  .aula-card p { font-size: 14.5px; color: var(--tinta-suave); margin: 0; }
+  .aula-card.pronta { border-left: 4px solid var(--teal); }
+  .aula-card.breve { opacity: .6; }
+  .aula-card .abrir {
+    display: inline-block; margin-top: 14px; font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--teal); font-weight: 500;
+  }
+
+  .selo {
+    position: absolute; top: 18px; right: 18px; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .selo.ok  { background: #E9F4F2; color: var(--teal); }
+  .selo.wip { background: var(--papel-2); color: var(--tinta-suave); }
+
+  /* barra de progresso do curso */
+  .progresso-curso { background: var(--branco); border: 1px solid var(--linha); border-radius: var(--raio);
+    padding: 22px 24px; box-shadow: var(--sombra-sutil); margin-bottom: 8px; }
+  .progresso-curso .linha-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .progresso-curso strong { font-family: 'Fraunces', serif; font-size: 17px; }
+  .progresso-curso .pct { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--tinta-suave); }
+  .barra-ext { height: 8px; border-radius: 999px; background: var(--papel-2); overflow: hidden; margin-top: 14px; }
+  .barra-int { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--ouro), var(--teal-claro)); }
+
+  .mini-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .mini-links a {
+    text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--tinta); background: var(--papel-2); border: 1px solid var(--linha);
+    border-radius: 999px; padding: 7px 14px;
+  }
+  .mini-links a:hover { border-color: var(--ouro); }
 </style>
 </head>
 <body>
@@ -23,7 +63,7 @@
 
 <header class="topbar">
   <div class="marca">
-    <img src="assets/logo-pcdf.svg" alt="PCDF">
+    <img src="assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
     <div class="sep"></div>
     <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Sistemas Multiagentes</span>
   </div>
@@ -34,72 +74,185 @@
   <div class="wrap">
     <p class="eyebrow">PCDF · Curso de IA</p>
     <h1>Sistemas Multiagentes <span class="destaque">com IA</span></h1>
-    <p class="sub">Do loop de um único agente até times de agentes coordenados em produção — construindo, testando e avaliando cada peça. Exemplos rodam sem chave de API.</p>
+    <p class="sub">Do loop de um único agente até times de agentes coordenados em produção — construindo, testando e avaliando cada peça. Os exemplos rodam sem chave de API.</p>
     <div class="meta">
       <span class="tag">7 aulas · 50h</span>
       <span class="tag">Python + Claude</span>
+      <span class="tag">70% prática</span>
       <span class="tag">turma mista</span>
     </div>
   </div>
 </div>
 
 <main>
+
   <section class="reveal">
-    <p class="rotulo">Trilha</p>
-    <h2>As aulas</h2>
-    <div class="grade col-2">
-
-      <a class="aula-card cartao pronta" href="aulas/aula-01-fundamentos.html">
-        <span class="selo ok">Pronta</span>
-        <span class="num">Aula 1 · 4h</span>
-        <h4>Fundamentos e critério single vs. multi-agente</h4>
-        <p>O que é um agente, o que não é, e a pergunta que evita 90% dos erros: preciso mesmo de vários?</p>
-      </a>
-
-      <a class="aula-card cartao pronta" href="aulas/aula-02-agente-do-zero.html">
-        <span class="selo ok">Pronta</span>
-        <span class="num">Aula 2 · 6h</span>
-        <h4>Um agente do zero (sem framework)</h4>
-        <p>Escreva o loop na mão: ferramentas, memória, interface do LLM e a trava anti-loop.</p>
-      </a>
-
-      <div class="aula-card cartao breve">
-        <span class="selo wip">Em breve</span>
-        <span class="num">Aula 3 · 8h</span>
-        <h4>Padrões de coordenação</h4>
-        <p>Sequencial, supervisor, paralelo e debate — ainda sem framework.</p>
+    <p class="rotulo">Onde estamos</p>
+    <div class="progresso-curso">
+      <div class="linha-topo">
+        <strong>2 de 7 aulas publicadas</strong>
+        <span class="pct">~10h de 50h · 29%</span>
       </div>
-
-      <div class="aula-card cartao breve">
-        <span class="selo wip">Em breve</span>
-        <span class="num">Aula 4 · 10h</span>
-        <h4>Frameworks de produção (LangGraph + CrewAI)</h4>
-        <p>O mesmo projeto reescrito, para sentir os trade-offs de cada abstração.</p>
+      <div class="barra-ext"><div class="barra-int" style="width:29%"></div></div>
+      <div class="mini-links">
+        <a href="aulas/aula-01-fundamentos.html">→ Começar pela Aula 1</a>
+        <a href="#codigo">→ Código de exemplo</a>
+        <a href="https://github.com/franciscomduarte/curso-pcdf">→ Repositório</a>
       </div>
-
-      <div class="aula-card cartao breve">
-        <span class="selo wip">Em breve</span>
-        <span class="num">Aula 5 · 8h</span>
-        <h4>Estado, memória e interoperabilidade (MCP / A2A)</h4>
-        <p>Como agentes compartilham contexto e conversam entre frameworks.</p>
-      </div>
-
-      <div class="aula-card cartao breve">
-        <span class="selo wip">Em breve</span>
-        <span class="num">Aula 6 · 6h</span>
-        <h4>Avaliação, observabilidade e segurança</h4>
-        <p>Onde os projetos morrem: tracing, avaliação de trajetória e injeção de prompt.</p>
-      </div>
-
-      <div class="aula-card cartao breve">
-        <span class="selo wip">Em breve</span>
-        <span class="num">Aula 7 · 8h</span>
-        <h4>Projeto final (capstone)</h4>
-        <p>Sistema multiagente ponta a ponta, com avaliação embutida.</p>
-      </div>
-
     </div>
   </section>
+
+  <section class="reveal">
+    <p class="rotulo">Trilha</p>
+    <h2>As aulas, em três blocos</h2>
+    <p style="color:var(--tinta-suave);max-width:620px">
+      Cada bloco fecha um ciclo: primeiro você entende e constrói na mão, depois
+      adota ferramentas de produção e, por fim, coloca um sistema completo para rodar
+      com avaliação embutida.
+    </p>
+
+    <!-- BLOCO A -->
+    <div class="bloco">
+      <div class="bloco-cab">
+        <span class="faixa">Bloco A</span>
+        <h3>Fundamentos e construção manual</h3>
+      </div>
+      <p class="bloco-desc">
+        O que é (e o que não é) um agente, o critério para usar vários e como escrever
+        o loop na mão — sem nenhum framework escondendo a mecânica.
+      </p>
+      <div class="grade col-2">
+
+        <a class="aula-card cartao pronta" href="aulas/aula-01-fundamentos.html">
+          <span class="selo ok">Pronta</span>
+          <span class="num">Aula 1 · Módulo 1 · 4h</span>
+          <h4>Fundamentos e critério single vs. multi-agente</h4>
+          <p>O que é um agente, o que não é, e a pergunta que evita 90% dos erros: preciso mesmo de vários?</p>
+          <span class="abrir">Abrir aula →</span>
+        </a>
+
+        <a class="aula-card cartao pronta" href="aulas/aula-02-agente-do-zero.html">
+          <span class="selo ok">Pronta</span>
+          <span class="num">Aula 2 · Módulo 2 · 6h</span>
+          <h4>Um agente do zero, sem framework</h4>
+          <p>Escreva o loop na mão: ferramentas, memória, interface do LLM e a trava anti-loop.</p>
+          <span class="abrir">Abrir aula →</span>
+        </a>
+
+        <div class="aula-card cartao breve">
+          <span class="selo wip">Em breve</span>
+          <span class="num">Aula 3 · Módulo 3 · 8h</span>
+          <h4>Padrões de coordenação</h4>
+          <p>Sequencial, supervisor, paralelo e debate — ainda sem framework.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BLOCO B -->
+    <div class="bloco">
+      <div class="bloco-cab">
+        <span class="faixa">Bloco B</span>
+        <h3>Frameworks e integração</h3>
+      </div>
+      <p class="bloco-desc">
+        O mesmo projeto reescrito com ferramentas de produção, para sentir os trade-offs,
+        e os protocolos que fazem agentes compartilharem contexto e conversarem entre si.
+      </p>
+      <div class="grade col-2">
+
+        <div class="aula-card cartao breve">
+          <span class="selo wip">Em breve</span>
+          <span class="num">Aula 4 · Módulo 4 · 10h</span>
+          <h4>Frameworks de produção (LangGraph + CrewAI)</h4>
+          <p>O mesmo projeto reescrito, para sentir os trade-offs de cada abstração.</p>
+        </div>
+
+        <div class="aula-card cartao breve">
+          <span class="selo wip">Em breve</span>
+          <span class="num">Aula 5 · Módulo 5 · 8h</span>
+          <h4>Estado, memória e interoperabilidade (MCP / A2A)</h4>
+          <p>Como agentes compartilham contexto e conversam entre frameworks.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BLOCO C -->
+    <div class="bloco">
+      <div class="bloco-cab">
+        <span class="faixa">Bloco C</span>
+        <h3>Produção e projeto final</h3>
+      </div>
+      <p class="bloco-desc">
+        Onde os projetos costumam morrer — tracing, avaliação de trajetória e segurança —
+        e um sistema multiagente ponta a ponta como capstone.
+      </p>
+      <div class="grade col-2">
+
+        <div class="aula-card cartao breve">
+          <span class="selo wip">Em breve</span>
+          <span class="num">Aula 6 · Módulo 6 · 6h</span>
+          <h4>Avaliação, observabilidade e segurança</h4>
+          <p>Onde os projetos morrem: tracing, avaliação de trajetória e injeção de prompt.</p>
+        </div>
+
+        <div class="aula-card cartao breve">
+          <span class="selo wip">Em breve</span>
+          <span class="num">Aula 7 · Módulo 7 · 8h</span>
+          <h4>Projeto final (capstone)</h4>
+          <p>Sistema multiagente ponta a ponta, com avaliação embutida.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal" id="codigo">
+    <p class="rotulo">Prática</p>
+    <h2>Código de exemplo</h2>
+    <p style="color:var(--tinta-suave);max-width:620px">
+      Cada módulo prático traz código Python que roda localmente com um LLM falso (mock),
+      sem chave de API. Para usar o Claude real: <code class="inline">pip install anthropic</code>
+      e <code class="inline">export ANTHROPIC_API_KEY=...</code>.
+    </p>
+    <div class="grade col-2">
+      <a class="aula-card cartao pronta" href="codigo/modulo-02-agente-do-zero/">
+        <span class="num">Módulo 2</span>
+        <h4>Agente do zero</h4>
+        <p><code class="inline">agente_do_zero.py</code> · <code class="inline">solucao_exercicio.py</code> — o loop completo, ferramentas e trava anti-loop.</p>
+        <span class="abrir">Ver código →</span>
+      </a>
+      <div class="aula-card cartao breve">
+        <span class="num">Módulos 3–7</span>
+        <h4>Em breve</h4>
+        <p>Coordenação, frameworks, MCP/A2A, avaliação e o capstone.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <p class="rotulo">Como usar</p>
+    <h2>Sobre este material</h2>
+    <div class="grade col-3">
+      <div class="cartao">
+        <div class="ic">📖</div>
+        <h4>Leia na ordem</h4>
+        <p>Cada aula assume a anterior. A barra no topo marca seu progresso de leitura.</p>
+      </div>
+      <div class="cartao">
+        <div class="ic">⌨️</div>
+        <h4>Rode o código</h4>
+        <p>Abra a pasta <code class="inline">codigo/</code> do módulo e execute. Nada de API obrigatória.</p>
+      </div>
+      <div class="cartao">
+        <div class="ic">🧭</div>
+        <h4>Turma mista</h4>
+        <p>50h, 70% prática. Blocos A→C vão do conceito ao sistema em produção.</p>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
