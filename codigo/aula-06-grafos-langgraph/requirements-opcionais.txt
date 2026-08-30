@@ -1,2 +1,4 @@
 # Só para o caminho "LangGraph de verdade" (langgraph_real/).
-langgraph>=0.2
+# Testado com langgraph 1.2.x (2026-08). A API muda entre versões maiores;
+# se o import falhar, o conceito está inteiro no motor mínimo (app/grafo.py).
+langgraph>=1.0,<2

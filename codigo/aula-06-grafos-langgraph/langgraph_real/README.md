@@ -16,5 +16,6 @@ python langgraph_real/grafo_lg.py PCDF-SIM-0011
 | `max_passos` no `compilar()` | `recursion_limit` no `invoke()` |
 | sem execução paralela | ramos independentes rodam em paralelo; há checkpointing, streaming, human-in-the-loop |
 
-A API do LangGraph muda entre versões menores — testado com `langgraph` 0.2+.
-Se o import falhar, o conceito está inteiro no motor mínimo.
+A API do LangGraph muda entre versões maiores — revalidado com `langgraph` 1.2.11
+(2026-08; `requirements-opcionais.txt` pina `langgraph>=1.0,<2`). Se o import
+falhar, o conceito está inteiro no motor mínimo.

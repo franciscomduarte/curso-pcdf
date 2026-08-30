@@ -48,12 +48,13 @@
       <div class="grade-painel">
         <div>
           <h4>Objetivos</h4>
+          <p style="margin:0 0 8px;font-size:13px;color:var(--tinta-suave)">Ao final, o estudante será capaz de:</p>
           <ul>
-            <li>Definir nó, aresta, grafo dirigido, DAG, ciclo, transição, estado compartilhado</li>
-            <li>Distinguir aresta estática de condicional (roteador)</li>
-            <li>Construir um motor de grafo com validação e trava de passos</li>
-            <li>Modelar o fluxo do SIGMA como grafo, com um ciclo controlado</li>
-            <li>Reconhecer os padrões da Aula 5 como grafos; introduzir o LangGraph</li>
+            <li><strong>Definir</strong> nó, aresta, grafo dirigido, DAG, ciclo, transição, estado compartilhado</li>
+            <li><strong>Distinguir</strong> aresta estática de condicional (roteador)</li>
+            <li><strong>Estender e validar</strong> um motor de grafo com trava de passos, acrescentando nós e arestas</li>
+            <li><strong>Modelar</strong> o fluxo do SIGMA como grafo, com um ciclo controlado</li>
+            <li><strong>Avaliar</strong> quando um grafo compensa a cerimônia extra sobre um simples <code class="inline">if</code>/pipeline</li>
           </ul>
         </div>
         <div>
@@ -76,16 +77,26 @@
 
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>o fluxo escondido no código de controle</small></span></li>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 5; o fluxo escondido no código de controle</small></span></li>
         <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>nó, aresta, DAG, ciclo, condicional; os padrões como grafos; LangGraph</small></span></li>
-        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>estado, o motor de grafo, o grafo do SIGMA rodando</small></span></li>
-        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>rodar os 3 caminhos; inserir um nó</small></span></li>
-        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>DAG × ciclo × ciclo sem saída; validação; ramos + junção</small></span></li>
-        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>converter o Supervisor num grafo; LangGraph de verdade</small></span></li>
-        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>grafo × código; ciclo runaway; roteador e injeção</small></span></li>
-        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício, desafio, checklist</small></span></li>
+        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>estado, o motor de grafo, o grafo do SIGMA rodando</small></span></li>
+        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>rodar os 3 caminhos; inserir um nó</small></span></li>
+        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>DAG × ciclo × ciclo sem saída; validação; ramos + junção</small></span></li>
+        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>converter o Supervisor num grafo; LangGraph de verdade</small></span></li>
+        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>grafo × código; ciclo runaway; roteador e injeção</small></span></li>
+        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Diagnóstico rápido — recuperando a Aula 5</p>
+      <p style="margin-bottom:10px">3 minutos, em voz alta:</p>
+      <ul class="lista-check">
+        <li>No Supervisor da Aula 5, o que decidia qual especialista chamar a seguir?</li>
+        <li>O que é o Dossiê, e por que Blackboard e Pipeline chegam ao mesmo resultado por caminhos diferentes?</li>
+        <li>Por que "não existe padrão certo — existe padrão certo para a carga" (frase da Aula 5)?</li>
+      </ul>
     </div>
 
     <div class="aviso instrutor">
@@ -100,7 +111,7 @@
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
     <h2>Grafo: nós e arestas</h2>
     <p>Um <strong>grafo dirigido</strong> é um conjunto de <strong>nós</strong> ligados por <strong>arestas</strong> com direção (setas). Aqui: cada nó é uma <em>etapa</em> — uma função <code class="inline">no(estado) → estado</code>; cada aresta é uma <em>transição possível</em>. Dois nós sentinela, <code class="inline">START</code> e <code class="inline">END</code>, marcam começo e fim.</p>
     <div class="mermaid">
@@ -165,6 +176,7 @@ flowchart LR
         <tr><td>execução estritamente sequencial</td><td>ramos independentes em <strong>paralelo</strong>; <strong>checkpointing</strong>; pausa para humano (Aula 7); streaming</td></tr>
       </table>
     </div>
+    <p style="font-size:14px;color:var(--tinta-suave)"><strong>Leitura de referência</strong> — <code class="inline">reducer</code>, <code class="inline">recursion_limit</code> e <code class="inline">checkpointing</code> (últimas 3 linhas da tabela) não precisam de tempo ao vivo aqui: voltam como <em>prévia da Aula 7</em>, onde checkpointing e pausa para humano são o assunto central.</p>
     <p style="font-size:14px;color:var(--tinta-suave)">Grafos e DAGs: Cormen et al., <em>Introduction to Algorithms</em>, cap. 22. LangGraph: documentação oficial. Modelo "pense como um vértice": Pregel (Malewicz et al., 2010). Ver Referências.</p>
   </section>
 
@@ -279,7 +291,7 @@ flowchart TD
 
     <h3>Rodando</h3>
     <div class="codigo">
-      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py   /   python main.py PCDF-SIM-0002   /   python main.py PCDF-SIM-0011</span></div>
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py   /   python main.py PCDF-SIM-0002   /   python main.py PCDF-SIM-0011  (3 execuções — o aviso de dados e a linha do ciclo se repetem idênticos a cada uma; mostrados uma vez)</span></div>
 <pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
 
 grafo tem ciclo (arestas estáticas)? False  (o ciclo real está nas condicionais)
@@ -288,17 +300,24 @@ ocorrência: PCDF-SIM-0009                       # furto simples, região sem hi
 caminho...: extrair -> classificar -> consultar -> revisar -> consultar -> revisar -> __end__
 passos....: 6                                   # 1ª consulta por região = vazio -> volta -> 2ª ampla acha
 natureza..: Furto
+enriquec..: [{'similares': [{'protocolo': 'PCDF-SIM-2007', 'regiao': 'Guará', 'natureza': 'Furto'}], 'busca': 'ampla'}]
 pendências: nenhuma
 
 ocorrência: PCDF-SIM-0002                       # roubo com placa
 caminho...: extrair -> classificar -> consultar -> revisar -> __end__
 passos....: 4                                   # placa consta alerta -> enriquecimento útil -> não volta
+natureza..: Roubo
+enriquec..: [{'placa': 'ABC1D23', 'situacao': 'consta alerta de furto (simulado)'}, {'similares': [{'protocolo': 'PCDF-SIM-2003', 'regiao': 'Taguatinga', 'natureza': 'Roubo'}], 'busca': 'regiao'}]
+pendências: nenhuma
 
 ocorrência: PCDF-SIM-0011                       # relato confuso, faltam data e local
 caminho...: extrair -> classificar -> encaminhar_humano -> __end__
-passos....: 3                                   # o roteador desviou para o humano</pre>
+passos....: 3                                   # o roteador desviou para o humano
+natureza..: Furto
+enriquec..: None
+pendências: ['ENVIADO para triagem humana (relato confuso / dados faltando)']</pre>
     </div>
-    <p>Três ocorrências, três caminhos diferentes <strong>pelo mesmo grafo</strong> — e o <code class="inline">caminho</code> de cada uma fica registrado.</p>
+    <p>Três ocorrências, três caminhos diferentes <strong>pelo mesmo grafo</strong> — e o <code class="inline">caminho</code> de cada uma fica registrado. Repare que <code class="inline">-0002</code> é classificada <strong>Roubo</strong>, não Furto — o enriquecimento (placa com alerta) é o que justifica não voltar a <code class="inline">consultar</code>.</p>
 
     <div class="checkpoint">
       <p class="rotulo">Checkpoint 1</p>
@@ -306,7 +325,7 @@ passos....: 3                                   # o roteador desviou para o huma
         <li><code class="inline">python main.py</code> imprime o caminho das 3 ocorrências sem erro</li>
         <li>Você aponta no diagrama: qual aresta é o ciclo, e qual é a condição de saída dele</li>
         <li>Entende por que <code class="inline">tem_ciclo()</code> devolve <code class="inline">False</code> (o ciclo está numa condicional, não numa aresta estática)</li>
-        <li><code class="inline">pytest -q</code> passa (9 testes)</li>
+        <li><code class="inline">pytest -q</code> passa (10 testes)</li>
       </ul>
     </div>
   </section>
@@ -359,7 +378,7 @@ passos....: 3                                   # o roteador desviou para o huma
 
 2) SIGMA — revisar volta a consultar UMA vez, depois encerra
    caminho: extrair -> classificar -> consultar -> revisar -> consultar -> revisar -> __end__ (6 passos)
-   (consultar aparece 2×: 1ª busca por região, 2ª busca ampla)
+   (consultar aparece 2x: 1a busca por região, 2a busca ampla)
 
 3) ciclo SEM condição de saída — a trava de passos segura
    tem_ciclo(): True
@@ -390,7 +409,7 @@ passos....: 3                                   # o roteador desviou para o huma
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>O Supervisor da Aula 5 como grafo explícito</h2>
     <div class="exercicio">
@@ -402,7 +421,17 @@ passos....: 3                                   # o roteador desviou para o huma
         <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python langgraph_real/grafo_lg.py</code>: o mesmo grafo do SIGMA com o pacote <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">langgraph</code>. Aponte 3 diferenças de API (ver <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">langgraph_real/README.md</code>).</li>
         <li>Onde no grafo do SIGMA você colocaria um nó que <strong>para e espera um humano</strong> antes de continuar? (é a Aula 7).</li>
       </ol>
-      <p style="margin-bottom:0">Orientação no gabarito.</p>
+      <p style="margin-bottom:8px">Em 25 min, priorize os itens 1–2; 3–4 ficam para quem terminar cedo. Orientação no gabarito.</p>
+      <div class="tabela-wrap">
+        <table>
+          <tr><th>Critério</th><th>Peso</th></tr>
+          <tr><td>Funcionamento (grafo compila e roda para os 3 caminhos)</td><td>30%</td></tr>
+          <tr><td>Compreensão (aponta corretamente onde está a aresta condicional e a trava)</td><td>25%</td></tr>
+          <tr><td>Arquitetura (número de nós/arestas comparado ao <code class="inline">while</code> original, com justificativa)</td><td>20%</td></tr>
+          <tr><td>Comparação com LangGraph (3 diferenças de API corretas)</td><td>15%</td></tr>
+          <tr><td>Justificativa (onde entraria o nó humano, e por quê)</td><td>10%</td></tr>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -444,7 +473,7 @@ passos....: 3                                   # o roteador desviou para o huma
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -455,6 +484,20 @@ passos....: 3                                   # o roteador desviou para o huma
       <li>O grafo do SIGMA tem <code class="inline">tem_ciclo() == False</code> mas tem um ciclo. Como?</li>
       <li>Cite duas coisas que o LangGraph faz e o motor mínimo não faz.</li>
     </ol>
+
+    <h3>Transferência</h3>
+    <p>Os exercícios acima ainda são sobre o grafo do SIGMA. Este é <strong>outro fluxo</strong> — mesmo motor, decisões novas.</p>
+    <div class="exercicio">
+      <p class="rotulo">Problema de transferência</p>
+      <h3>O fluxo do 190 como grafo</h3>
+      <p>Uma chamada do 190 passa por: recebimento → triagem → {despacho de viatura, orientação por telefone, transferência para o 197}, com um possível ciclo "aguardando confirmação de endereço" (no máximo 2 tentativas). Modele (não precisa terminar de codificar):</p>
+      <ol>
+        <li>Quais são os nós e quais arestas são condicionais? Onde fica o ciclo, e qual sua condição de saída?</li>
+        <li>Onde entra a trava de passos, e o que ela impede especificamente neste fluxo?</li>
+        <li><code class="inline">validar()</code> pegaria algum erro plausível de projeto neste grafo antes de rodar? Dê um exemplo.</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar.</p>
+    </div>
 
     <h3>Exercício prático</h3>
     <p>Acrescente ao grafo um nó <code class="inline">arquivar</code> depois de <code class="inline">revisar</code>, mas <strong>só</strong> quando não há pendências e a prioridade é "normal". Faça isso com uma aresta condicional a partir de <code class="inline">revisar</code> (rota: pendência? → humano-ish; normal sem pendência? → arquivar; senão → END). Teste os três destinos.</p>
@@ -470,6 +513,7 @@ passos....: 3                                   # o roteador desviou para o huma
       <li>Sei ver o Pipeline e o Supervisor da Aula 5 como grafos</li>
       <li>Rodei o mesmo grafo no LangGraph e sei 3 diferenças de API</li>
       <li>Sei apontar 3 riscos (ciclo runaway, roteador injetável, estado mutável)</li>
+      <li>Consigo modelar como grafo um fluxo diferente do SIGMA, apontando nós, arestas condicionais e a trava</li>
     </ul>
   </section>
 
@@ -504,8 +548,8 @@ passos....: 3                                   # o roteador desviou para o huma
     <p class="rotulo">Fontes</p>
     <h2>Referências</h2>
     <ol class="refs">
-      <li><span class="fonte">LangGraph — <em>Documentação</em></span>. LangChain. <a href="https://langchain-ai.github.io/langgraph/">langchain-ai.github.io/langgraph</a>.
-        <span class="assoc">StateGraph, nós, arestas condicionais, reducers, recursion_limit, checkpointing.</span></li>
+      <li><span class="fonte">LangGraph — <em>Documentação</em></span>. LangChain. <a href="https://docs.langchain.com/oss/python/langgraph/overview">docs.langchain.com/oss/python/langgraph/overview</a>.
+        <span class="assoc">StateGraph, nós, arestas condicionais, reducers, recursion_limit, checkpointing. Revalidado com <code class="inline">langgraph</code> 1.2.x (2026-08).</span></li>
       <li><span class="fonte">Cormen, T. et al. — <em>Introduction to Algorithms</em> (3ª/4ª ed.)</span>. MIT Press. Parte VI, "Graph Algorithms" (grafos dirigidos, DAG, ordenação topológica, DFS/detecção de ciclo).
         <span class="assoc">A base formal de nó, aresta, DAG e ciclo.</span></li>
       <li><span class="fonte">Malewicz, G. et al. — <em>Pregel: A System for Large-Scale Graph Processing</em> (2010)</span>. SIGMOD. <a href="https://doi.org/10.1145/1807167.1807184">doi.org/10.1145/1807167.1807184</a>.
@@ -528,10 +572,20 @@ passos....: 3                                   # o roteador desviou para o huma
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
       <h3>Tempos (5h = 300 min)</h3>
-      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
-      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar:
-      no Bloco 2, apresente "padrões como grafos" e o LangGraph pela tabela; o desafio
-      pode ser só os itens 1 e 4 (desenho e discussão).</p>
+      <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
+      Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·
+      Avaliação e transferência 30 = 300. O Bloco 2 já assume, por padrão, reducer/
+      recursion_limit/checkpointing como prévia da Aula 7 (não detalhar ao vivo). Se
+      ainda atrasar, o desafio pode ser só os itens 1 e 4 (desenho e discussão).</p>
+
+      <h3>Transferência — fluxo do 190 (sem gabarito fechado)</h3>
+      <p>Avalie pela justificativa. Uma resposta forte identifica o roteador de triagem
+      como aresta condicional (3 destinos), o ciclo "aguardando confirmação" com condição
+      de saída clara (endereço confirmado <em>ou</em> 2 tentativas esgotadas — que também
+      precisa da trava de passos como rede), e aponta que <code class="inline">validar()</code>
+      pegaria, por exemplo, um nó de despacho sem aresta de saída — mas não pegaria um
+      roteador que aponta para um destino errado em runtime (mesma limitação discutida no
+      Bloco 5/Avaliação desta aula).</p>
 
       <h3>Lab básico — o nó priorizar</h3>
       <p>Referência em <code class="inline">solucao_exercicios.py :: lab_basico()</code>: a

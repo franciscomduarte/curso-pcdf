@@ -33,7 +33,7 @@ def sigma_com_ciclo() -> None:
     print("\n2) SIGMA — revisar volta a consultar UMA vez, depois encerra")
     e = construir().compilar().executar(Estado(id="x", texto=OCORRENCIAS["PCDF-SIM-0009"]))
     print("   caminho:", " -> ".join(e.caminho), f"({e.passos} passos)")
-    print("   (consultar aparece 2×: 1ª busca por região, 2ª busca ampla)")
+    print("   (consultar aparece 2x: 1a busca por região, 2a busca ampla)")
 
 
 def ciclo_sem_saida() -> None:

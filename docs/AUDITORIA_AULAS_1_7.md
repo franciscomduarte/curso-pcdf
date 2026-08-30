@@ -15,7 +15,7 @@
 | 3 — MCP e Integração | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Resolvido — saída recapturada verbatim |
 | 4 — Agent Loops | 7,7 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 5 — Orquestração | 7,8 | **8,4** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 6 — Grafos e LangGraph | 7,5 | — | 🟡 Aprovada com ajustes | Nenhum |
+| 6 — Grafos e LangGraph | 7,5 | **8,4** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 7 — Especializados e HITL | 7,6 | — | 🟡 Aprovada com ajustes | Nenhum |
 
 **Fase 3 (correção) em andamento, uma aula por vez, na ordem 1→7 — Aula 1 concluída.** As demais 6 ainda não atingem o piso de publicação (≥ 8,0, CHECKLIST §13). Nenhuma tem código quebrado, dependência inexistente, API incompatível ou exercício impossível — os 66 testes (7+7+10+10+13+10+9) passam, todos os `main*.py`/`solucao_exercicios.py` principais rodam sem erro, e a segurança é tratada de forma transversal e contextualizada em todas. O que segura a nota é um **conjunto de lacunas sistêmicas da nova governança**, detalhado abaixo, mais problemas técnicos pontuais (contagens de teste erradas, saídas resumidas sem marcação, uma saída fabricada em formato).
@@ -515,45 +515,54 @@ Pendente, de baixa prioridade (não bloqueia publicação): `main.py` (distinto 
 - `×` em `main_ciclo.py:36` e travessão `—` em vários `print()` (vide seção recorrente).
 - Estilo inline repetido nos blocos de exercício em vez de classe CSS.
 
-## Alterações realizadas
+## Alterações realizadas (Fase 3 — 2026-08-30)
 
-Nenhuma nesta fase.
+1. Objetivos reescritos no formato observável; objetivo 3 ajustado de "Construir um motor" para "Estender e validar um motor" (o motor já vem pronto; o aluno estende/valida, não constrói do zero); acrescentado objetivo de nível **Avaliar** (quando um grafo compensa a cerimônia extra sobre um `if`/pipeline).
+2. Diagnóstico rápido (3 min) da Aula 5 no início do Bloco 1.
+3. Adicionada seção **Transferência** distinta no Bloco 8: modelar o fluxo do 190 como grafo (nós, aresta condicional, ciclo com condição de saída, o que `validar()` pegaria), com orientação no gabarito e item no checklist.
+4. **Rubrica de 5 critérios** (Funcionamento/Compreensão/Arquitetura/Comparação com LangGraph/Justificativa) adicionada ao Desafio do Bloco 6.
+5. **"9 testes" → "10 testes"** corrigido no checkpoint do HTML **e** no `README.md`.
+6. Bloco de saída de `python main.py` (3 ocorrências) recapturado e completado: agora mostra a linha `enriquec..:` (que o script sempre imprimiu e o HTML omitia) e `natureza..`/`pendências` para as 3 ocorrências (antes só para a primeira). Rotulado explicitamente como "3 execuções — aviso e linha do ciclo mostrados uma vez" em vez de aparentar uma única execução composta sem aviso.
+7. `×` removido de `main_ciclo.py` ("2×" → "2x") e do bloco correspondente no HTML — cumpre CLAUDE.md §39.
+8. Referência do LangGraph atualizada: URL trocada para `docs.langchain.com/oss/python/langgraph/overview` (a antiga redireciona); `requirements-opcionais.txt` agora pina `langgraph>=1.0,<2`; `langgraph_real/grafo_lg.py` revalidado com `langgraph` 1.2.11 instalado nesta auditoria — roda sem erro, mesmos caminhos (0009 com ciclo, 0011 desviando para humano).
+9. Bloco 2 aliviado: nota explícita de que `reducer`/`recursion_limit`/`checkpointing` (últimas linhas da tabela motor×LangGraph) são "prévia da Aula 7", não detalhamento ao vivo.
+10. Tempos redistribuídos para caber as adições em 300 min: Bloco 2 55→50, Bloco 6 30→25, Bloco 8 20→30. Agenda, cabeçalhos e gabarito conferem entre si.
 
 ## Validação técnica
 
 | Item | Resultado |
 |---|---|
-| Testes (`pytest -q`) | **PASS** — 10 passed (HTML e README dizem 9 — **FAIL** de consistência) |
-| Execução principal (`main.py` com 3 ocorrências) | **PASS** — valores batem |
-| Demos (`main_ciclo.py`, `solucao_exercicios.py`, `langgraph_real/grafo_lg.py` opcional) | **PASS** |
-| HTML sanity | **PASS** |
+| Testes (`pytest -q`) | **PASS** — 10 passed; checkpoint e README agora dizem "10 testes" (consistente) |
+| Execução principal (`main.py` com 3 ocorrências) | **PASS** — saída recapturada e completa, conferida contra o HTML |
+| Demos (`main_ciclo.py`, `solucao_exercicios.py`, `langgraph_real/grafo_lg.py`) | **PASS** — caminho opcional revalidado com `langgraph` 1.2.11 |
+| HTML sanity | **PASS** — balanço de tags conferido após as edições |
 
 ## Validação pedagógica
 
 | Item | Resultado |
 |---|---|
-| Objetivos | **FAIL** |
+| Objetivos | **PASS** (reescritos, objetivo 3 realinhado, objetivo de nível Avaliar) |
 | Prática | **PASS** |
-| Avaliação | **FAIL** |
-| Transferência | **FAIL** |
+| Avaliação | **PASS** (diagnóstico, transferência e rubrica do desafio adicionados) |
+| Transferência | **PASS** (seção distinta, domínio novo — fluxo do 190) |
 | Segurança | **PASS** |
-| Carga horária | **PASS** (25+55+50+45+15+45+30+15+20=300) |
+| Carga horária | **PASS** (25+50+50+45+15+45+25+15+30=300) |
 
-## Nota final = Nota inicial: **7,5 / 10**
+## Nota final (estimada após as correções): **8,4 / 10** — reavaliação formal por agente de QA independente recomendada antes da publicação definitiva
 
-## Veredito: 🟡 APROVADA COM AJUSTES
+## Veredito: 🟢 APROVADA (sujeita a confirmação por QA independente)
 
 ## Plano de correção priorizado
 
-1. Diagnóstico da Aula 5 no Bloco 1.
-2. Seção "Transferência" (ver propostas).
-3. Rubrica do Desafio.
-4. Objetivos no formato-modelo + ajustar objetivo 3.
-5. Corrigir "9 testes"→10 (HTML + README); marcar o bloco de `main.py` como composto/anotado; `×`/`—` fora dos `print()`.
-6. Atualizar URL do LangGraph + pinar versão + revalidar `grafo_lg.py`.
-7. Aliviar Bloco 2 (vocabulário LangGraph → "prévia da Aula 7").
+~~1. Diagnóstico da Aula 5 no Bloco 1~~ ✅ feito.
+~~2. Seção "Transferência"~~ ✅ feito.
+~~3. Rubrica do Desafio~~ ✅ feito.
+~~4. Objetivos no formato-modelo + ajustar objetivo 3~~ ✅ feito.
+~~5. Corrigir "9 testes"→10; marcar o bloco de `main.py`; `×` fora dos `print()`~~ ✅ feito (o `—` foi avaliado e mantido — é representável em cp1252, não está na lista de caracteres proibidos do CLAUDE.md §39).
+~~6. Atualizar URL do LangGraph + pinar versão + revalidar `grafo_lg.py`~~ ✅ feito.
+~~7. Aliviar Bloco 2~~ ✅ feito.
 
-**3 problemas de transferência propostos:** (1) **fluxo do 190** como grafo (ciclo "aguardando confirmação de endereço", condição de saída, trava); (2) converter um procedimento de 40 linhas de `if/elif` em grafo e identificar um ramo inalcançável que `validar()` pegaria; (3) ordem-dependência entre dois nós que escrevem o mesmo campo — resolver no motor mínimo e comparar com o reducer do LangGraph.
+Pendente, de baixa prioridade (não bloqueia publicação): estilo inline repetido nos blocos de exercício (poderia virar classe CSS).
 
 ---
 

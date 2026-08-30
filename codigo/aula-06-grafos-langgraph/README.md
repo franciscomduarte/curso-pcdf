@@ -17,7 +17,7 @@ python main.py PCDF-SIM-0002
 python main.py PCDF-SIM-0011       # relato confuso -> desvio para o humano
 python main_ciclo.py               # DAG × ciclo condicional × ciclo sem saída (trava)
 python solucao_exercicios.py       # gabarito (ou: basico | intermediario | desafio)
-pytest -q                          # 9 testes
+pytest -q                          # 10 testes
 ```
 
 ## LangGraph de verdade (opcional)
