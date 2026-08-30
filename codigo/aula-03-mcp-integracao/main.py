@@ -28,12 +28,18 @@ OCORRENCIA = (
 )
 
 
+def _operador_aprova(nome: str, argumentos: dict) -> bool:
+    """Confirmação humana visível — em produção seria uma tela/prompt real."""
+    print(f"  [operador] aprovar {nome}({argumentos})? -> sim")
+    return True
+
+
 def main() -> None:
     load_dotenv()
     print(f"* {AVISO_DADOS}\n")
 
     servidor = ServidorMCP()                      # escopo completo
-    cliente = ClienteMCP(servidor, nome="agente-consultor")
+    cliente = ClienteMCP(servidor, nome="agente-consultor", confirmar=_operador_aprova)
     agente = AgenteConsultor(cliente=cliente, llm=consultor_padrao())
 
     print("--- ocorrência (texto) ---")

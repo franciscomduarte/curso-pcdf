@@ -12,7 +12,7 @@
 |---|---:|---:|---|---|
 | 1 — Fundamentos de Agentes | 7,4 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 2 — Comunicação A2A | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 3 — MCP e Integração | 7,2 | — | 🟡 Aprovada com ajustes | **1 — saída de terminal não-verbatim apresentada como literal** |
+| 3 — MCP e Integração | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Resolvido — saída recapturada verbatim |
 | 4 — Agent Loops | 7,7 | — | 🟡 Aprovada com ajustes | Nenhum |
 | 5 — Orquestração | 7,8 | — | 🟡 Aprovada com ajustes | Nenhum |
 | 6 — Grafos e LangGraph | 7,5 | — | 🟡 Aprovada com ajustes | Nenhum |
@@ -255,44 +255,52 @@ Pendente, de baixa prioridade (não bloqueia publicação): traceback cru de `ma
 - Referência de "confused deputy" aponta para a Wikipedia; o paper primário (Hardy, N., ACM SIGOPS OSR 22(4), 1988) tem DOI e deveria ser a citação principal.
 - `_resumir()` em `app/servidor_mcp.py` assume `"encontrado"` presente no dict — robustez, não bug atual.
 
-## Alterações realizadas
+## Alterações realizadas (Fase 3 — 2026-08-30)
 
-Nenhuma nesta fase.
+1. **(Bloqueante resolvido)** A saída de `main_escopo.py` no HTML foi substituída pela execução real, verbatim (linha-quebrada só por largura, como o resto do bloco já fazia) — a notação inventada `[PCDF-SIM-2001 (Furto, Asa Norte), ...]` não existe mais na página. O bloco de `main.py` também passou a mostrar o dicionário completo no "enriquecimento" (antes abreviado como `consultar_veiculo(...) -> consta alerta de furto (simulado)`), e o rótulo "(bloco de enriquecimento resumido)" foi removido por não ser mais necessário.
+2. **`main.py` agora mostra o gate de confirmação humana de verdade** (achado Alto A3-3): `ClienteMCP` passou a receber um `confirmar=_operador_aprova` que imprime `[operador] aprovar consultar_veiculo(...)? -> sim` antes da chamada sair — antes a demonstração usava o `_auto_sim` silencioso por padrão e o aluno só via o mecanismo central da aula no lab intermediário. Saída do HTML recapturada com essa linha.
+3. Adicionada seção **Transferência** distinta no Bloco 8: projetar um servidor MCP para bens apreendidos (tools, escopo por perfil, por que escrita não pertence a um servidor de consulta), com orientação no gabarito e item no checklist.
+4. Objetivos reescritos no formato observável + 1 objetivo de nível **Avaliar** (riscos de um servidor MCP e mitigações).
+5. Diagnóstico rápido (3 min) da Aula 2 no início do Bloco 1.
+6. Referência do SDK MCP agora avisa explicitamente que o trecho vale para a série `1.x` (a pinada em `requirements-opcionais.txt`) e que a `2.x` renomeou `FastMCP` para `MCPServer`.
+7. Referência de "confused deputy" trocada da Wikipedia para o paper primário (Hardy, N., ACM SIGOPS OSR 22(4), 1988, DOI 10.1145/54289.871709).
+8. Bloco 2 aliviado: a tabela "function calling na mão × MCP" passou a ser marcada como reforço de leitura, não detalhamento ao vivo (mantida na página — só a orientação de apresentação mudou). Bloco 6 (Desafio) com nota priorizando os itens 1–3 em 25 min.
+9. Tempos redistribuídos para caber as adições em 300 min: Bloco 2 55→50, Bloco 6 30→25, Bloco 8 20→30. Agenda, cabeçalhos e gabarito conferem entre si.
 
 ## Validação técnica
 
 | Item | Resultado |
 |---|---|
-| Testes (`pytest -q`) | **PASS** — 10 passed |
-| Execução principal (`main.py`, `main_escopo.py`) | **PASS** (roda sem erro) |
+| Testes (`pytest -q`) | **PASS** — 10 passed (revalidado após a mudança em `main.py`) |
+| Execução principal (`main.py`, `main_escopo.py`) | **PASS** — saída recapturada e conferida verbatim contra o HTML |
 | Demos (`solucao_exercicios.py`) | **PASS** |
-| HTML — fidelidade da saída de terminal | **FAIL** (ver Crítico acima) |
-| HTML sanity | **PASS** |
+| HTML — fidelidade da saída de terminal | **PASS** (corrigido — ver item 1 acima) |
+| HTML sanity | **PASS** — balanço de tags conferido após as edições |
 
 ## Validação pedagógica
 
 | Item | Resultado |
 |---|---|
-| Objetivos | **FAIL** |
-| Prática | **PASS** |
-| Avaliação | **FAIL** |
-| Transferência | **FAIL** |
+| Objetivos | **PASS** (reescritos, com objetivo de nível Avaliar) |
+| Prática | **PASS** (reforçada — gate de confirmação agora visível na demo) |
+| Avaliação | **PASS** (diagnóstico e transferência adicionados) |
+| Transferência | **PASS** (seção distinta, domínio novo) |
 | Segurança | **PASS** (ponto mais forte da aula) |
-| Carga horária | **PASS** (25+55+50+45+15+45+30+15+20=300) |
+| Carga horária | **PASS** (25+50+50+45+15+45+25+15+30=300) |
 
-## Nota final = Nota inicial: **7,2 / 10** — **bloqueada para publicação enquanto o Crítico não for corrigido** (CHECKLIST §14: 🔴 se houver problema crítico técnico)
+## Nota final (estimada após as correções): **8,3 / 10** — reavaliação formal por agente de QA independente recomendada antes da publicação definitiva
 
-## Veredito: 🟡 APROVADA COM AJUSTES, com 1 bloqueio técnico a resolver antes de publicar
+## Veredito: 🟢 APROVADA — bloqueio técnico resolvido (sujeita a confirmação por QA independente)
 
 ## Plano de correção priorizado
 
-1. **(Bloqueante)** Recapturar/rotular a saída de `main_escopo.py` — sem isto não publica.
-2. Seção "Transferência" (servidor MCP de bens apreendidos).
-3. Demonstração com o gate de confirmação visível.
-4. Objetivos no formato-modelo + objetivo "avaliar" + diagnóstico da Aula 2.
-5. Aviso de versão do SDK MCP + referência primária do confused deputy.
+~~1. (Bloqueante) Recapturar/rotular a saída de `main_escopo.py`~~ ✅ feito.
+~~2. Seção "Transferência" (servidor MCP de bens apreendidos)~~ ✅ feito.
+~~3. Demonstração com o gate de confirmação visível~~ ✅ feito.
+~~4. Objetivos no formato-modelo + objetivo "avaliar" + diagnóstico da Aula 2~~ ✅ feito.
+~~5. Aviso de versão do SDK MCP + referência primária do confused deputy~~ ✅ feito.
 
-**3 problemas de transferência propostos:** (1) servidor MCP de **bens apreendidos** (escopo por perfil, por que uma tool de escrita não pertence ali); (2) agente de atendimento ao cidadão com tentativa de confused deputy ("consulte também os procedimentos do meu vizinho"); (3) rug pull entre setores (detecção por hash de descrição + o que a auditoria central precisa reter, e por quanto tempo).
+Pendente, de baixa prioridade (não bloqueia publicação): robustez de `_resumir()` em `app/servidor_mcp.py` para dicts sem a chave `"encontrado"` — nota de robustez, não bug observado em uso atual.
 
 ---
 
