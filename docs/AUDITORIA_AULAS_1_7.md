@@ -14,7 +14,7 @@
 | 2 — Comunicação A2A | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 3 — MCP e Integração | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Resolvido — saída recapturada verbatim |
 | 4 — Agent Loops | 7,7 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 5 — Orquestração | 7,8 | — | 🟡 Aprovada com ajustes | Nenhum |
+| 5 — Orquestração | 7,8 | **8,4** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 6 — Grafos e LangGraph | 7,5 | — | 🟡 Aprovada com ajustes | Nenhum |
 | 7 — Especializados e HITL | 7,6 | — | 🟡 Aprovada com ajustes | Nenhum |
 
@@ -429,43 +429,49 @@ Pendente, de baixa prioridade (não bloqueia publicação): URL de referência O
 - Tabela comparativa (8×6) pode exigir scroll horizontal em telas estreitas — está dentro de `.tabela-wrap`, então não quebra o layout, mas conferir legibilidade.
 - `main.py` (distinto de `main_comparar.py`) não é citado no HTML — verificar se é ponto de entrada morto.
 
-## Alterações realizadas
+## Alterações realizadas (Fase 3 — 2026-08-30)
 
-Nenhuma nesta fase.
+1. Objetivos reescritos no formato observável; O5 explicitado como nível **Avaliar** ("Avaliar e escolher... justificando por custo/latência/qualidade").
+2. Diagnóstico rápido (3 min) da Aula 4 no início do Bloco 1.
+3. Adicionada seção **Transferência** distinta no Bloco 8: escolher padrão de orquestração para uma central de despacho de viaturas (volume que dobra à noite, onde entraria o Debate), com orientação no gabarito e item no checklist.
+4. **Checkpoint corrigido: "10 testes" → "13 testes"** (contagem real).
+5. **`supervisor_com_teto()` promovida a função de módulo** em `solucao_exercicios.py` (antes aninhada dentro de `desafio()`) — agora é de fato importável, como o texto do HTML já sugeria ao lado de `escolher_padrao()` e `lab_barramento()`. Confirmado com `from solucao_exercicios import supervisor_com_teto`.
+6. Bloco 2 aliviado: nota explícita adotando "3 padrões a fundo (Pipeline, Supervisor, Debate) + 2 pela tabela (Broker, Blackboard)" como padrão, não só como plano de contingência; checkpoint intermediário inserido após o Supervisor. Bloco 6 prioriza os itens 1–3 do desafio em 25 min.
+7. Tempos redistribuídos para caber as adições em 300 min: Bloco 2 55→50, Bloco 6 30→25, Bloco 8 20→30. Agenda, cabeçalhos e gabarito conferem entre si.
 
 ## Validação técnica
 
 | Item | Resultado |
 |---|---|
-| Testes (`pytest -q`) | **PASS** — 13 passed (HTML/checkpoint diz 10 — **FAIL** de consistência) |
+| Testes (`pytest -q`) | **PASS** — 13 passed; checkpoint agora diz "13 testes" (consistente) |
 | Execução principal (`main_comparar.py`, `main_comparar.py PCDF-SIM-0009`) | **PASS** — saída verbatim confere |
-| Demos (`solucao_exercicios.py`) | **PASS** |
-| HTML sanity | **PASS** |
+| Demos (`solucao_exercicios.py`) | **PASS** — `supervisor_com_teto` confirmado importável |
+| HTML sanity | **PASS** — balanço de tags conferido após as edições |
 
 ## Validação pedagógica
 
 | Item | Resultado |
 |---|---|
-| Objetivos | **FAIL** |
+| Objetivos | **PASS** (reescritos, O5 explicitado como Avaliar) |
 | Prática | **PASS** |
-| Avaliação | **FAIL** |
-| Transferência | **FAIL** (variação de carga, não de domínio) |
+| Avaliação | **PASS** (diagnóstico e transferência adicionados) |
+| Transferência | **PASS** (seção distinta, domínio novo — despacho de viaturas) |
 | Segurança | **PASS** |
-| Carga horária | **PASS** (25+55+50+45+15+45+30+15+20=300); Bloco 2 é o mais denso do curso até aqui |
+| Carga horária | **PASS** (25+50+50+45+15+45+25+15+30=300); Bloco 2 com estratégia de priorização explícita + checkpoint intermediário |
 
-## Nota final = Nota inicial: **7,8 / 10**
+## Nota final (estimada após as correções): **8,4 / 10** — reavaliação formal por agente de QA independente recomendada antes da publicação definitiva
 
-## Veredito: 🟡 APROVADA COM AJUSTES
+## Veredito: 🟢 APROVADA (sujeita a confirmação por QA independente)
 
 ## Plano de correção priorizado
 
-1. Diagnóstico da Aula 4 no Bloco 1.
-2. Seção "Transferência" (ver propostas).
-3. Objetivos no formato-modelo (O5 "Escolher o padrão" já é nível Avaliar — só falta explicitar).
-4. Corrigir "10 testes"→13; resolver a promoção/nota de `supervisor_com_teto()`.
-5. Tornar padrão a estratégia "3 padrões a fundo + 2 pela tabela" no Bloco 2, com checkpoint no meio.
+~~1. Diagnóstico da Aula 4 no Bloco 1~~ ✅ feito.
+~~2. Seção "Transferência"~~ ✅ feito.
+~~3. Objetivos no formato-modelo~~ ✅ feito.
+~~4. Corrigir "10 testes"→13; resolver a promoção de `supervisor_com_teto()`~~ ✅ feito.
+~~5. Tornar padrão a estratégia "3 padrões a fundo + 2 pela tabela"~~ ✅ feito.
 
-**3 problemas de transferência propostos:** (1) **central de despacho de viaturas** (qual padrão, o que muda se o volume dobrar à noite); (2) **pipeline documental estável** há 2 anos — avaliar a proposta de trocar por Blackboard "para dar flexibilidade"; (3) teste de contrato do Broker (sinalizar vs. inferir dependência numa fila de pedidos de sistemas externos não confiáveis).
+Pendente, de baixa prioridade (não bloqueia publicação): `main.py` (distinto de `main_comparar.py`) não é citado no HTML — verificar se é ponto de entrada morto; scroll horizontal da tabela 8×6 em telas estreitas (não testado nesta rodada).
 
 ---
 

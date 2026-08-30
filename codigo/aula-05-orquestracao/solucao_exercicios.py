@@ -62,23 +62,23 @@ def lab_intermediario() -> None:
 # ---------------------------------------------------------------------------
 # DESAFIO — supervisor com orçamento (junta com a Aula 4)
 # ---------------------------------------------------------------------------
+def supervisor_com_teto(d: Dossie, llm, custo_max: int):
+    m = Metricas(padrao="supervisor+teto")
+    for _ in range(8):
+        m.rodadas += 1
+        if m.custo >= custo_max:
+            d.pendencias.append(f"orçamento esgotado (custo {m.custo})")
+            break
+        proximo = llm.decidir(d)
+        m.registrar(llm=1, custo=1)
+        if proximo == "concluir":
+            break
+        d = REGISTRO[proximo].funcao(d, m)
+    return d, m
+
+
 def desafio() -> None:
     print("\n== DESAFIO: supervisor que respeita um teto de custo ==")
-
-    def supervisor_com_teto(d: Dossie, llm, custo_max: int):
-        m = Metricas(padrao="supervisor+teto")
-        for _ in range(8):
-            m.rodadas += 1
-            if m.custo >= custo_max:
-                d.pendencias.append(f"orçamento esgotado (custo {m.custo})")
-                break
-            proximo = llm.decidir(d)
-            m.registrar(llm=1, custo=1)
-            if proximo == "concluir":
-                break
-            d = REGISTRO[proximo].funcao(d, m)
-        return d, m
-
     d, m = supervisor_com_teto(_novo(), MockLLM(), custo_max=8)
     print(f"  {m.linha()}")
     print(f"  pendências: {d.pendencias}")
