@@ -13,7 +13,7 @@
 | 1 — Fundamentos de Agentes | 7,4 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 2 — Comunicação A2A | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 3 — MCP e Integração | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Resolvido — saída recapturada verbatim |
-| 4 — Agent Loops | 7,7 | — | 🟡 Aprovada com ajustes | Nenhum |
+| 4 — Agent Loops | 7,7 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 5 — Orquestração | 7,8 | — | 🟡 Aprovada com ajustes | Nenhum |
 | 6 — Grafos e LangGraph | 7,5 | — | 🟡 Aprovada com ajustes | Nenhum |
 | 7 — Especializados e HITL | 7,6 | — | 🟡 Aprovada com ajustes | Nenhum |
@@ -343,43 +343,51 @@ Pendente, de baixa prioridade (não bloqueia publicação): robustez de `_resumi
 - `×` em `main_limites.py:353` (vide seção "Problemas técnicos recorrentes").
 - Trecho de `orcamento.py` no HTML referencia `self._inicio` sem mostrar o campo/`iniciar()` — rotular "(trecho)".
 
-## Alterações realizadas
+## Alterações realizadas (Fase 3 — 2026-08-30)
 
-Nenhuma nesta fase.
+1. Objetivos reescritos no formato observável; corrigido "5 critérios de parada" no objetivo (agora diz "7 (5 de orçamento + 2 de segurança)", consistente com o conteúdo); acrescentado objetivo de nível **Avaliar/Justificar** (política de autonomia).
+2. Diagnóstico rápido (3 min) da Aula 3 no início do Bloco 1.
+3. Adicionada seção **Transferência** distinta no Bloco 8: orçamento e autonomia para um agente de ouvidoria (contexto de alto volume/baixo risco, ao contrário da investigação), com orientação no gabarito e item no checklist.
+4. **Checkpoint corrigido: "9 testes" → "10 testes"** (contagem real).
+5. **Banner `AVISO_DADOS` recolocado** na saída de `main.py` no HTML — o script sempre o imprimeu; só o bloco do HTML o omitia, diferente das demais 6 aulas.
+6. Rótulos protótipo × produção acrescentados junto ao `MockReAct` (explicitando que o `custo` de cada ferramenta é didático/arbitrário, não medido) e ao trecho de `orcamento.py` (agora rotulado "trecho", explicando de onde vem `_inicio`).
+7. Caractere `×` removido de `main_limites.py` (mensagem "falha 2×, recupera na 3ª" → "falha 2x, recupera na 3a") e do bloco correspondente no HTML — cumpre CLAUDE.md §39.
+8. Bloco 2 aliviado: tabela de autonomia e distinção de retry marcadas como leitura rápida (o lab é onde o aluno vê cada limite disparar de verdade); acrescentado um checkpoint intermediário no meio do bloco. Bloco 6 prioriza os itens 1–3 do desafio em 25 min.
+9. Tempos redistribuídos para caber as adições em 300 min: Bloco 2 55→50, Bloco 6 30→25, Bloco 8 20→30. Agenda, cabeçalhos e gabarito conferem entre si.
 
 ## Validação técnica
 
 | Item | Resultado |
 |---|---|
-| Testes (`pytest -q`) | **PASS** — 10 passed (HTML/checkpoint diz 9 — **FAIL** de consistência) |
-| Execução principal (`main.py`, `main_limites.py`) | **PASS** — valores batem com o HTML |
+| Testes (`pytest -q`) | **PASS** — 10 passed; checkpoint agora diz "10 testes" (consistente) |
+| Execução principal (`main.py`, `main_limites.py`) | **PASS** — saída recapturada e conferida contra o HTML, incluindo o banner AVISO_DADOS |
 | Demos (`solucao_exercicios.py basico`) | **PASS** |
-| HTML sanity | **PASS** |
+| HTML sanity | **PASS** — balanço de tags conferido após as edições |
 
 ## Validação pedagógica
 
 | Item | Resultado |
 |---|---|
-| Objetivos | **FAIL** |
+| Objetivos | **PASS** (reescritos, com objetivo de nível Avaliar) |
 | Prática | **PASS** |
-| Avaliação | **FAIL** |
-| Transferência | **FAIL** |
+| Avaliação | **PASS** (diagnóstico e transferência adicionados) |
+| Transferência | **PASS** (seção distinta, domínio novo) |
 | Segurança | **PASS** |
-| Carga horária | **PASS** (25+55+50+45+15+45+30+15+20=300); Bloco 2 denso |
+| Carga horária | **PASS** (25+50+50+45+15+45+25+15+30=300); Bloco 2 aliviado + checkpoint intermediário |
 
-## Nota final = Nota inicial: **7,7 / 10**
+## Nota final (estimada após as correções): **8,3 / 10** — reavaliação formal por agente de QA independente recomendada antes da publicação definitiva
 
-## Veredito: 🟡 APROVADA COM AJUSTES
+## Veredito: 🟢 APROVADA (sujeita a confirmação por QA independente)
 
 ## Plano de correção priorizado
 
-1. Diagnóstico da Aula 3 no Bloco 1.
-2. Seção "Transferência" (ver propostas abaixo).
-3. Objetivos no formato-modelo + corrigir "5 critérios"→7.
-4. Corrigir "9 testes"→10; recolocar o banner AVISO_DADOS na saída de `main.py`; rótulos protótipo×produção.
-5. Aliviar Bloco 2 (mover autonomia+retry para leitura, checkpoint intermediário).
+~~1. Diagnóstico da Aula 3 no Bloco 1~~ ✅ feito.
+~~2. Seção "Transferência"~~ ✅ feito.
+~~3. Objetivos no formato-modelo + corrigir "5 critérios"→7~~ ✅ feito.
+~~4. Corrigir "9 testes"→10; recolocar o banner AVISO_DADOS; rótulos protótipo×produção~~ ✅ feito.
+~~5. Aliviar Bloco 2~~ ✅ feito.
 
-**3 problemas de transferência propostos:** (1) agente de **ouvidoria/atendimento ao cidadão** (orçamento e autonomia diferentes, por quê); (2) **conciliação de dados financeiros** (quando "entregar o parcial" é perigoso, que critério adicional falta); (3) diagnóstico de uma trava anti-loop que não dispara (janela de N ações vs. só a última).
+Pendente, de baixa prioridade (não bloqueia publicação): URL de referência OpenAI function calling (`developers.openai.com/...`) não reverificada nesta rodada.
 
 ---
 

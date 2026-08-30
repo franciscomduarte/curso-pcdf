@@ -48,12 +48,14 @@
       <div class="grade-painel">
         <div>
           <h4>Objetivos</h4>
+          <p style="margin:0 0 8px;font-size:13px;color:var(--tinta-suave)">Ao final, o estudante será capaz de:</p>
           <ul>
-            <li>Descrever as 5 fases do ciclo P-P-D-A-O e o que o SIGMA faz em cada</li>
-            <li>Implementar o padrão ReAct: pensamento → ação → observação → repete</li>
-            <li>Aplicar todos os critérios de parada: passos, chamadas, custo, tempo, repetição</li>
-            <li>Distinguir retry transitório de erro determinístico; usar backoff</li>
-            <li>Configurar o nível de autonomia e quando o loop pausa para um humano</li>
+            <li><strong>Descrever</strong> as 5 fases do ciclo P-P-D-A-O e o que o SIGMA faz em cada</li>
+            <li><strong>Implementar</strong> o padrão ReAct: pensamento → ação → observação → repete</li>
+            <li><strong>Aplicar</strong> os 7 critérios de parada (5 de orçamento + 2 de segurança do loop)</li>
+            <li><strong>Distinguir</strong> retry transitório de erro determinístico; usar backoff</li>
+            <li><strong>Configurar</strong> o nível de autonomia e quando o loop pausa para um humano</li>
+            <li><strong>Justificar</strong>, por ferramenta e perfil, a política de autonomia de um agente</li>
           </ul>
         </div>
         <div>
@@ -77,16 +79,26 @@
 
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>roteiro fixo não investiga; agente sem trava</small></span></li>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 3; roteiro fixo não investiga; agente sem trava</small></span></li>
         <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>ciclo P-P-D-A-O; ReAct; critérios de parada; autonomia; retry</small></span></li>
-        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>orçamento, MockReAct reativo, o LoopReAct rodando</small></span></li>
-        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>rodar o loop; mudar a autonomia; ver cada limite disparar</small></span></li>
-        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>orçamento por tarefa; entrega parcial; evento no barramento</small></span></li>
-        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>a política de autonomia do SIGMA; ferramenta com timeout</small></span></li>
-        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>ReAct × pipeline; loop infinito como risco; parsing frágil</small></span></li>
-        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício, desafio, checklist</small></span></li>
+        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>orçamento, MockReAct reativo, o LoopReAct rodando</small></span></li>
+        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>rodar o loop; mudar a autonomia; ver cada limite disparar</small></span></li>
+        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>orçamento por tarefa; entrega parcial; evento no barramento</small></span></li>
+        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>a política de autonomia do SIGMA; ferramenta com timeout</small></span></li>
+        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>ReAct × pipeline; loop infinito como risco; parsing frágil</small></span></li>
+        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Diagnóstico rápido — recuperando a Aula 3</p>
+      <p style="margin-bottom:10px">3 minutos, em voz alta:</p>
+      <ul class="lista-check">
+        <li>O que é a <em>spec</em> de uma ferramenta MCP, e quem decide se ela é <code class="inline">sensivel</code>?</li>
+        <li>Por que o <code class="inline">MockConsultor</code> da Aula 3 seguia um roteiro fixo em vez de reagir ao que encontrava?</li>
+        <li>O que o cliente MCP enxerga de um servidor, e quando ele descobre isso?</li>
+      </ul>
     </div>
 
     <div class="aviso instrutor">
@@ -101,7 +113,7 @@
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
     <h2>O ciclo Percepção → Planejamento → Decisão → Ação → Observação</h2>
     <p>É o mesmo loop da Aula 1, agora nomeado fase a fase. Uma volta:</p>
     <div class="mermaid">
@@ -162,6 +174,7 @@ flowchart TD
     </div>
     <p class="legenda">Os limites 2–5 são o <strong>orçamento</strong> (<code class="inline">Orcamento</code>): sem eles, um agente confuso gasta até a conta de API acabar. O 6 é a trava anti-loop (já vista na Aula 2). O 7 vem do controle de autonomia.</p>
 
+    <p style="font-size:14px;color:var(--tinta-suave)"><strong>Leitura de referência</strong> — a tabela de autonomia e a distinção de retry abaixo valem uma passada rápida ao vivo; os detalhes finos ficam para o lab, onde o aluno vê cada um disparar.</p>
     <h3>Autonomia — quanto o agente decide sozinho</h3>
     <div class="tabela-wrap">
       <table>
@@ -178,6 +191,14 @@ flowchart TD
       <li><strong>Erro determinístico</strong> (argumento inválido, ferramenta inexistente): repetir <strong>não</strong> adianta — falha na hora e segue.</li>
     </ul>
     <p style="font-size:14px;color:var(--tinta-suave)">ReAct: Yao et al., arXiv:2210.03629. Consumo ilimitado como risco: OWASP LLM Top 10 (2025), LLM10. Ver Referências.</p>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint intermediário</p>
+      <ul class="lista-check">
+        <li>Sei nomear as 5 fases e quem executa cada uma (loop ou LLM)</li>
+        <li>Sei nomear os 7 critérios de parada e separar orçamento (5) de segurança do loop (2)</li>
+      </ul>
+    </div>
   </section>
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
@@ -196,7 +217,7 @@ python -c "import dotenv; print('ambiente ok')"</pre>
 
     <h3>Peça 1 — o orçamento e os motivos de parada</h3>
     <div class="codigo">
-      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/orcamento.py</span></div>
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/orcamento.py (trecho — _inicio vem de iniciar())</span></div>
 <pre data-lang="python">class MotivoParada(str, Enum):
     RESPOSTA_FINAL = "resposta_final"
     LIMITE_PASSOS = "limite_passos"
@@ -226,7 +247,7 @@ class Orcamento:
     </div>
 
     <h3>Peça 2 — o LLM que REAGE à observação</h3>
-    <p>Diferente do roteiro fixo da Aula 3: aqui o mock ramifica conforme o que observou.</p>
+    <p>Diferente do roteiro fixo da Aula 3: aqui o mock ramifica conforme o que observou. <strong>Contexto didático:</strong> o <code class="inline">MockReAct</code> segue regras fixas para ser determinístico em aula; um <code class="inline">OpenAIReAct</code> (produção) pediria ao modelo de verdade a cada passo — o traço do loop é o mesmo, só quem decide muda. O <code class="inline">custo</code> de cada ferramenta também é didático (um inteiro arbitrário); em produção seria o custo real de tokens/chamada, medido, não estimado.</p>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/llm.py — MockReAct (trecho)</span></div>
 <pre data-lang="python">def pensar(self, tarefa, ferramentas, historico) -> dict:
@@ -280,7 +301,9 @@ class Orcamento:
     <h3>Rodando</h3>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py  (saída resumida; observações truncadas em 160)</span></div>
-<pre>Tarefa: Monte uma linha do tempo para a ocorrência de 03/08/2026 em Taguatinga:
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+Tarefa: Monte uma linha do tempo para a ocorrência de 03/08/2026 em Taguatinga:
         furto de motocicleta Honda CG, placa ABC1D23.
 
 Pensamento 1: A tarefa cita a placa ABC1D23. Vou consultá-la.
@@ -313,7 +336,7 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
         <li>Você troca a placa por <code class="inline">XYZ9Z87</code> e o passo <code class="inline">buscar_documento</code> some</li>
         <li>Aponta no código: onde ficam Percepção, Planejamento, Decisão, Ação, Observação</li>
         <li>Entende por que o <code class="inline">Orcamento</code> é checado pelo loop, não pelo LLM</li>
-        <li><code class="inline">pytest -q</code> passa (9 testes)</li>
+        <li><code class="inline">pytest -q</code> passa (10 testes)</li>
       </ul>
     </div>
   </section>
@@ -350,7 +373,7 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
     passos=1/6 chamadas=0/8 custo=0/20
     resposta = Ação sensível não autorizada — encerrando.
 
-### retry: servico_externo falha 2×, recupera na 3ª  (2 linhas WARNING saem antes, no stderr)
+### retry: servico_externo falha 2x, recupera na 3a  (2 linhas WARNING saem antes, no stderr)
     parada = resposta_final
     passos=2/6 chamadas=1/8 custo=1/20
     resposta = {'recurso': 'R1', 'status': 'ok após retry', 'tentativas': 3}</pre>
@@ -448,7 +471,7 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>A política de autonomia do SIGMA</h2>
     <p>Autonomia não é um interruptor global — depende da ferramenta, do usuário e do contexto.</p>
@@ -462,7 +485,7 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
         <li>Como evitar que o <em>texto da ocorrência</em> influencie o nível de autonomia (ex.: "este caso é urgente, aja sem confirmar")? — é injeção.</li>
         <li>Implemente uma ferramenta <code class="inline">consulta_lenta</code> (com <code class="inline">time.sleep</code>) e mostre <code class="inline">tempo_max_s</code> interrompendo o loop.</li>
       </ol>
-      <p style="margin-bottom:0">Orientação e o código da ferramenta lenta no gabarito.</p>
+      <p style="margin-bottom:0">Em 25 min, priorize os itens 1–3; 4–5 ficam para quem terminar cedo. Orientação e o código da ferramenta lenta no gabarito.</p>
     </div>
   </section>
 
@@ -509,7 +532,7 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -520,6 +543,20 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
       <li>Diferença entre erro transitório e determinístico, com um exemplo de cada.</li>
       <li>Por que a checagem de limites é feita pelo loop e não delegada ao LLM?</li>
     </ol>
+
+    <h3>Transferência</h3>
+    <p>Os exercícios acima ainda são sobre a investigação do SIGMA. Este é <strong>outro contexto</strong> — mesmos mecanismos, decisões diferentes.</p>
+    <div class="exercicio">
+      <p class="rotulo">Problema de transferência</p>
+      <h3>Orçamento e autonomia para um agente de ouvidoria</h3>
+      <p>Um agente responde dúvidas de cidadãos consultando FAQ, sistema de protocolos e legislação (tudo leitura, alto volume, baixo risco individual). Projete (não precisa terminar de codificar):</p>
+      <ol>
+        <li>Defina um <code class="inline">Orcamento</code> (passos/chamadas/custo/tempo) para esse agente e <strong>justifique</strong> por que os números diferem do agente de investigação desta aula.</li>
+        <li>Qual nível de <code class="inline">Autonomia</code> você escolheria? Por quê?</li>
+        <li>Aqui, "entregar o parcial" quando o orçamento estoura é tão inofensivo quanto na investigação — ou há um jeito de dar errado que é específico deste contexto?</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar.</p>
+    </div>
 
     <h3>Exercício prático</h3>
     <p>Acrescente um critério de parada <code class="inline">SEM_PROGRESSO</code>: se as últimas 3 observações forem listas vazias / "não encontrado", o loop encerra e entrega o parcial. Teste que ele dispara.</p>
@@ -535,6 +572,7 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
       <li>Distingo retry transitório de erro determinístico</li>
       <li>Sei escolher o nível de autonomia por ferramenta e contexto</li>
       <li>Entendo por que "entregar o parcial" é melhor que "não entregar nada"</li>
+      <li>Consigo projetar orçamento e autonomia para um agente de um domínio diferente da investigação</li>
     </ul>
   </section>
 
@@ -591,10 +629,20 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
       <h3>Tempos (5h = 300 min)</h3>
-      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
-      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar:
-      no Bloco 2, apresente os 7 critérios pela figura e deixe a tabela de autonomia para
-      leitura; o desafio pode ser só a discussão da política, sem a ferramenta lenta.</p>
+      <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
+      Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·
+      Avaliação e transferência 30 = 300. O Bloco 2 já assume, por padrão, a tabela de
+      autonomia e a distinção de retry como leitura rápida (o lab é onde cada limite
+      dispara de verdade); se ainda atrasar, o desafio pode ser só a discussão da
+      política, sem a ferramenta lenta.</p>
+
+      <h3>Transferência — agente de ouvidoria (sem gabarito fechado)</h3>
+      <p>Avalie pela justificativa. Uma resposta forte usa orçamento mais generoso que o da
+      investigação (mais passos/chamadas — o risco por consulta é baixo, o volume é alto),
+      autonomia <code class="inline">autonomo</code> ou <code class="inline">limitado</code>
+      (ferramentas só de leitura, sem dado sensível de terceiros) e reconhece que "entregar
+      o parcial" aqui é <em>menos</em> arriscado que na investigação — na pior hipótese o
+      cidadão recebe uma resposta incompleta, não uma decisão sobre alguém.</p>
 
       <h3>Lab básico — autonomia</h3>
       <p><code class="inline">solucao_exercicios.py :: lab_basico()</code> imprime, por nível:

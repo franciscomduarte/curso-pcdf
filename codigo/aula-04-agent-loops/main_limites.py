@@ -63,7 +63,7 @@ def main() -> None:
                       confirmar=lambda f, a: False,
                       orcamento=Orcamento()))
 
-    cenario("retry: servico_externo falha 2×, recupera na 3ª",
+    cenario("retry: servico_externo falha 2x, recupera na 3a",
             LoopReAct(llm=_UsaServicoExterno(), autonomia=Autonomia.AUTONOMO,
                       orcamento=Orcamento()))
 
