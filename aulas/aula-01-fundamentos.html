@@ -48,12 +48,13 @@
       <div class="grade-painel">
         <div>
           <h4>Objetivos</h4>
+          <p style="margin:0 0 8px;font-size:13px;color:var(--tinta-suave)">Ao final, o estudante será capaz de:</p>
           <ul>
-            <li>Definir agente e diferenciá-lo de chatbot e de automação</li>
-            <li>Nomear as partes: ambiente, percepção, estado, memória, objetivo, autonomia, ação, observação, ferramentas, contexto</li>
-            <li>Construir um agente de extração com saída estruturada e validada</li>
-            <li>Adicionar classificação, tratamento de erro e consolidação</li>
-            <li>Reconhecer os primeiros riscos de segurança e o limite do uso responsável</li>
+            <li><strong>Definir</strong> agente e diferenciá-lo de chatbot/automação, justificando a escolha para uma tarefa real da rotina policial</li>
+            <li><strong>Construir</strong>, com Pydantic e uma interface de LLM, um agente de extração com saída estruturada e validada sobre um boletim sintético</li>
+            <li><strong>Aplicar</strong> classificação, retry e logging a um agente existente, mantendo a decisão final com o humano</li>
+            <li><strong>Nomear e apontar no código</strong> as partes de um agente (ambiente, percepção, estado, memória, autonomia)</li>
+            <li><strong>Avaliar</strong> dois riscos de segurança do agente (prompt injection, excessive agency) e justificar o limite do uso responsável</li>
           </ul>
         </div>
         <div>
@@ -69,9 +70,8 @@
           <h4>Stack</h4>
           <ul>
             <li>Python 3.11+</li>
-            <li><code class="inline">openai</code> · <code class="inline">pydantic</code> · <code class="inline">python-dotenv</code></li>
-            <li><code class="inline">pytest</code></li>
-            <li>OpenAI API (opcional — há um LLM falso para rodar offline)</li>
+            <li><code class="inline">pydantic</code> · <code class="inline">python-dotenv</code> · <code class="inline">pytest</code></li>
+            <li><code class="inline">openai</code> <em>(opcional — há um LLM falso para rodar offline)</em></li>
           </ul>
         </div>
       </div>
@@ -79,16 +79,26 @@
 
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>o problema da triagem, vocabulário, o SIGMA</small></span></li>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico rápido; o problema da triagem; o SIGMA</small></span></li>
         <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos teóricos<small>agente × chatbot × automação; anatomia; o ciclo</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>ambiente, projeto e o agente extrator rodando</small></span></li>
-        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>rodar, ajustar o prompt, novo campo</small></span></li>
-        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>validação, classificação, retries, logging</small></span></li>
-        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>lote → persistência → relatório consolidado</small></span></li>
-        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>decisões, segurança, uso responsável</small></span></li>
-        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício, desafio, checklist</small></span></li>
+        <li><span class="hora">01:10</span><span class="bloco-nome">Demonstração<small>ambiente, projeto e o agente extrator rodando</small></span></li>
+        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>rodar, ajustar o prompt, novo campo</small></span></li>
+        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>validação, classificação, retries, logging</small></span></li>
+        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>lote → persistência → relatório consolidado</small></span></li>
+        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>decisões, segurança, uso responsável</small></span></li>
+        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Diagnóstico rápido — antes de começar</p>
+      <p style="margin-bottom:10px">3 minutos, em voz alta, sem consultar nada. Não vale nota — serve para calibrar o ritmo da turma:</p>
+      <ul class="lista-check">
+        <li>Você já usou algum chat de IA (ChatGPT, Copilot etc.)? O que ele fazia bem e o que fazia mal?</li>
+        <li>O que uma API de LLM devolve quando você manda um texto — sempre a mesma coisa para a mesma entrada?</li>
+        <li>Cite uma decisão sobre uma pessoa que você acha que um sistema automático <strong>não</strong> deveria tomar sozinho.</li>
+      </ul>
     </div>
 
     <div class="aviso instrutor">
@@ -102,7 +112,7 @@
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 45 min</p>
     <h2>Um agente é um <em>loop</em>, não um chatbot</h2>
     <p>Um <strong>chatbot</strong> responde uma pergunta e para. Um <strong>agente</strong> recebe um <em>objetivo</em>, decide uma ação, executa, observa o resultado e repete — até concluir. A "inteligência" está no modelo (LLM); a <em>autonomia</em> está no loop que nós construímos em volta dele e nas <em>ferramentas</em> que nós autorizamos.</p>
 
@@ -172,16 +182,7 @@ flowchart LR
     </div>
     <p class="legenda">Na Aula 1 percorremos esse ciclo uma vez (com <em>retry</em> em caso de falha). O ramo pontilhado "volta ao planejamento" é a Aula 4.</p>
 
-    <div class="tabela-wrap">
-      <table>
-        <tr><th>&nbsp;</th><th>Chatbot / LLM puro</th><th>LLM + memória + ferramentas + loop + estado</th></tr>
-        <tr><td>Itera sozinho?</td><td class="nao">Não</td><td class="sim">Sim</td></tr>
-        <tr><td>Age no ambiente?</td><td class="nao">Não</td><td class="sim">Sim (via ferramentas autorizadas)</td></tr>
-        <tr><td>Mantém estado da tarefa?</td><td class="nao">Não</td><td class="sim">Sim</td></tr>
-        <tr><td>Previsível?</td><td class="sim">Mais</td><td class="nao">Menos — precisa de trava e avaliação</td></tr>
-        <tr><td>Quando usar</td><td>Redigir, resumir, explicar</td><td>Tarefa com passos que dependem do resultado anterior</td></tr>
-      </table>
-    </div>
+    <p>Em resumo, contra o cartão "Chatbot" de cima: um agente itera sozinho, age no ambiente via ferramentas autorizadas e mantém estado da tarefa — o preço é ser menos previsível, exigindo trava e avaliação. Use chatbot para redigir/resumir/explicar; use agente quando os passos dependem do resultado anterior.</p>
   </section>
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
@@ -205,13 +206,11 @@ pip install -r requirements.txt</pre>
 
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">requirements.txt</span></div>
-<pre>openai>=1.40
-pydantic>=2.7
+<pre>pydantic>=2.7
 python-dotenv>=1.0
 pytest>=8.0</pre>
     </div>
-
-    <p><strong>Configuração.</strong> O laboratório roda <em>sem chave</em>, com um LLM falso. Se quiser usar a OpenAI de verdade, copie o modelo de ambiente e preencha a chave:</p>
+    <p>O núcleo roda <em>sem chave</em>, com um LLM falso — nem instala o pacote <code class="inline">openai</code>. Se quiser usar a OpenAI de verdade: <code class="inline">pip install -r requirements-opcionais.txt</code> (só <code class="inline">openai&gt;=1.40</code>) e preencha a chave:</p>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">.env.example → copie para .env</span></div>
 <pre># Sem OPENAI_API_KEY, roda com o MockExtrator (offline).
@@ -221,10 +220,10 @@ OPENAI_MODEL=gpt-4.1-mini          # confira o modelo recomendado na doc atual</
     <div class="aviso"><div class="titulo">⚠ Nunca versione segredos</div>
       <p>O <code class="inline">.env</code> entra no <code class="inline">.gitignore</code>. No código, a chave é lida do ambiente — nunca escrita no arquivo-fonte. Em produção, use um cofre de segredos (Aula 9).</p></div>
 
-    <p><strong>Validação.</strong> Confirme que as bibliotecas importam:</p>
+    <p><strong>Validação.</strong> Confirme que as bibliotecas do núcleo importam:</p>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
-<pre>python -c "import openai, pydantic, dotenv; print('ambiente ok')"</pre>
+<pre>python -c "import pydantic, dotenv; print('ambiente ok')"</pre>
     </div>
 
     <h3>A estrutura do projeto</h3>
@@ -493,7 +492,7 @@ def classificar(ocorrencia: Ocorrencia) -> Classificacao:
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>De um caso para muitos</h2>
     <p>Um extrator que roda uma vez é útil. O que a triagem precisa é do <em>panorama</em>: quantas ocorrências de cada natureza, em cada região, e quais exigem atenção humana.</p>
@@ -518,7 +517,7 @@ flowchart LR
         <li>Uma ocorrência que falhe não pode derrubar o lote — registre e siga.</li>
         <li><em>(Extensão)</em> aceitar um arquivo <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">.jsonl</code> externo de ocorrências sintéticas em vez da lista fixa.</li>
       </ol>
-      <p><strong>Decisão de projeto (escreva meia página, sem código):</strong> hoje a "fila de revisão humana" é uma lista dentro do processo. Se ela virasse um <em>serviço separado</em> — para vários analistas consumirem, com estado próprio — onde ele entraria neste diagrama? O que passaria a trafegar entre o lote e esse serviço, e em que formato? O que acontece se o serviço estiver fora do ar quando o lote termina? (Você vai reencontrar essas perguntas na Aula 2.)</p>
+      <p><strong>Decisão de projeto (discuta em dupla, 5 min, sem código):</strong> hoje a "fila de revisão humana" é uma lista dentro do processo. Se ela virasse um <em>serviço separado</em> — para vários analistas consumirem, com estado próprio — onde ele entraria neste diagrama? O que passaria a trafegar entre o lote e esse serviço? O que acontece se o serviço estiver fora do ar quando o lote termina? (Você vai reencontrar essas perguntas na Aula 2.)</p>
       <p><strong>Dicas:</strong> <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">collections.Counter</code>; <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">pathlib.Path</code>; <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">Ocorrencia.model_dump()</code>. A base está em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">app/relatorio.py</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">main_lote.py</code>.</p>
       <p style="margin-bottom:0">Saída esperada e discussão no gabarito.</p>
     </div>
@@ -572,7 +571,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -583,6 +582,20 @@ flowchart LR
       <li>O que é <em>indirect prompt injection</em> e por que o texto de um BO é um vetor?</li>
       <li>Cite dois motivos para manter a autonomia do agente baixa nesta tarefa.</li>
     </ol>
+
+    <h3>Transferência</h3>
+    <p>Os exercícios acima ainda são sobre o extrator de ocorrências. Este é <strong>outro domínio</strong> — mesmos princípios, problema novo.</p>
+    <div class="exercicio">
+      <p class="rotulo">Problema de transferência</p>
+      <h3>Um agente para laudos periciais sintéticos</h3>
+      <p>A perícia também produz texto livre — um laudo descrevendo exame, materiais e conclusão. Projete (não precisa terminar de codificar) um agente de extração para esse domínio:</p>
+      <ol>
+        <li>Defina o schema Pydantic: quais campos um laudo pericial sintético precisa ter para apoiar a triagem (ex.: tipo de exame, materiais examinados, conclusão objetiva, menção a cadeia de custódia)?</li>
+        <li>Que sinal, nesse schema, deveria disparar <code class="inline">revisar=True</code> — e por quê é diferente do critério usado para ocorrências?</li>
+        <li>Este domínio pede o mesmo cuidado com "modelo determinístico, sem <code class="inline">temperature</code>" da extração de ocorrências? Justifique.</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar, não acertar uma resposta fechada.</p>
+    </div>
 
     <h3>Exercício prático</h3>
     <p>Acrescente a natureza <code class="inline">RECEPTACAO = "Receptação"</code> ao enum, com pelo menos uma ocorrência sintética que a exercite, e faça o Mock reconhecê-la. Os testes devem continuar passando.</p>
@@ -598,6 +611,7 @@ flowchart LR
       <li>Adicionei classificação, retry e logging</li>
       <li>Consigo processar um lote e gerar um relatório consolidado</li>
       <li>Sei explicar dois riscos de segurança e o limite do uso responsável</li>
+      <li>Consigo projetar um schema e um critério de revisão para um domínio diferente do extrator de ocorrências</li>
     </ul>
   </section>
 
@@ -653,10 +667,19 @@ flowchart LR
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
       <h3>Tempos (5h = 300 min)</h3>
-      <p>Abertura 25 · Fundamentos 50 · Demonstração 55 · Lab básico 45 · Intervalo 15 ·
-      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Sem folga —
-      turmas mistas tendem a estourar a demonstração; se atrasar, corte a leitura linha a
-      linha do <code class="inline">classificador.py</code> e mande lê-lo no lab.</p>
+      <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 45 · Demonstração 55 ·
+      Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·
+      Avaliação e transferência 30 = 300. Ainda sem folga — turmas mistas tendem a estourar
+      a demonstração; se atrasar, corte a leitura linha a linha do
+      <code class="inline">classificador.py</code> e mande lê-lo no lab.</p>
+
+      <h3>Transferência — laudos periciais (sem gabarito fechado)</h3>
+      <p>É um problema de <em>projeto</em>, não de implementação — avalie pela qualidade da
+      justificativa, não por acertar um schema "certo". Uma resposta forte cobre: campos que
+      distinguem fato de interpretação pericial (o agente não deve concluir autoria a partir do
+      laudo), um critério de revisão ligado a ambiguidade/gravidade da conclusão (não a uma
+      lista fixa de palavras), e a mesma resposta da Aula 1 sobre temperatura — consistência
+      importa mais que criatividade em qualquer tarefa de extração.</p>
 
       <h3>Lab básico — <code class="inline">objetos_subtraidos</code></h3>
       <p>Solução de referência em <code class="inline">solucao_exercicios.py</code>

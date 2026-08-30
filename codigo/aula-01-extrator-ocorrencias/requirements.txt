@@ -1,4 +1,4 @@
-openai>=1.40
+# Núcleo — o laboratório roda offline (MockExtrator) só com isto.
 pydantic>=2.7
 python-dotenv>=1.0
 pytest>=8.0

@@ -16,7 +16,9 @@ cp .env.example .env               # opcional — só se for usar a OpenAI de ve
 ```
 
 **Sem `OPENAI_API_KEY`**, tudo roda offline com o `MockExtrator` (heurística
-determinística). Com a chave no `.env`, o mesmo código usa a OpenAI.
+determinística) — o núcleo (`requirements.txt`) nem instala o pacote `openai`.
+Para usar a OpenAI de verdade: `pip install -r requirements-opcionais.txt` e
+preencha a chave no `.env`.
 
 ```bash
 python main.py                     # extrai 1 ocorrência (nível básico)

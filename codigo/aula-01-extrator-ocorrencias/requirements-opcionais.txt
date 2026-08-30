@@ -1,0 +1,4 @@
+# Extra para o caminho "de produção" da aula: usar a OpenAI de verdade.
+# Instale só se for rodar com OPENAI_API_KEY configurada (OpenAIExtrator).
+
+openai>=1.40
