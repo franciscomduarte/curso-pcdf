@@ -1,0 +1,2 @@
+# Núcleo — o fluxo com HITL e checkpoint roda só com a biblioteca padrão.
+pytest>=8.0
