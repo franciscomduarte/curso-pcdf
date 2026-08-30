@@ -48,12 +48,14 @@
       <div class="grade-painel">
         <div>
           <h4>Objetivos</h4>
+          <p style="margin:0 0 8px;font-size:13px;color:var(--tinta-suave)">Ao final, o estudante será capaz de:</p>
           <ul>
-            <li>Decompor um fluxo em agentes com papéis e responsabilidade única</li>
-            <li>Dar a cada agente uma memória própria (append-only)</li>
-            <li>Persistir o estado (checkpoint) e retomar de outro processo</li>
-            <li>Implementar um breakpoint HITL: aprovar / corrigir / rejeitar-com-nota</li>
-            <li>Distinguir human-in-the-loop de human-on-the-loop</li>
+            <li><strong>Decompor</strong> um fluxo em agentes com papéis e responsabilidade única</li>
+            <li><strong>Dar</strong> a cada agente uma memória própria (append-only)</li>
+            <li><strong>Persistir</strong> o estado (checkpoint) e retomar de outro processo</li>
+            <li><strong>Implementar</strong> um breakpoint HITL: aprovar / corrigir / rejeitar-com-nota</li>
+            <li><strong>Distinguir</strong> human-in-the-loop de human-on-the-loop, apontando cada nó do grafo do SIGMA num dos dois</li>
+            <li><strong>Avaliar e justificar</strong> onde um novo breakpoint deveria entrar num fluxo, e o custo da fadiga de aprovação</li>
           </ul>
         </div>
         <div>
@@ -76,16 +78,26 @@
 
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>papéis; o que não pode ser automático</small></span></li>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 6; papéis; o que não pode ser automático</small></span></li>
         <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>separação de responsabilidades; memória; persistência; HITL × HOTL</small></span></li>
-        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>os 4 agentes, o breakpoint, o checkpoint, o fluxo rodando</small></span></li>
-        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>aprovar × rejeitar; inserir um agente</small></span></li>
-        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>retomar de outro processo; painel de decisão</small></span></li>
-        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>onde colocar um 2º breakpoint; fadiga de aprovação</small></span></li>
-        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>HITL × HOTL; checkpoint com PII; quem aprova</small></span></li>
-        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício, desafio, checklist</small></span></li>
+        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>os 4 agentes, o breakpoint, o checkpoint, o fluxo rodando</small></span></li>
+        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>aprovar × rejeitar; inserir um agente</small></span></li>
+        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>retomar de outro processo; painel de decisão</small></span></li>
+        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>onde colocar um 2º breakpoint; fadiga de aprovação</small></span></li>
+        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>HITL × HOTL; checkpoint com PII; quem aprova</small></span></li>
+        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Diagnóstico rápido — recuperando a Aula 6</p>
+      <p style="margin-bottom:10px">3 minutos, em voz alta:</p>
+      <ul class="lista-check">
+        <li>O que é o <code class="inline">Estado</code> que passa por todos os nós do grafo do SIGMA?</li>
+        <li>Por que um DAG sempre termina e um ciclo pode não terminar — e o que segura o ciclo do SIGMA?</li>
+        <li>O que uma aresta <em>condicional</em> (roteador) decide, e quando ela roda?</li>
+      </ul>
     </div>
 
     <div class="aviso instrutor">
@@ -101,7 +113,7 @@
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
     <h2>Separação de responsabilidades</h2>
     <p>Um agente que faz tudo tem um prompt gigante, um contexto poluído e uma falha difícil de localizar. Quatro agentes com um papel cada:</p>
     <div class="tabela-wrap">
@@ -150,6 +162,10 @@ flowchart TB
   end
     </div>
     <p class="legenda">No <strong>in-the-loop</strong> a execução não avança sem o humano — é o que dá garantia de responsabilidade numa decisão sensível. No <strong>on-the-loop</strong> o humano só supervisiona; útil para volume alto e baixo risco, mas não substitui a assinatura de quem decide. O <em>EU AI Act</em>, art. 14, e a LGPD, art. 20 (revisão de decisão automatizada), tratam disso.</p>
+    <div class="checkpoint">
+      <p class="rotulo">Aplique agora</p>
+      <p style="margin-bottom:0">Olhe o grafo do SIGMA (fechamento desta aula, ou o da Aula 6): para cada nó — <code class="inline">investigador</code>, <code class="inline">analista</code>, <code class="inline">juridico</code>, <code class="inline">breakpoint</code>, <code class="inline">consolidador</code> — diga se ele é in-the-loop, on-the-loop, ou nenhum dos dois (totalmente automático). Compare com um colega antes de seguir.</p>
+    </div>
 
     <h3>O ciclo HITL</h3>
     <p>Quando o fluxo para, o operador tem três saídas:</p>
@@ -161,7 +177,7 @@ flowchart TB
         <tr><td><strong>Rejeitar com nota</strong></td><td>volta ao Jurídico com a nota; ele repropõe considerando-a (ciclo, com limite)</td></tr>
       </table>
     </div>
-    <p style="font-size:14px;color:var(--tinta-suave)">Persistência e interrupt em LangGraph: documentação oficial. Memória de agentes: MemGPT (Packer et al., 2023). Supervisão humana: EU AI Act art. 14; LGPD art. 20. Ver Referências.</p>
+    <p style="font-size:14px;color:var(--tinta-suave)">Persistência e interrupt em LangGraph: documentação oficial (nesta aula, só conceito — sem execução; ver Stack). Memória de agentes: MemGPT (Packer et al., 2023). Supervisão humana: EU AI Act art. 14; LGPD art. 20. Ver Referências.</p>
   </section>
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
@@ -264,19 +280,24 @@ flowchart LR
     <h3>Rodando</h3>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py   (PCDF-SIM-0002, aprovar)</span></div>
-<pre>=== BREAKPOINT — o fluxo parou ===
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+=== BREAKPOINT — o fluxo parou ===
 pergunta.: Aprovar a tipificação proposta para PCDF-SIM-0002? (aprovar / corrigir / rejeitar-com-nota)
-proposta.: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo',
-            'fundamento': 'presença de grave ameaça', 'requer_decisao_humana': True}
-checkpoint gravado: PCDF-SIM-0002--92df209f
+proposta.: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo', 'fundamento': 'presença de
+            grave ameaça', 'requer_decisao_humana': True, 'considerou_nota_do_operador': None}
+checkpoint gravado: PCDF-SIM-0002--dadd4842
 
 === DOSSIÊ CONSOLIDADO ===
-tipificação: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo', ...}
-decisões humanas: [{'operador': 'escrivão de plantão', 'aprovado': True, 'nota': '', 'corrigiu': False}]
+tipificação: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo', 'fundamento': 'presença
+            de grave ameaça', 'requer_decisao_humana': True, 'considerou_nota_do_operador': None}
+decisões humanas: [{'quando': '2026-08-30T23:43:06+00:00', 'operador': 'escrivão de plantão',
+            'aprovado': True, 'nota': '', 'corrigiu': False}]
 aviso......: Rascunho de triagem. A decisão final é do servidor responsável.
 
-memória do Jurídico: ['[..] proposta: Art. 157 do CP (roubo)']</pre>
+memória do Jurídico: ['[23:43:06] proposta: Art. 157 do CP (roubo)']</pre>
     </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">O sufixo do <code class="inline">checkpoint</code> (<code class="inline">--dadd4842</code>) e os campos <code class="inline">quando</code>/o carimbo entre colchetes na memória são gerados a cada execução (<code class="inline">uuid4</code> e <code class="inline">datetime.now()</code>) — vão variar se você rodar de novo. O resto da saída é determinístico.</p>
     <p>Com <code class="inline">python main.py PCDF-SIM-0002 rejeitar</code>: o operador rejeita ("a testemunha não viu arma"), o Jurídico repropõe considerando a nota, para de novo, e então o operador <em>corrige</em> para Art. 155 — que prevalece, marcado "correção humana", com as duas decisões registradas.</p>
 
     <div class="checkpoint">
@@ -367,7 +388,7 @@ concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>Onde colocam-se os pontos de parada</h2>
     <div class="exercicio">
@@ -380,7 +401,17 @@ concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
         <li>Discuta a fadiga de aprovação: se o SIGMA processa 500 ocorrências/dia e cada uma para na tipificação, o gargalo é o operador. Como manter o controle sem transformar a aprovação em carimbo? (amostragem? aprovação por lote de casos parecidos? só os casos que o Analista marcou como incertos?)</li>
         <li>Em LangGraph, isso é <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">interrupt()</code> + um checkpointer. Leia como o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">interrupt</code> retoma com <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">Command(resume=...)</code>.</li>
       </ol>
-      <p style="margin-bottom:0">Orientação no gabarito.</p>
+      <p style="margin-bottom:8px">Em 25 min, priorize os itens 1–3; 4–5 ficam para quem terminar cedo. Orientação no gabarito.</p>
+      <div class="tabela-wrap">
+        <table>
+          <tr><th>Critério</th><th>Peso</th></tr>
+          <tr><td>Funcionamento (2º breakpoint pausa e retoma corretamente)</td><td>30%</td></tr>
+          <tr><td>Compreensão (regra do item 1 é coerente e se aplica de fato ao item 2)</td><td>20%</td></tr>
+          <tr><td>Arquitetura (distingue os dois pontos de parada sem duplicar lógica)</td><td>20%</td></tr>
+          <tr><td>Segurança (resposta à fadiga de aprovação não vira "aprovar tudo")</td><td>20%</td></tr>
+          <tr><td>Justificativa das decisões</td><td>10%</td></tr>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -422,7 +453,7 @@ concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -433,6 +464,20 @@ concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
       <li>Human-in-the-loop × human-on-the-loop: dê um exemplo de cada no SIGMA.</li>
       <li>O operador rejeita a tipificação sem corrigir. O que o fluxo faz, e qual o limite?</li>
     </ol>
+
+    <h3>Transferência</h3>
+    <p>Os exercícios acima ainda são sobre a tipificação do SIGMA. Este é <strong>outro domínio</strong>, fora de segurança pública — mesmo mecanismo de breakpoint, decisão nova.</p>
+    <div class="exercicio">
+      <p class="rotulo">Problema de transferência</p>
+      <h3>Resposta a incidentes de TI</h3>
+      <p>Um fluxo de agentes: Coletor (junta logs) → Correlacionador (aponta padrão suspeito) → Recomendador (propõe "isolar a máquina X da rede"). Projete (não precisa implementar):</p>
+      <ol>
+        <li>Onde entra o breakpoint? Aplique a regra do Bloco 6 ("organizar informação" × "produzir algo que embasa uma ação").</li>
+        <li>Quem deveria poder aprovar — o analista de plantão, o dono da máquina, os dois? Por quê?</li>
+        <li>O que precisa estar no checkpoint para essa decisão ser informada (o "painel de decisão" da Aula 7, adaptado)?</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar.</p>
+    </div>
 
     <h3>Exercício prático</h3>
     <p>Acrescente ao registro da decisão (<code class="inline">aprovacoes</code>) um campo <code class="inline">segundos_ate_decidir</code>, calculado do <code class="inline">mtime</code> do checkpoint. Faça um teste que falha se a "decisão" veio em menos de, digamos, 1 segundo depois do breakpoint (proxy de aprovação sem leitura).</p>
@@ -448,6 +493,7 @@ concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
       <li>Implementei um breakpoint com aprovar / corrigir / rejeitar</li>
       <li>Sei quando usar in-the-loop e quando on-the-loop</li>
       <li>Sei apontar 3 riscos (checkpoint com PII, aprovação sem leitura, quem aprova)</li>
+      <li>Consigo projetar onde entraria um breakpoint num fluxo fora de segurança pública</li>
     </ul>
   </section>
 
@@ -502,10 +548,21 @@ concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
       <h3>Tempos (5h = 300 min)</h3>
-      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
-      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar:
-      no Bloco 2, apresente HITL×HOTL pela figura e deixe o ciclo HITL para o código; o
-      desafio pode ser só os itens 1, 2 e 4 (a regra e a discussão de fadiga).</p>
+      <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
+      Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·
+      Avaliação e transferência 30 = 300. Se atrasar: no Bloco 2, apresente HITL×HOTL pela
+      figura e deixe o ciclo HITL para o código; o desafio pode ser só os itens 1, 2 e 4
+      (a regra e a discussão de fadiga).</p>
+
+      <h3>Transferência — incidentes de TI (sem gabarito fechado)</h3>
+      <p>Avalie pela justificativa. Uma resposta forte aplica a regra do Bloco 6 com
+      precisão: o Coletor e o Correlacionador "organizam informação" (sem breakpoint); o
+      Recomendador propõe uma <em>ação sobre um ativo</em> (isolar a máquina) — é aí que o
+      breakpoint entra, antes da ação sair do sistema. Sobre quem aprova: o dono da máquina
+      tem contexto (é produção? há usuários dependendo?) que o analista de segurança não
+      tem sozinho — uma resposta forte reconhece que a decisão pode precisar dos dois, não
+      só de um. O painel de decisão precisa mostrar a evidência da correlação, não só a
+      recomendação — o mesmo problema de "fadiga de aprovação" desta aula.</p>
 
       <h3>Lab básico — o agente Vitimologia</h3>
       <p><code class="inline">solucao_exercicios.py :: lab_basico()</code>: inserir é mexer nos

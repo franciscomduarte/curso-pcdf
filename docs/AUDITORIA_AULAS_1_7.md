@@ -16,9 +16,9 @@
 | 4 — Agent Loops | 7,7 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 5 — Orquestração | 7,8 | **8,4** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 6 — Grafos e LangGraph | 7,5 | **8,4** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 7 — Especializados e HITL | 7,6 | — | 🟡 Aprovada com ajustes | Nenhum |
+| 7 — Especializados e HITL | 7,6 | **8,5** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 
-**Fase 3 (correção) em andamento, uma aula por vez, na ordem 1→7 — Aula 1 concluída.** As demais 6 ainda não atingem o piso de publicação (≥ 8,0, CHECKLIST §13). Nenhuma tem código quebrado, dependência inexistente, API incompatível ou exercício impossível — os 66 testes (7+7+10+10+13+10+9) passam, todos os `main*.py`/`solucao_exercicios.py` principais rodam sem erro, e a segurança é tratada de forma transversal e contextualizada em todas. O que segura a nota é um **conjunto de lacunas sistêmicas da nova governança**, detalhado abaixo, mais problemas técnicos pontuais (contagens de teste erradas, saídas resumidas sem marcação, uma saída fabricada em formato).
+**Fase 3 (correção) concluída para as 7 aulas, uma de cada vez, na ordem 1→7, um commit por aula.** Todas as 7 saíram de 🟡 Aprovada com ajustes (7,2–7,8) para 🟢 Aprovada (8,3–8,5) após fechar as lacunas sistêmicas de governança e os problemas técnicos pontuais desta auditoria. Nenhuma tinha código quebrado, dependência inexistente, API incompatível ou exercício impossível — os 66 testes (7+7+10+10+13+10+9) passam, todos os `main*.py`/`solucao_exercicios.py` principais rodam sem erro, e a segurança é tratada de forma transversal e contextualizada em todas. O único vetor crítico encontrado (Aula 3 — saída de terminal não-verbatim) foi corrigido. **As notas pós-correção são estimativas do auditor que aplicou as mudanças — recomenda-se uma reavaliação formal por QA independente (agentes `revisor-didatico`/`juiz-exemplos`, ou nova rodada de subagentes) antes de considerar as 7 aulas publicáveis**, conforme CLAUDE.md §45 (QA iterativo) e §46 (gate de publicação).
 
 ### Lacunas sistêmicas (as 4 abaixo aparecem, em grau variável, nas 7 aulas)
 
@@ -605,44 +605,53 @@ Pendente, de baixa prioridade (não bloqueia publicação): estilo inline repeti
 - `main.py` grava checkpoints reais em `saida/` a cada execução (não em `tmp_path` como os testes) — acumula JSON sintético entre execuções; `.gitignore` local cobre, mas um `--limpar` ajudaria.
 - URL de referência do LangGraph redireciona (mesmo problema da Aula 6); `interrupt()`/`Command(resume=...)` aparecem só como conceito, sem código executável — aceitável, mas vale dizer isso explicitamente no texto.
 
-## Alterações realizadas
+## Alterações realizadas (Fase 3 — 2026-08-30)
 
-Nenhuma nesta fase.
+1. Objetivos reescritos no formato observável; objetivo HITL×HOTL passou a incluir uma micro-prática ("apontando cada nó do grafo do SIGMA num dos dois") em vez de ficar só conceitual; acrescentado objetivo de nível **Avaliar/Justificar** (onde entraria um novo breakpoint, custo da fadiga de aprovação).
+2. Diagnóstico rápido (3 min) da Aula 6 no início do Bloco 1.
+3. Adicionado um checkpoint "Aplique agora" no Bloco 2, logo após o diagrama HITL×HOTL: marcar cada nó do fluxo do SIGMA (investigador/analista/jurídico/breakpoint/consolidador) como in-the-loop, on-the-loop ou nenhum — resolve o objetivo que antes não tinha nenhuma prática dedicada.
+4. Adicionada seção **Transferência** distinta no Bloco 8: onde entraria um breakpoint num fluxo de resposta a incidentes de TI (fora de segurança pública), quem aprovaria e o que o painel de decisão precisaria mostrar — com orientação no gabarito e item no checklist. É a única transferência do conjunto que sai inteiramente do domínio de segurança pública.
+5. **Rubrica de 5 critérios** (Funcionamento/Compreensão/Arquitetura/Segurança/Justificativa) adicionada ao Desafio do Bloco 6 (2º breakpoint).
+6. **Bloco de saída de `python main.py` corrigido e completado**: agora inclui o banner `AVISO_DADOS` (que o script sempre imprime e o HTML omitia — mesmo padrão da Aula 4), o campo `considerou_nota_do_operador` (real, faltava) e o campo `quando` nas decisões humanas (real, faltava). Adicionada nota explícita: o sufixo do checkpoint (`uuid4`) e os timestamps são não-determinísticos por natureza e vão variar a cada execução — o resto da saída é determinístico.
+7. Nota explícita no Bloco 2: LangGraph `interrupt()`/checkpointer são "só conceito — sem execução" nesta aula (o mecanismo real está em `app/hitl.py`).
+8. Tempos redistribuídos para caber as adições em 300 min: Bloco 2 55→50, Bloco 6 30→25, Bloco 8 20→30. Agenda, cabeçalhos e gabarito conferem entre si.
+
+Não corrigido nesta fase (Baixo, não bloqueante): pequenas omissões sem marcação no bloco de `main_retomar.py` (já usa `...` para elisão em outros pontos do mesmo bloco — inconsistência cosmética, não fabricação); acúmulo de checkpoints reais em `saida/` entre execuções (coberto por `.gitignore`, e a aula já discute esse risco); `—` nos `print()` avaliado e mantido (representável em cp1252, não está na lista de caracteres proibidos do CLAUDE.md §39 — mesma decisão da Aula 6).
 
 ## Validação técnica
 
 | Item | Resultado |
 |---|---|
 | Testes (`pytest -q`) | **PASS** — 9 passed (bate com HTML e README) |
-| Execução principal (`main.py`, `main.py PCDF-SIM-0002 rejeitar`) | **PASS** |
+| Execução principal (`main.py`, `main.py PCDF-SIM-0002 rejeitar`) | **PASS** — saída recapturada e completada contra o HTML |
 | Demos (`main_retomar.py iniciar` + `aprovar <cid>` em processos separados) | **PASS** — retomada cross-processo comprovada de verdade |
-| HTML sanity | **PASS** |
+| HTML sanity | **PASS** — balanço de tags conferido após as edições |
 
 ## Validação pedagógica
 
 | Item | Resultado |
 |---|---|
-| Objetivos | **FAIL** |
-| Prática | **PASS** |
-| Avaliação | **FAIL** |
-| Transferência | **FAIL** |
+| Objetivos | **PASS** (reescritos, HITL×HOTL ganhou prática, objetivo de nível Avaliar) |
+| Prática | **PASS** (reforçada — checkpoint "Aplique agora") |
+| Avaliação | **PASS** (diagnóstico, transferência e rubrica do desafio adicionados) |
+| Transferência | **PASS** (seção distinta, domínio novo — fora de segurança pública) |
 | Segurança | **PASS** (ponto mais forte da aula) |
-| Carga horária | **PASS** (25+55+50+45+15+45+30+15+20=300) |
+| Carga horária | **PASS** (25+50+50+45+15+45+25+15+30=300) |
 
-## Nota final = Nota inicial: **7,6 / 10**
+## Nota final (estimada após as correções): **8,5 / 10** — reavaliação formal por agente de QA independente recomendada antes da publicação definitiva
 
-## Veredito: 🟡 APROVADA COM AJUSTES
+## Veredito: 🟢 APROVADA (sujeita a confirmação por QA independente)
 
 ## Plano de correção priorizado
 
-1. Diagnóstico da Aula 6 no Bloco 1.
-2. Seção "Transferência" (ver propostas — a única do conjunto com potencial de sair de segurança pública).
-3. Rubrica do 2º breakpoint.
-4. Objetivos no formato-modelo; resolver o objetivo HITL×HOTL (micro-prática ou rebaixar o verbo).
-5. Mostrar o dict completo no bloco "Rodando" ou marcar abreviação + observar que o timestamp varia.
-6. `—`→`-` nos `print()`; nota explícita "sem execução de LangGraph nesta aula, só conceito".
+~~1. Diagnóstico da Aula 6 no Bloco 1~~ ✅ feito.
+~~2. Seção "Transferência"~~ ✅ feito.
+~~3. Rubrica do 2º breakpoint~~ ✅ feito.
+~~4. Objetivos no formato-modelo; resolver o objetivo HITL×HOTL~~ ✅ feito (micro-prática adicionada).
+~~5. Mostrar o dict completo no bloco "Rodando"~~ ✅ feito.
+~~6. Nota explícita "sem execução de LangGraph nesta aula, só conceito"~~ ✅ feito.
 
-**3 problemas de transferência propostos:** (1) **resposta a incidentes de TI** (fora de segurança pública) — onde vai o breakpoint quando o Recomendador propõe "isolar a máquina X"; (2) checkpoint com PII sensível de um fluxo de benefício social — 5 mudanças concretas no `Checkpoint`, priorizadas; (3) fadiga de aprovação em escala (2.000 autos/dia) — desenhar amostragem/limiar sem perder controle humano real.
+Pendente, de baixa prioridade (não bloqueia publicação): pequenas omissões sem marcação no bloco de `main_retomar.py`.
 
 ---
 
