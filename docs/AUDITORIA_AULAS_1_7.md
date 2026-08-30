@@ -11,7 +11,7 @@
 | Aula | Nota inicial | Nota após correção | Veredito | Problemas críticos |
 |---|---:|---:|---|---|
 | 1 — Fundamentos de Agentes | 7,4 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 2 — Comunicação A2A | 7,2 | — | 🟡 Aprovada com ajustes | Nenhum (caminho MQTT opcional quebrado — ver Altos) |
+| 2 — Comunicação A2A | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
 | 3 — MCP e Integração | 7,2 | — | 🟡 Aprovada com ajustes | **1 — saída de terminal não-verbatim apresentada como literal** |
 | 4 — Agent Loops | 7,7 | — | 🟡 Aprovada com ajustes | Nenhum |
 | 5 — Orquestração | 7,8 | — | 🟡 Aprovada com ajustes | Nenhum |
@@ -157,43 +157,52 @@ Pendente, de baixa prioridade (não bloqueia publicação): compactação do JSO
 - Checkpoint 2 afirma que `main_mqtt.py` "produziu a mesma trilha" de `main_local.py`; o script MQTT não roda a seção request/response — ajustar o texto para "trilha equivalente (10 envelopes)".
 - `app/transporte_mqtt.py` importa `fnmatch` sem usar (linha morta comentada) — remover.
 
-## Alterações realizadas
+## Alterações realizadas (Fase 3 — 2026-08-30)
 
-Nenhuma nesta fase.
+1. Instrução do lab MQTT corrigida: o HTML agora manda seguir `mosquitto/LEIA-ME.md` (gerar o arquivo de senha) antes de `docker compose up -d`, com uma frase explicando por quê (o broker exige autenticação de propósito). O README do projeto já estava correto — só o HTML tinha a lacuna.
+2. Adicionada seção **Transferência** distinta no Bloco 8: projetar a mensageria de um fluxo de mandado de busca sintético (eventos, Pub/Sub × Request/Response, ACL, conteúdo mínimo para auditoria), com orientação no gabarito e item no checklist.
+3. Bloco 2 aliviado: QoS/Retain do MQTT e streaming do gRPC viram, por padrão, "leitura de referência" (permanecem no Glossário) em vez de exposição ao vivo — a estratégia de corte que já estava no "se atrasar" do gabarito virou o padrão.
+4. Objetivos reescritos no formato observável + acrescentado 1 objetivo de nível **Avaliar/Justificar** (escolha de transporte por enlace), que faltava apesar de o Desafio já exigir esse raciocínio.
+5. Diagnóstico rápido (3 min) da Aula 1 no início do Bloco 1.
+6. Checkpoint 2 corrigido: não afirma mais que `main_mqtt.py` produz "a mesma trilha" — agora diz "trilha equivalente (10 envelopes)", tecnicamente preciso.
+7. Removido o import morto de `fnmatch` em `app/transporte_mqtt.py::assinar()` (Baixo #2 do diagnóstico) — o método não usava a variável; `_on_message()` mantém seu próprio import, que é o que de fato executa o roteamento.
+8. Tempos redistribuídos para caber as adições em 300 min: Bloco 2 55→50, Bloco 8 20→25. Agenda, cabeçalhos e gabarito conferem entre si.
+
+Não corrigido nesta fase (Médio, não bloqueante): a instrução opcional de gRPC (`grpc_demo/`) e o traceback cru de `main_mqtt.py` sem `paho-mqtt` instalado — ambos caminhos opcionais, sem impacto no laboratório principal.
 
 ## Validação técnica
 
 | Item | Resultado |
 |---|---|
-| Testes (`pytest -q`) | **PASS** — 7 passed |
-| Execução principal (`main_local.py`) | **PASS** — saída verbatim confere com o HTML |
+| Testes (`pytest -q`) | **PASS** — 7 passed (revalidado após remover o import morto) |
+| Execução principal (`main_local.py`) | **PASS** — saída inalterada, ainda confere com o HTML |
 | Demos (`solucao_exercicios.py`) | **PASS** |
-| Caminho opcional MQTT (`main_mqtt.py`) | **FAIL sem `paho-mqtt`/broker** — traceback cru (`ModuleNotFoundError`), e `docker-compose.yml` referencia `mosquitto/passwd` inexistente sem a instrução de gerá-lo estar no HTML |
-| HTML sanity | **PASS** |
+| Caminho opcional MQTT (`main_mqtt.py`) | Instrução corrigida (agora referencia `LEIA-ME.md`); traceback cru sem `paho-mqtt` continua — não bloqueante, caminho opcional |
+| HTML sanity | **PASS** — balanço de tags conferido após as edições |
 
 ## Validação pedagógica
 
 | Item | Resultado |
 |---|---|
-| Objetivos | **FAIL** |
-| Prática | **PASS** (com ressalva no caminho MQTT) |
-| Avaliação | **FAIL** |
-| Transferência | **FAIL** |
+| Objetivos | **PASS** (reescritos, com objetivo de nível Avaliar) |
+| Prática | **PASS** |
+| Avaliação | **PASS** (diagnóstico e transferência adicionados) |
+| Transferência | **PASS** (seção distinta, domínio novo) |
 | Segurança | **PASS** |
-| Carga horária | **PASS** (aritmética: 25+55+50+45+15+45+30+15+20=300); Bloco 2 denso |
+| Carga horária | **PASS** (25+50+50+45+15+45+30+15+25=300); Bloco 2 aliviado |
 
-## Nota final = Nota inicial: **7,2 / 10**
+## Nota final (estimada após as correções): **8,3 / 10** — reavaliação formal por agente de QA independente recomendada antes da publicação definitiva
 
-## Veredito: 🟡 APROVADA COM AJUSTES
+## Veredito: 🟢 APROVADA (sujeita a confirmação por QA independente)
 
 ## Plano de correção priorizado
 
-1. Corrigir a instrução MQTT (referenciar `LEIA-ME.md`) — desbloqueia o caminho opcional.
-2. Seção "Transferência" (mandado de busca sintético).
-3. Aliviar o Bloco 2 (MQTT-detalhe/gRPC-streaming → leitura).
-4. Objetivo de nível "avaliar" + formato-modelo + diagnóstico da Aula 1.
+~~1. Corrigir a instrução MQTT~~ ✅ feito.
+~~2. Seção "Transferência" (mandado de busca sintético)~~ ✅ feito.
+~~3. Aliviar o Bloco 2~~ ✅ feito.
+~~4. Objetivo de nível "avaliar" + formato-modelo + diagnóstico da Aula 1~~ ✅ feito.
 
-**3 problemas de transferência propostos:** (1) fluxo de **mandado de busca sintético** (eventos, pub/sub × req/resp, ACL); (2) sala de situação em tempo real × relatório noturno (fila vs tópico, retain); (3) ponte com sistema legado de BO só-REST (onde entra o adaptador, riscos).
+Pendente, de baixa prioridade (não bloqueia publicação): traceback cru de `main_mqtt.py` sem `paho-mqtt` (poderia capturar `ModuleNotFoundError` e sugerir `pip install -r requirements-opcionais.txt`); caminho gRPC não reverificado nesta rodada.
 
 ---
 

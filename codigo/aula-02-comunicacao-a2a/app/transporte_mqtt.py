@@ -67,12 +67,8 @@ class BarramentoMQTT:
 
     # -- API de transporte --
     def assinar(self, filtro_topico: str, callback: Assinante) -> None:
-        import fnmatch
-
         self._assinantes.append((filtro_topico, callback))
         self._cli.subscribe(_filtro_mqtt(filtro_topico), qos=1)
-        # fnmatch importado só para deixar claro que o roteamento fino é local
-        _ = fnmatch
 
     def publicar(self, envelope: EnvelopeA2A) -> None:
         self._cli.publish(

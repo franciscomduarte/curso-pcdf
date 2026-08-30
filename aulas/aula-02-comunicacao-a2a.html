@@ -54,12 +54,14 @@
       <div class="grade-painel">
         <div>
           <h4>Objetivos</h4>
+          <p style="margin:0 0 8px;font-size:13px;color:var(--tinta-suave)">Ao final, o estudante será capaz de:</p>
           <ul>
-            <li>Distinguir comunicação síncrona de assíncrona</li>
-            <li>Implementar Request/Response e Pub/Sub e saber quando usar cada um</li>
-            <li>Modelar um contrato de mensagem inspirado na FIPA-ACL</li>
-            <li>Mapear o mesmo fluxo para MQTT e para gRPC</li>
-            <li>Reconhecer os riscos que a mensageria adiciona (spoofing, vazamento)</li>
+            <li><strong>Distinguir</strong> comunicação síncrona de assíncrona, escolhendo o padrão certo para uma tarefa do SIGMA</li>
+            <li><strong>Implementar</strong> Request/Response e Pub/Sub sobre um barramento em memória, sabendo quando usar cada um</li>
+            <li><strong>Modelar</strong> um contrato de mensagem inspirado na FIPA-ACL, com performativa e ontologia</li>
+            <li><strong>Mapear</strong> o mesmo fluxo para MQTT e para gRPC, apontando o que muda em cada transporte</li>
+            <li><strong>Justificar</strong>, por enlace, a escolha de transporte considerando latência, acoplamento e risco de falha</li>
+            <li><strong>Reconhecer</strong> os riscos que a mensageria adiciona (spoofing, vazamento) e suas mitigações</li>
           </ul>
         </div>
         <div>
@@ -85,16 +87,26 @@
 
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>o SIGMA cresceu; chamada direta vs mensagem</small></span></li>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 1; o SIGMA cresceu; chamada direta vs mensagem</small></span></li>
         <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>síncrono/assíncrono; Req/Resp; Pub/Sub; MQTT; gRPC; FIPA-ACL</small></span></li>
-        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>EnvelopeA2A, BarramentoLocal, os 3 agentes</small></span></li>
-        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>acrescentar um assinante; curingas de tópico</small></span></li>
-        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>Request/Response, performativas, acoplamento; MQTT</small></span></li>
-        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>arquitetura distribuída; escolher o transporte por enlace</small></span></li>
-        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>custo/latência/complexidade; segurança do barramento</small></span></li>
-        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício prático, desafio, checklist</small></span></li>
+        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>EnvelopeA2A, BarramentoLocal, os 3 agentes</small></span></li>
+        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>acrescentar um assinante; curingas de tópico</small></span></li>
+        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>Request/Response, performativas, acoplamento; MQTT</small></span></li>
+        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>arquitetura distribuída; escolher o transporte por enlace</small></span></li>
+        <li><span class="hora">04:20</span><span class="bloco-nome">Debriefing<small>custo/latência/complexidade; segurança do barramento</small></span></li>
+        <li><span class="hora">04:35</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício prático, desafio, checklist</small></span></li>
       </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Diagnóstico rápido — recuperando a Aula 1</p>
+      <p style="margin-bottom:10px">3 minutos, em voz alta:</p>
+      <ul class="lista-check">
+        <li>O que o <code class="inline">AgenteExtrator</code> devolvia — e por que a saída era validada por um schema Pydantic?</li>
+        <li>Por que a Aula 1 manteve a autonomia do agente baixa (só lê e estrutura, não age)?</li>
+        <li>O que é <em>excessive agency</em>, no vocabulário da Aula 1?</li>
+      </ul>
     </div>
 
     <div class="aviso instrutor">
@@ -109,7 +121,7 @@
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
     <h2>Síncrono × assíncrono</h2>
     <p>Na comunicação <strong>síncrona</strong> quem envia <em>para e espera</em> a resposta — como um telefonema. Na <strong>assíncrona</strong>, envia e segue a vida; a resposta (se houver) chega depois — como um e-mail. Não é "melhor" e "pior": é acoplamento no tempo. Síncrono é simples de raciocinar e ruim de escalar; assíncrono escala e é mais difícil de depurar.</p>
 
@@ -162,13 +174,12 @@ flowchart TD
     <p class="legenda">A árvore é só o espaço de nomes dos tópicos. Quem assina escolhe o nível: <code class="inline">sigma/ocorrencia/extraida</code> pega um tópico exato; <code class="inline">sigma/ocorrencia/+</code> pega extraídas e classificadas; <code class="inline">sigma/#</code> (o Auditor) pega tudo, inclusive o heartbeat do sistema.</p>
     <ul>
       <li><strong>Curingas na assinatura:</strong> <code class="inline">+</code> = um nível; <code class="inline">#</code> = tudo dali para baixo. O Auditor assina <code class="inline">sigma/#</code>.</li>
-      <li><strong>QoS 0/1/2:</strong> "no máximo uma vez", "pelo menos uma vez", "exatamente uma vez". Mais garantia = mais latência.</li>
-      <li><strong>Retain:</strong> o broker guarda a última mensagem do tópico para quem chegar depois.</li>
       <li><strong>Segurança:</strong> autenticação usuário/senha, TLS, e <strong>ACL por tópico</strong> — quem pode publicar/assinar o quê.</li>
     </ul>
+    <p style="font-size:14px;color:var(--tinta-suave)"><strong>Leitura de referência</strong> (ver Glossário, não é preciso deter-se ao vivo): <strong>QoS 0/1/2</strong> — "no máximo uma vez" / "pelo menos uma vez" / "exatamente uma vez", mais garantia = mais latência; <strong>Retain</strong> — o broker guarda a última mensagem do tópico para quem chegar depois.</p>
 
     <h3>gRPC — Request/Response tipado e rápido</h3>
-    <p>Framework RPC sobre HTTP/2. O contrato é um arquivo <code class="inline">.proto</code> <strong>obrigatório</strong>: define serviços, métodos e mensagens. Um compilador gera o código de cliente (<em>stub</em>) e servidor. O payload trafega em <strong>binário</strong> (Protocol Buffers), não JSON — menor e mais rápido de serializar.</p>
+    <p>Framework RPC sobre HTTP/2. O contrato é um arquivo <code class="inline">.proto</code> <strong>obrigatório</strong>: define serviços, métodos e mensagens. Um compilador gera o código de cliente (<em>stub</em>) e servidor. O payload trafega em <strong>binário</strong> (Protocol Buffers), não JSON — menor e mais rápido de serializar. <em>(Streaming — ver Glossário — é leitura de referência nesta aula.)</em></p>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">grpc_demo/classificador.proto</span></div>
 <pre>syntax = "proto3";
@@ -461,7 +472,7 @@ servico.chamar("classificador", ruim).performativa    # -> refuse</pre>
         <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py</code> e leia <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">lab_intermediario()</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">desafio()</code>.</li>
         <li>No <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ServicoLocal</code>, chame um serviço não registrado. Que exceção? Como a Triagem deveria tratar isso?</li>
         <li>Faça o handler devolver <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">FAILURE</code> quando <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">conteudo</code> não tiver <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">natureza</code>. Compare: no pub/sub, o que aconteceria com uma mensagem malformada?</li>
-        <li><em>(Opcional, com Docker)</em> <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">docker compose up -d</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">pip install -r requirements-opcionais.txt</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python main_mqtt.py</code>. Os agentes são os mesmos — só o transporte mudou.</li>
+        <li><em>(Opcional, com Docker)</em> siga <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">mosquitto/LEIA-ME.md</code> para gerar o arquivo de senha <strong>uma vez</strong>, depois <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">docker compose up -d</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">pip install -r requirements-opcionais.txt</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python main_mqtt.py</code>. Os agentes são os mesmos — só o transporte mudou. (Sem o passo do <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">LEIA-ME.md</code>, o broker não sobe — ele exige autenticação de propósito.)</li>
       </ol>
     </div>
 
@@ -471,7 +482,7 @@ servico.chamar("classificador", ruim).performativa    # -> refuse</pre>
         <li>Sei explicar quando usar Request/Response e quando usar Pub/Sub</li>
         <li>Uso a performativa certa: <code class="inline">inform</code> para fato, <code class="inline">request</code> para ação, <code class="inline">refuse</code>/<code class="inline">failure</code> para negativas</li>
         <li>Identifico onde o Request/Response acopla (serviço precisa existir e estar no ar)</li>
-        <li><em>(se fez o MQTT)</em> o <code class="inline">main_mqtt.py</code> produziu a mesma trilha do <code class="inline">main_local.py</code></li>
+        <li><em>(se fez o MQTT)</em> o <code class="inline">main_mqtt.py</code> produziu uma trilha equivalente (10 envelopes: 5 extraídas + 5 classificadas) à do <code class="inline">main_local.py</code></li>
       </ul>
     </div>
   </section>
@@ -570,7 +581,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência · 25 min</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -581,6 +592,20 @@ flowchart LR
       <li>Cite duas diferenças concretas entre MQTT e gRPC.</li>
       <li>Como um atacante poderia abusar de um tópico sem ACL, e qual a mitigação?</li>
     </ol>
+
+    <h3>Transferência</h3>
+    <p>Os exercícios acima ainda são sobre o barramento do SIGMA. Este é <strong>outro fluxo</strong> — mesmos padrões, contexto novo.</p>
+    <div class="exercicio">
+      <p class="rotulo">Problema de transferência</p>
+      <h3>Mensageria para um mandado de busca sintético</h3>
+      <p>Um mandado de busca sintético passa por: emissão → cumprimento (diligência) → apreensão de itens → encerramento. Projete a comunicação entre os agentes envolvidos (não precisa terminar de codificar):</p>
+      <ol>
+        <li>Liste os eventos (ex.: <code class="inline">mandado.emitido</code>, <code class="inline">diligencia.iniciada</code>, <code class="inline">item.arrecadado</code>, <code class="inline">mandado.cumprido</code>) e classifique cada enlace como Pub/Sub ou Request/Response — justifique.</li>
+        <li>Onde entra ACL por tópico? Quem deveria poder publicar <code class="inline">item.arrecadado</code>?</li>
+        <li>O que trafega em cada mensagem (o <code class="inline">conteudo</code> mínimo) para servir de prova depois?</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar.</p>
+    </div>
 
     <h3>Exercício prático</h3>
     <p>Acrescente um tópico <code class="inline">ocorrencia.arquivada</code> e um <code class="inline">AgenteArquivador</code> que assina <code class="inline">ocorrencia.classificada</code>, e — só para prioridade <code class="inline">normal</code> sem revisão — publica <code class="inline">ocorrencia.arquivada</code>. O Auditor deve registrar os três tipos de evento. Testes continuam verdes.</p>
@@ -596,6 +621,7 @@ flowchart LR
       <li>Explico o papel do <code class="inline">.proto</code> no gRPC</li>
       <li>Implementei um novo consumidor sem tocar nos produtores</li>
       <li>Sei apontar 3 riscos de segurança de um barramento e suas mitigações</li>
+      <li>Consigo projetar a mensageria de um fluxo diferente do SIGMA, classificando cada enlace</li>
     </ul>
   </section>
 
@@ -663,10 +689,20 @@ flowchart LR
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
       <h3>Tempos (5h = 300 min)</h3>
-      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
-      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar: no
-      Bloco 2, corte o detalhamento de QoS/retain (deixe para leitura) e foque em Req/Resp vs
-      Pub/Sub; o gRPC pode virar demonstração de 5 min em vez de leitura do <code class="inline">.proto</code> linha a linha.</p>
+      <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
+      Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 30 · Debriefing 15 ·
+      Avaliação e transferência 25 = 300. O Bloco 2 já assume, por padrão, QoS/retain e
+      streaming do gRPC como leitura de referência (não apresentar ao vivo) — se ainda
+      atrasar, o gRPC pode virar demonstração de 5 min em vez de leitura do
+      <code class="inline">.proto</code> linha a linha.</p>
+
+      <h3>Transferência — mandado de busca sintético (sem gabarito fechado)</h3>
+      <p>Avalie pela justificativa, não por um desenho "certo". Uma resposta forte separa
+      bem eventos (pub/sub, "isto aconteceu") de pedidos síncronos (ex.: uma consulta de
+      status que precisa de resposta na hora), propõe ACL restrita para
+      <code class="inline">item.arrecadado</code> (só o agente de campo autorizado) e inclui,
+      no conteúdo mínimo, identificação de quem registrou e um carimbo de tempo — a mesma
+      lógica de auditoria do Auditor desta aula.</p>
 
       <h3>Lab básico — AgentePainel</h3>
       <p>Referência em <code class="inline">solucao_exercicios.py :: lab_basico()</code>. Saída
