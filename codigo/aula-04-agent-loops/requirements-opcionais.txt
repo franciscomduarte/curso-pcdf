@@ -1,0 +1,2 @@
+# Só para trocar o MockReAct pela OpenAI (function calling).
+openai>=1.40

@@ -88,3 +88,26 @@
     pre.innerHTML = linhas.map(realcarLinha).join('\n');
   });
 })();
+
+// 4) Mermaid — só quando a página carrega a biblioteca --------------------
+(function () {
+  if (!window.mermaid) return;
+  const semAnim = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: 'strict',
+    theme: 'base',
+    themeVariables: {
+      fontFamily: 'Inter, system-ui, sans-serif',
+      primaryColor: '#0F1C36',
+      primaryTextColor: '#EAF0FA',
+      primaryBorderColor: '#B8892B',
+      lineColor: '#B8892B',
+      secondaryColor: '#1C7C74',
+      tertiaryColor: '#F2EEE3',
+      noteBkgColor: '#F2EEE3',
+      noteTextColor: '#0F1C36'
+    },
+    flowchart: { curve: semAnim ? 'linear' : 'basis' }
+  });
+})();

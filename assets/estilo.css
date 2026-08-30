@@ -257,3 +257,143 @@ footer strong { color: #EAF0FA; }
   * { scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
+
+/* =========================================================================
+   Componentes da Unidade 8 — material de laboratório
+   (notas do instrutor, checkpoints, níveis, agenda, painel, glossário,
+    referências, problemas comuns, Mermaid, gabarito)
+   ========================================================================= */
+
+/* ---- Nota do instrutor -------------------------------------------------- */
+.aviso.instrutor {
+  border-left-style: dashed; border-left-color: var(--teal);
+  background: #EEF5F4;
+}
+.aviso.instrutor .titulo { color: var(--teal); }
+
+/* ---- Ponto de atenção: uso responsável -------------------------------- */
+.aviso.responsavel {
+  border-left-color: #B5462F; background: #FBEDE9;
+  border-top: 3px solid #B5462F; padding-top: 16px;
+}
+.aviso.responsavel .titulo {
+  color: #B5462F; text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: .06em;
+}
+
+/* ---- Selo de nível dos laboratórios ---------------------------------- */
+.nivel {
+  display: inline-block; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px; margin-bottom: 10px;
+  border: 1px solid currentColor;
+}
+.nivel.basico        { color: var(--teal); }
+.nivel.intermediario { color: var(--ouro); }
+.nivel.avancado      { color: #B5462F; }
+
+/* ---- Checkpoint ------------------------------------------------------- */
+.checkpoint {
+  background: var(--branco); border: 1px solid var(--linha);
+  border-left: 4px solid var(--teal); border-radius: var(--raio);
+  padding: 20px 22px; margin: 24px 0; box-shadow: var(--sombra-sutil);
+}
+.checkpoint .rotulo { color: var(--teal); margin-bottom: 10px; }
+.checkpoint .rotulo::before { background: var(--teal); }
+ul.lista-check { list-style: none; padding-left: 0; margin: 0; }
+ul.lista-check li {
+  position: relative; padding-left: 30px; margin-bottom: 10px; font-size: 15px;
+}
+ul.lista-check li::before {
+  content: ""; position: absolute; left: 0; top: 3px;
+  width: 17px; height: 17px; border-radius: 5px;
+  border: 2px solid var(--teal); background: var(--branco);
+}
+ul.lista-check li::after {
+  content: "✓"; position: absolute; left: 3px; top: 1px;
+  color: var(--teal); font-size: 13px; font-weight: 700; opacity: .28;
+}
+
+/* ---- Agenda das 5 horas -------------------------------------------- */
+.agenda { margin: 22px 0; }
+.agenda ol { list-style: none; padding: 0; margin: 0; }
+.agenda li {
+  display: flex; gap: 16px; align-items: baseline;
+  padding: 11px 0; border-bottom: 1px dashed var(--linha);
+}
+.agenda li:last-child { border-bottom: none; }
+.agenda .hora {
+  flex: 0 0 92px; font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; color: var(--ouro);
+}
+.agenda .bloco-nome { font-weight: 600; }
+.agenda .bloco-nome small { display: block; font-weight: 400; color: var(--tinta-suave); font-size: 13.5px; }
+
+/* ---- Painel de abertura (objetivos / pré-requisitos / stack) ------- */
+.painel {
+  background: var(--papel-2); border: 1px solid var(--linha);
+  border-radius: var(--raio); padding: 24px; margin: 22px 0;
+}
+.painel .grade-painel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.painel h4 {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ouro);
+  margin: 0 0 10px;
+}
+.painel ul { margin: 0; padding-left: 18px; font-size: 14.5px; }
+.painel li { margin-bottom: 6px; }
+
+/* ---- Glossário ----------------------------------------------------- */
+.glossario { margin: 20px 0; }
+.glossario dl { margin: 0; }
+.glossario dt {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px;
+  color: var(--tinta); margin-top: 16px;
+}
+.glossario dd {
+  margin: 4px 0 0; padding-left: 0; color: var(--tinta-suave); font-size: 15px;
+}
+
+/* ---- Referências -------------------------------------------------- */
+.refs { margin: 18px 0; padding-left: 22px; font-size: 14.5px; color: var(--tinta-suave); }
+.refs li { margin-bottom: 12px; }
+.refs .fonte { color: var(--tinta); font-weight: 600; }
+.refs .assoc { display: block; font-size: 13px; font-style: italic; margin-top: 2px; }
+
+/* ---- Tabela de problemas comuns --------------------------------- */
+.problemas td:first-child {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B5462F;
+  white-space: nowrap;
+}
+
+/* ---- Diagramas Mermaid ------------------------------------------ */
+.mermaid { margin: 26px 0; text-align: center; }
+.mermaid svg { max-width: 100%; height: auto; }
+
+/* ---- Gabarito / orientação ao instrutor ------------------------ */
+.gabarito {
+  background: linear-gradient(160deg, #12233f, #0d1a30);
+  color: #D3DCEC; border-radius: var(--raio); margin: 30px 0;
+  box-shadow: var(--sombra); overflow: hidden;
+}
+.gabarito > summary {
+  cursor: pointer; list-style: none; padding: 20px 26px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ouro-claro);
+}
+.gabarito > summary::-webkit-details-marker { display: none; }
+.gabarito > summary::before { content: "▸ "; }
+.gabarito[open] > summary::before { content: "▾ "; }
+.gabarito > summary:hover { color: #FFFFFF; }
+.gabarito .conteudo { padding: 4px 26px 26px; }
+.gabarito h3, .gabarito h4 { color: #EAF0FA; }
+.gabarito strong { color: var(--ouro-claro); }
+.gabarito a { color: var(--teal-claro); }
+.gabarito .codigo { box-shadow: none; border: 1px solid rgba(255,255,255,.12); }
+
+/* ---- Responsivo (extensão) ------------------------------------- */
+@media (max-width: 720px) {
+  .painel .grade-painel { grid-template-columns: 1fr; }
+  .agenda li { flex-direction: column; gap: 2px; }
+  .agenda .hora { flex-basis: auto; }
+}

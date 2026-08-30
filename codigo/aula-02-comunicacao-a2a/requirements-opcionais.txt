@@ -1,0 +1,6 @@
+# Extras para os caminhos "de produção" da aula.
+# Instale só se for rodar o MQTT (main_mqtt.py) ou o gRPC (grpc_demo/).
+
+paho-mqtt>=2.0          # cliente MQTT — precisa de um broker (docker-compose.yml)
+grpcio>=1.60            # runtime gRPC
+grpcio-tools>=1.60      # compilador do .proto (gera os _pb2)

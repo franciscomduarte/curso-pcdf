@@ -1,0 +1,2 @@
+# Só para trocar o MockLLM (supervisor e debate) pela OpenAI.
+openai>=1.40

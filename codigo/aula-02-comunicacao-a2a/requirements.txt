@@ -1,0 +1,4 @@
+# Núcleo — o laboratório de pub/sub em memória roda só com isto.
+pydantic>=2.7
+python-dotenv>=1.0
+pytest>=8.0

@@ -1,0 +1,12 @@
+.venv/
+.env
+saida/
+__pycache__/
+*.pyc
+.pytest_cache/
+grpc_demo/*_pb2.py
+grpc_demo/*_pb2_grpc.py
+grpc_demo/*_pb2.pyi
+mosquitto/data/
+mosquitto/log/
+mosquitto/passwd

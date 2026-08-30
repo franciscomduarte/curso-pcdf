@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<!-- =========================================================================
+     MODELO DE AULA — Unidade 8 (PCDF)
+     Copie este arquivo para aulas/aula-0N-slug.html e preencha os BLOCOS.
+     NÃO altere cores, fontes, espaçamentos ou componentes: use os do estilo.css.
+     Componentes disponíveis: .painel .agenda .aviso(.ok/.perigo/.instrutor/.responsavel)
+       .diagrama(svg) .mermaid .codigo .checkpoint (ul.lista-check) .nivel(.basico/
+       .intermediario/.avancado) .exercicio .problemas(table) .glossario(dl) .refs(ol)
+       .gabarito(details) .nav-aulas .ancora .tabela-wrap(table) .grade.col-2/3 .cartao
+     ========================================================================= -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula N — TÍTULO · Unidade 8 · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="../assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula N de 10 · 5h</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Aula N · TEMA DA EMENTA</p>
+    <h1>TÍTULO com <span class="destaque">palavra em destaque</span></h1>
+    <p class="sub">Uma frase que amarra o tema ao apoio da atividade policial e ao SIGMA.</p>
+    <div class="meta">
+      <span class="tag">5h · laboratório</span>
+      <span class="tag">Python + OpenAI</span>
+      <span class="tag">pré: Aula N-1</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- BLOCO 1 · Abertura e contextualização (20–30 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 1 · Abertura</p>
+    <h2>O problema real</h2>
+    <p>Situação concreta do cotidiano da PCDF (sempre com dados sintéticos).</p>
+
+    <div class="painel">
+      <div class="grade-painel">
+        <div>
+          <h4>Objetivos</h4>
+          <ul><li>...</li><li>...</li><li>...</li></ul>
+        </div>
+        <div>
+          <h4>Pré-requisitos</h4>
+          <ul><li>...</li><li>...</li></ul>
+        </div>
+        <div>
+          <h4>Stack</h4>
+          <ul><li>Python 3.11+</li><li>openai, pydantic</li><li>...</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <ol>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>objetivos, problema, conceitos prévios</small></span></li>
+        <li><span class="hora">00:30</span><span class="bloco-nome">Fundamentos<small>teoria com diagramas e tabelas</small></span></li>
+        <li><span class="hora">01:30</span><span class="bloco-nome">Demonstração<small>o instrutor executa passo a passo</small></span></li>
+        <li><span class="hora">02:15</span><span class="bloco-nome">Laboratório básico</span></li>
+        <li><span class="hora">03:00</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:15</span><span class="bloco-nome">Laboratório intermediário</span></li>
+        <li><span class="hora">04:00</span><span class="bloco-nome">Desafio avançado</span></li>
+        <li><span class="hora">04:30</span><span class="bloco-nome">Debriefing + avaliação</span></li>
+      </ol>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Orientação de condução: tempos, o que perguntar à turma, onde a turma costuma travar.</p>
+    </div>
+  </section>
+
+  <!-- BLOCO 2 · Fundamentos teóricos (45–60 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 2 · Fundamentos</p>
+    <h2>Conceitos</h2>
+    <p>Explicação intuitiva primeiro; depois a forma técnica.</p>
+
+    <div class="mermaid">
+flowchart LR
+  A[Entrada] --> B[Processo]
+  B --> C[Saída]
+    </div>
+    <p class="legenda">Explique o fluxo logo após o diagrama.</p>
+
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Critério</th><th>Opção A</th><th>Opção B</th></tr>
+        <tr><td>...</td><td class="sim">...</td><td class="nao">...</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- BLOCO 3 · Demonstração prática (45–60 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 3 · Demonstração</p>
+    <h2>Preparar o ambiente</h2>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
+<pre>python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -c "import openai; print('ok')"</pre>
+    </div>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">.env.example</span></div>
+<pre>OPENAI_API_KEY=coloque_sua_chave_aqui</pre>
+    </div>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/exemplo.py</span></div>
+<pre data-lang="python"># código real, executável e comentado</pre>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 1</p>
+      <ul class="lista-check">
+        <li>O ambiente Python está funcionando.</li>
+        <li>O exemplo executa sem erro.</li>
+        <li>A saída estruturada foi validada.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- BLOCO 4 · Laboratório básico (45–60 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 4 · Laboratório</p>
+    <span class="nivel basico">Nível básico</span>
+    <h2>Exercício guiado</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>Título</h3>
+      <ol><li>...</li><li>...</li></ol>
+    </div>
+    <h3>Problemas comuns</h3>
+    <div class="tabela-wrap">
+      <table class="problemas">
+        <tr><th>Erro</th><th>Causa</th><th>Diagnóstico</th><th>Solução</th></tr>
+        <tr><td>ModuleNotFoundError</td><td>dependência fora do venv</td><td><code class="inline">pip list</code></td><td>ativar o venv e <code class="inline">pip install -r requirements.txt</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- BLOCO 5 · Intervalo -->
+  <section class="reveal">
+    <p class="rotulo">Intervalo</p>
+    <h2>15 minutos</h2>
+    <p>Retome com uma pergunta rápida sobre o que foi feito antes do intervalo.</p>
+  </section>
+
+  <!-- BLOCO 6 · Laboratório intermediário (45–60 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 5 · Laboratório</p>
+    <span class="nivel intermediario">Nível intermediário</span>
+    <h2>Mais perto de um sistema real</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>Título</h3>
+      <ol><li>...</li></ol>
+    </div>
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 2</p>
+      <ul class="lista-check"><li>...</li></ul>
+    </div>
+  </section>
+
+  <!-- BLOCO 7 · Desafio avançado (45–60 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 6 · Desafio</p>
+    <span class="nivel avancado">Nível avançado</span>
+    <h2>Projete parte da arquitetura</h2>
+    <div class="exercicio">
+      <p class="rotulo">Desafio</p>
+      <h3>Requisitos</h3>
+      <ol><li>...</li></ol>
+      <p style="margin-bottom:0">Solução no gabarito ao final.</p>
+    </div>
+  </section>
+
+  <!-- BLOCO 8 · Debriefing (20–30 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 7 · Debriefing</p>
+    <h2>O que aprendemos</h2>
+    <ul><li>Decisões arquiteturais...</li><li>Erros comuns...</li></ul>
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável</div>
+      <p>Reforce onde o exemplo poderia ser confundido com decisão automatizada sobre pessoas.</p>
+    </div>
+  </section>
+
+  <!-- BLOCO 9 · Avaliação (15–30 min) -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 8 · Avaliação</p>
+    <h2>Fechamento da aula</h2>
+    <h3>Perguntas conceituais</h3>
+    <ol><li>...</li></ol>
+    <h3>Checklist de aprendizagem</h3>
+    <ul class="lista-check"><li>Consigo explicar...</li><li>Consigo implementar...</li></ul>
+  </section>
+
+  <!-- Glossário -->
+  <section class="reveal">
+    <p class="rotulo">Referência rápida</p>
+    <h2>Glossário</h2>
+    <div class="glossario">
+      <dl>
+        <dt>Termo</dt><dd>Definição curta.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Referências -->
+  <section class="reveal">
+    <p class="rotulo">Fontes</p>
+    <h2>Referências</h2>
+    <ol class="refs">
+      <li><span class="fonte">Autor/Org — Título</span> (ano). URL.
+        <span class="assoc">Conceito associado: ...</span></li>
+    </ol>
+  </section>
+
+  <!-- Gabarito / orientação ao instrutor -->
+  <details class="gabarito reveal">
+    <summary>Gabarito / Orientação ao Instrutor</summary>
+    <div class="conteudo">
+      <h3>Laboratório básico</h3>
+      <p>...</p>
+      <h3>Laboratório intermediário</h3>
+      <p>...</p>
+      <h3>Desafio avançado — esboço</h3>
+      <p>...</p>
+    </div>
+  </details>
+
+  <!-- Fechamento + Evolução do SIGMA -->
+  <section class="reveal">
+    <p class="rotulo">Próximos passos</p>
+    <h2>Evolução do SIGMA</h2>
+    <div class="mermaid">
+flowchart LR
+  O[Ocorrência] --> E[Agente Extrator] --> R[(Resultado)] --> H[Revisão humana]
+    </div>
+
+    <div class="nav-aulas">
+      <a href="aula-0N-anterior.html"><span>Anterior</span>← Aula N-1</a>
+      <a href="../index.html"><span>Em breve</span>Aula N+1 →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · Aula N de 10</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="../assets/aula.js"></script>
+</body>
+</html>

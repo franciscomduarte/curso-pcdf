@@ -1,0 +1,4 @@
+# Núcleo — o laboratório do servidor/cliente MCP mínimo roda só com isto.
+pydantic>=2.7
+python-dotenv>=1.0
+pytest>=8.0

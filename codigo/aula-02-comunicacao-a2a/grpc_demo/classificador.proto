@@ -1,0 +1,31 @@
+// Contrato gRPC do serviço de classificação (Request/Response tipado).
+//
+// Diferença para o MQTT: aqui o contrato é OBRIGATÓRIO e verificado em
+// compilação. Cliente e servidor compartilham este arquivo; o payload trafega
+// em binário (protobuf), não JSON.
+//
+// Gerar os stubs Python:  ver gerar.sh / gerar.ps1
+
+syntax = "proto3";
+
+package sigma.a2a.v1;
+
+service Classificador {
+  // Síncrono: o chamador envia uma ocorrência e espera a classificação.
+  rpc Classificar(OcorrenciaExtraida) returns (Classificacao);
+}
+
+message OcorrenciaExtraida {
+  string id = 1;
+  string natureza = 2;
+  string data_fato = 3;   // AAAA-MM-DD, vazio se desconhecida
+  string local = 4;       // vazio se desconhecido
+  string resumo = 5;
+}
+
+message Classificacao {
+  string id = 1;
+  string natureza = 2;
+  string prioridade = 3;                    // "alta" | "normal"
+  bool revisao_humana_obrigatoria = 4;
+}

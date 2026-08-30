@@ -1,0 +1,3 @@
+# Núcleo — o loop ReAct roda só com a biblioteca padrão + python-dotenv.
+python-dotenv>=1.0
+pytest>=8.0

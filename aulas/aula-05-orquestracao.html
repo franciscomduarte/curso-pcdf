@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 5 — Padrões de Orquestração · Unidade 8 · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="../assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 5 de 10 · 5h</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Aula 5 · Padrões de Orquestração Multiagente</p>
+    <h1>Coordenar <span class="destaque">vários agentes</span> — cinco jeitos</h1>
+    <p class="sub">Na Aula 4 era um agente com um loop. O SIGMA precisa de vários — extrator, classificador, consultor, revisor. Como coordená-los? Não há resposta única: há Pipeline, Supervisor, Broker, Blackboard e Debate, cada um com um custo. Esta aula roda os cinco sobre a mesma ocorrência e compara os números.</p>
+    <div class="meta">
+      <span class="tag">5h · laboratório</span>
+      <span class="tag">Python · 5 padrões</span>
+      <span class="tag">pré: Aulas 1–4</span>
+      <span class="tag">dados sintéticos</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <h2>O problema: quatro especialistas, quem manda?</h2>
+    <p>O SIGMA agora tem quatro papéis: <strong>Extrator</strong> (campos), <strong>Classificador</strong> (natureza e prioridade), <strong>Consultor</strong> (enriquece com consultas), <strong>Revisor</strong> (aponta o que falta). Coordená-los parece trivial — "é só chamar um depois do outro". Mas:</p>
+    <ul>
+      <li>e se a ocorrência for tão simples que o Consultor é desperdício?</li>
+      <li>e se os pedidos chegarem fora de ordem, de fontes diferentes?</li>
+      <li>e se dois especialistas puderem trabalhar ao mesmo tempo?</li>
+      <li>e se a decisão for ambígua e você quiser <em>duas opiniões</em>?</li>
+    </ul>
+    <p>Cada uma dessas perguntas leva a um <strong>padrão de orquestração</strong> diferente. Hoje construímos os cinco, sobre os mesmos especialistas, e medimos: quantas chamadas de LLM, qual custo, qual latência, quão difícil de depurar.</p>
+
+    <div class="painel">
+      <div class="grade-painel">
+        <div>
+          <h4>Objetivos</h4>
+          <ul>
+            <li>Explicar Pipeline, Supervisor, Broker, Blackboard e Debate</li>
+            <li>Para cada: vantagem, desvantagem, custo, latência, complexidade, observabilidade</li>
+            <li>Implementar os cinco sobre um conjunto comum de especialistas</li>
+            <li>Comparar os números na mesma ocorrência (trivial × complexa)</li>
+            <li>Escolher o padrão certo para uma carga de trabalho dada</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Pré-requisitos</h4>
+          <ul>
+            <li>Aula 2 (barramento), Aula 4 (loop, supervisor é um loop)</li>
+            <li>Python: dataclasses, dicionários de funções, <code class="inline">sorted</code></li>
+            <li>Noção de custo e latência de chamada</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Stack</h4>
+          <ul>
+            <li>Python 3.11+ (funciona em 3.10) — só biblioteca padrão + <code class="inline">python-dotenv</code></li>
+            <li>OpenAI <em>— opcional (supervisor e debate)</em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <ol>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>quatro especialistas, quem manda</small></span></li>
+        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>os 5 padrões, dimensão a dimensão; a tabela comparativa</small></span></li>
+        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>especialistas comuns, métricas, os 5 padrões, main_comparar</small></span></li>
+        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>rodar cada padrão; acrescentar um especialista</small></span></li>
+        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>escolher pela carga; supervisor com orçamento</small></span></li>
+        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>projetar a orquestração do SIGMA</small></span></li>
+        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>ponto único de decisão × falha; debate e viés de grupo</small></span></li>
+        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício, desafio, checklist</small></span></li>
+      </ol>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Antes de mostrar código, faça a turma votar: "para triar 10 mil ocorrências por dia,
+      qual padrão?". Depois "para uma investigação complexa de um caso só?". As respostas
+      quase sempre divergem — e é esse o ponto: o padrão certo depende da carga. Turmas
+      mistas: quem não programa preenche a tabela comparativa enquanto o resto roda o
+      <code class="inline">main_comparar.py</code>.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <h2>Os cinco padrões</h2>
+
+    <h3>1 · Pipeline — a linha de montagem</h3>
+    <div class="mermaid">
+flowchart LR
+  D[("Ocorrência")] --> E["Extrator"] --> C["Classificador"] --> N["Consultor"] --> R["Revisor"] --> S[("Dossiê")]
+    </div>
+    <p class="legenda">Ordem fixa; a saída de um é a entrada do próximo. É o padrão da Aula 1 (extrair → validar → classificar), agora com mais estações.</p>
+    <div class="grade col-2">
+      <div class="aviso ok"><div class="titulo">✅ A favor</div><p>Simples, previsível, trivial de depurar. Barato: nenhuma chamada de LLM extra. Paraleliza bem <em>por lote</em> (mil ocorrências no mesmo pipeline).</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Contra</div><p>Não adapta: roda o Consultor mesmo quando é desperdício. Um passo que falha deixa buraco no resto. Mudar a ordem é mexer no código.</p></div>
+    </div>
+    <p><strong>Custo:</strong> a soma dos passos. <strong>Latência:</strong> a soma (sequencial). <strong>Complexidade:</strong> mínima. <strong>Observabilidade:</strong> ótima — o fluxo é o código. <strong>Use quando:</strong> os passos são sempre os mesmos e a carga é alta.</p>
+
+    <h3>2 · Supervisor — o coordenador</h3>
+    <div class="mermaid">
+flowchart TB
+  SUP["Supervisor — decide o próximo a cada passo"]
+  SUP --> E["Extrator"]
+  SUP --> C["Classificador"]
+  SUP --> N["Consultor"]
+  SUP --> R["Revisor"]
+  E -. "resultado" .-> SUP
+  C -. "resultado" .-> SUP
+  N -. "resultado" .-> SUP
+  R -. "resultado" .-> SUP
+    </div>
+    <p class="legenda">É o loop ReAct da Aula 4, onde as "ferramentas" são os especialistas. O Supervisor olha o estado e escolhe quem chamar — ou encerrar.</p>
+    <div class="grade col-2">
+      <div class="aviso ok"><div class="titulo">✅ A favor</div><p>Adapta ao caso: pula etapas desnecessárias, repete uma se preciso. Um único lugar para a lógica de coordenação.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Contra</div><p>+1 chamada de LLM por decisão (custo e latência). <strong>Ponto único de falha e de decisão</strong>: se o Supervisor erra, o sistema erra.</p></div>
+    </div>
+    <p><strong>Custo:</strong> passos + N decisões de LLM. <strong>Latência:</strong> soma + overhead das decisões. <strong>Complexidade:</strong> média. <strong>Observabilidade:</strong> boa (o traço de decisões). <strong>Use quando:</strong> os casos variam e o volume é baixo o suficiente para pagar as decisões.</p>
+
+    <h3>3 · Broker — a central de despacho</h3>
+    <div class="mermaid">
+flowchart LR
+  P1["pedido: classificar"] --> BR["Broker — roteia por capacidade"]
+  P2["pedido: extrair"] --> BR
+  P3["pedido: revisar"] --> BR
+  BR --> E["Extrator"]
+  BR --> C["Classificador"]
+  BR --> R["Revisor"]
+    </div>
+    <p class="legenda">O Broker não decide o fluxo — ele <em>despacha</em> pedidos que chegam (do usuário, de uma fila, de outros agentes) para o especialista com a capacidade certa, resolvendo dependências que conseguir.</p>
+    <div class="grade col-2">
+      <div class="aviso ok"><div class="titulo">✅ A favor</div><p>Desacopla origem e execução (como o barramento da Aula 2, mas roteando por capacidade). Aceita pedidos fora de ordem ou parciais.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Contra</div><p>Ainda é um ponto central. Não "pensa" — se o pedido não faz sentido, ele só sinaliza. Registro de capacidades vira alvo.</p></div>
+    </div>
+    <p><strong>Custo:</strong> igual ao pipeline (sem LLM extra). <strong>Latência:</strong> soma dos despachados. <strong>Complexidade:</strong> média. <strong>Observabilidade:</strong> boa. <strong>Use quando:</strong> os pedidos vêm de fontes variadas e você quer um único ponto de roteamento.</p>
+
+    <h3>4 · Blackboard — o quadro compartilhado</h3>
+    <div class="mermaid">
+flowchart TB
+  BB[("Quadro — o Dossiê")]
+  E["Extrator — precisa: nada · produz: campos"] --> BB
+  C["Classificador — precisa: campos · produz: classificação"] --> BB
+  N["Consultor — precisa: campos · produz: enriquecimento"] --> BB
+  R["Revisor — precisa: campos+classificação · produz: revisado"] --> BB
+  BB --> CTRL["Controlador — roda rodadas até ninguém ter o que fazer"]
+    </div>
+    <p class="legenda">Cada especialista declara o que <em>precisa</em> e o que <em>produz</em>. A cada rodada, quem tem as pré-condições no quadro e ainda não contribuiu é executado. A ordem <strong>emerge</strong> das dependências.</p>
+    <div class="grade col-2">
+      <div class="aviso ok"><div class="titulo">✅ A favor</div><p>Acrescentar especialista é só declarar <code class="inline">precisa</code>/<code class="inline">produz</code> — ninguém mais muda. Naturalmente paralelo: independentes rodam juntos.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Contra</div><p>Difícil prever e depurar (a ordem não está no código). Sem controlador, dois especialistas escrevem no mesmo campo. Condições de corrida.</p></div>
+    </div>
+    <p><strong>Custo:</strong> igual ao pipeline. <strong>Latência:</strong> soma das rodadas (menor com paralelismo real). <strong>Complexidade:</strong> alta. <strong>Observabilidade:</strong> ruim sem instrumentação. <strong>Use quando:</strong> o conjunto de especialistas muda muito e as dependências são claras.</p>
+
+    <h3>5 · Debate — duas cabeças na dúvida</h3>
+    <div class="mermaid">
+flowchart LR
+  Q["Furto ou Roubo?"] --> A1["Debatedor 1"]
+  Q --> A2["Debatedor 2"]
+  A1 -- "leem o argumento um do outro" --> A2
+  A2 -- "e revisam" --> A1
+  A1 --> J["Juiz"]
+  A2 --> J
+  J --> V["Veredito"]
+    </div>
+    <p class="legenda">Não substitui os outros — é uma <em>técnica</em> para uma sub-decisão ambígua. Dois (ou mais) agentes opinam com razão e confiança, leem o argumento do outro, refinam em rodadas; um juiz decide.</p>
+    <div class="grade col-2">
+      <div class="aviso ok"><div class="titulo">✅ A favor</div><p>Melhora julgamentos ambíguos: erros de um podem ser pegos pelo outro. Deixa o raciocínio explícito.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Contra</div><p>Caro: (nº debatedores × rodadas) chamadas + o juiz. Debatedores podem convergir para o <em>mesmo erro</em> (viés de grupo).</p></div>
+    </div>
+    <p><strong>Custo:</strong> alto e multiplicativo. <strong>Latência:</strong> alta (mas os debatedores de uma rodada podem rodar em paralelo). <strong>Complexidade:</strong> média. <strong>Observabilidade:</strong> boa — o raciocínio de cada debatedor, rodada a rodada, fica explícito no traço (você <em>vê</em> a mudança de posição). <strong>Use quando:</strong> a decisão é ambígua, importante, e o custo se justifica.</p>
+
+    <h3>Lado a lado</h3>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>&nbsp;</th><th>Pipeline</th><th>Supervisor</th><th>Broker</th><th>Blackboard</th><th>Debate</th></tr>
+        <tr><td>Quem decide o fluxo</td><td>você (fixo)</td><td>um LLM</td><td>ninguém (roteia)</td><td>emergente</td><td>—</td></tr>
+        <tr><td>Chamadas de LLM extra</td><td class="sim">0</td><td class="nao">+1/decisão</td><td class="sim">0</td><td class="sim">0</td><td class="nao">N×R + 1</td></tr>
+        <tr><td>Custo (na comparação)</td><td class="sim">9</td><td class="nao">14</td><td class="sim">9</td><td class="sim">9</td><td>9 (uma sub-decisão)</td></tr>
+        <tr><td>Latência (simulada)</td><td class="sim">~1,7 s</td><td class="nao">~2,5 s</td><td class="sim">~1,7 s</td><td>~1,7 s</td><td>~1,4 s (paraleliza)</td></tr>
+        <tr><td>Adapta ao caso</td><td class="nao">não</td><td class="sim">sim</td><td>parcial</td><td class="sim">sim</td><td>—</td></tr>
+        <tr><td>Complexidade / depurar</td><td class="sim">mínima</td><td>média</td><td>média</td><td class="nao">alta</td><td>média</td></tr>
+        <tr><td>Observabilidade</td><td class="sim">ótima</td><td>boa (traço de decisões)</td><td>boa</td><td class="nao">ruim sem instrumentar</td><td>boa (raciocínio explícito)</td></tr>
+        <tr><td>Novo especialista</td><td>mexe na ordem</td><td>mexe no prompt</td><td>registra capacidade</td><td class="sim">só metadata</td><td>—</td></tr>
+        <tr><td>Ponto único de falha</td><td class="sim">não</td><td class="nao">o supervisor</td><td class="nao">o broker</td><td class="sim">não</td><td>o juiz</td></tr>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">Blackboard: Hayes-Roth (1985). Debate multiagente: Du et al. (2023). Orchestrator-workers e routing: Anthropic, "Building Effective Agents". Ver Referências.</p>
+  </section>
+
+  <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <h2>Os cinco, sobre os mesmos especialistas</h2>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
+<pre>cd codigo/aula-05-orquestracao
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -c "import dotenv; print('ambiente ok')"</pre>
+    </div>
+
+    <h3>Peça 1 — o especialista, com metadata</h3>
+    <p>Cada especialista declara o que <strong>precisa</strong> e o que <strong>produz</strong>. É essa metadata que deixa o Broker e o Blackboard decidirem a ordem sozinhos.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/especialistas.py</span></div>
+<pre data-lang="python">@dataclass
+class Dossie:                     # o estado compartilhado
+    id: str; texto: str
+    campos: dict | None = None
+    classificacao: dict | None = None
+    enriquecimento: list | None = None
+    revisado: bool = False
+    pendencias: list[str] = field(default_factory=list)
+    completo: bool = False
+
+def classificador(d: Dossie, m: Metricas) -> Dossie:
+    natureza = "Roubo" if (d.campos or {}).get("tem_violencia") else "Furto"
+    d.classificacao = {"natureza": natureza, "prioridade": "alta" if natureza == "Roubo" else "normal"}
+    m.registrar(especialista=True, llm=1, custo=1, latencia_ms=300)
+    return d
+
+REGISTRO = {
+    "extrator":      SpecEspecialista("extrator", set(), "campos", extrator),
+    "classificador": SpecEspecialista("classificador", {"campos"}, "classificacao", classificador),
+    "consultor":     SpecEspecialista("consultor", {"campos"}, "enriquecimento", consultor),
+    "revisor":       SpecEspecialista("revisor", {"campos", "classificacao"}, "revisado", revisor),
+}</pre>
+    </div>
+
+    <h3>Peça 2 — cada padrão, em poucas linhas</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/padroes/ — trechos</span></div>
+<pre data-lang="python"># pipeline.py — ordem fixa
+for nome in ORDEM_PIPELINE:
+    d = REGISTRO[nome].funcao(d, m)
+
+# supervisor.py — um LLM decide o próximo
+for _ in range(max_rodadas):
+    proximo = llm.decidir(d)                 # "extrator" | ... | "concluir"
+    m.registrar(llm=1, custo=1)
+    if proximo == "concluir": break
+    d = REGISTRO[proximo].funcao(d, m)
+
+# blackboard.py — quem pode contribuir, contribui
+for _ in range(max_rodadas):
+    mudou = False
+    for nome in sorted(REGISTRO):
+        spec = REGISTRO[nome]
+        if all(d.tem(c) for c in spec.precisa) and not d.tem(spec.produz):
+            d = spec.funcao(d, m); mudou = True
+    if not mudou: break
+
+# broker.py — despacha pedidos por capacidade, resolve dependências
+fila = [CAPACIDADES[p] for p in pedidos]     # ["classificar","extrair",...] -> especialistas
+# roda quem já tem as pré-condições; repete até não haver progresso</pre>
+    </div>
+
+    <h3>Rodando os quatro de fluxo, na mesma ocorrência</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_comparar.py   (PCDF-SIM-0002 — com violência e placa)</span></div>
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+PADRÃO       | métricas
+------------------------------------------------------------------------------
+pipeline     esp=4  llm=4  tools=2  custo=9   rodadas=4  latencia~1700ms
+             -> natureza=Roubo, completo=True, pendências=0
+supervisor   esp=4  llm=9  tools=2  custo=14  rodadas=5  latencia~2450ms
+             -> natureza=Roubo, completo=True, pendências=0
+broker       esp=4  llm=4  tools=2  custo=9   rodadas=4  latencia~1700ms
+             -> natureza=Roubo, completo=True, pendências=0
+blackboard   esp=4  llm=4  tools=2  custo=9   rodadas=3  latencia~1700ms
+             -> natureza=Roubo, completo=True, pendências=0
+
+(o Auditor registrou 4 execuções de orquestração)
+
+------------------------------------------------------------------------------
+debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
+  rodada 1:
+    promotor: Roubo (conf 0.80) — houve grave ameaça — 'anunciaram assalto', simulacro de arma.
+    defensor: Furto (conf 0.55) — não houve lesão nem contato físico; caberia analisar furto.
+  rodada 2:
+    promotor: Roubo (conf 0.85) — mantenho: houve grave ameaça — ...
+    defensor: Roubo (conf 0.70) — reconheço: a grave ameaça descrita configura roubo, não furto.
+  VEREDITO: Roubo  (2/2 opiniões convergiram para 'Roubo'.)</pre>
+    </div>
+    <p>Mesmo resultado de natureza nos quatro padrões de fluxo. O <strong>Supervisor pagou 5 chamadas de LLM a mais</strong> por uma adaptação que, neste caso, não era necessária. No Debate, repare que os debatedores <strong>discordam na rodada 1</strong> (Roubo 0.80 × Furto 0.55) e só <strong>convergem na rodada 2</strong>, depois de lerem o argumento um do outro — é isso que o padrão compra, ao custo de 5 chamadas de LLM.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_comparar.py PCDF-SIM-0009   (furto simples, sem placa)</span></div>
+<pre>pipeline     esp=4  llm=4  tools=1  custo=7   rodadas=4  latencia~1450ms   -> Furto, completo=True, pendências=0
+supervisor   esp=3  llm=7  tools=0  custo=8   rodadas=4  latencia~1600ms   -> Furto, completo=True, pendências=1  (pulou o Consultor)
+broker       esp=4  llm=4  tools=1  custo=7   rodadas=4  latencia~1450ms   -> Furto, completo=True, pendências=0
+blackboard   esp=4  llm=4  tools=1  custo=7   rodadas=3  latencia~1450ms   -> Furto, completo=True, pendências=0
+
+debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  ...  -> VEREDITO: Furto (2/2; os dois já concordam na rodada 1)</pre>
+    </div>
+    <p>Aqui o Supervisor <strong>pulou o Consultor</strong> (<code class="inline">esp=3</code>, <code class="inline">tools=0</code>) — ao preço de uma pendência "sem enriquecimento (aceitável)" e de 3 decisões de LLM a mais. Custo 8 vs 7: empate técnico. Mas se a consulta pulada fosse <em>paga</em>, a adaptação venceria. E no Debate, sem ambiguidade, não há discordância para resolver — as 5 chamadas foram desperdício.</p>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 1</p>
+      <ul class="lista-check">
+        <li><code class="inline">python main_comparar.py</code> imprime a tabela dos 4 + o debate</li>
+        <li>Você explica por que o Supervisor tem <code class="inline">llm</code> maior que os outros</li>
+        <li>Roda com <code class="inline">PCDF-SIM-0009</code> e vê o Supervisor pular o Consultor</li>
+        <li>Aponta onde, no código, o Blackboard decide a ordem (sem ninguém dizer)</li>
+        <li><code class="inline">pytest -q</code> passa (10 testes)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <span class="nivel basico">Nível básico</span>
+    <h2>Acrescentar um especialista — quem precisa mudar?</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício guiado</p>
+      <h3>O Sintetizador</h3>
+      <ol>
+        <li>Crie um especialista <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">sintetizador</code> que <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">precisa={"campos","classificacao"}</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">produz="resumo_final"</code>, e escreve <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">d.resumo_final = "..."</code>.</li>
+        <li>Faça-o rodar no <strong>Blackboard</strong>: só registrar em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">REGISTRO</code>. Nenhuma outra linha muda.</li>
+        <li>Faça-o rodar no <strong>Pipeline</strong>: você precisa mexer em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ORDEM_PIPELINE</code>. No <strong>Supervisor</strong>? No <strong>Broker</strong>?</li>
+        <li>Escreva numa frase: qual padrão é mais fácil de estender, e por quê.</li>
+      </ol>
+      <p style="margin-bottom:0">Solução em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py</code> → <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">lab_basico()</code>.</p>
+    </div>
+
+    <div class="exercicio">
+      <p class="rotulo">Exercício 2</p>
+      <h3>Um especialista que depende de outro novo</h3>
+      <ol>
+        <li>Adicione um <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">encaminhador</code> que <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">precisa={"resumo_final"}</code> (o campo que o Sintetizador do exercício 1 produz) e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">produz="encaminhamento"</code> (ex.: "prioridade alta → plantão").</li>
+        <li>No <strong>Blackboard</strong>, rode com os dois registrados. Em que rodada cada um executa? Por quê o Sintetizador roda antes, mesmo estando depois na ordem alfabética?</li>
+        <li>Agora tente no <strong>Pipeline</strong> sem colocar o Sintetizador antes do Encaminhador em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ORDEM_PIPELINE</code>. O que acontece? Compare com o Blackboard.</li>
+      </ol>
+      <p style="margin-bottom:0">É o custo real do Pipeline: a ordem correta é responsabilidade sua, não do sistema.</p>
+    </div>
+
+    <h3>Problemas comuns</h3>
+    <div class="tabela-wrap">
+      <table class="problemas">
+        <tr><th>Erro</th><th>Causa</th><th>Diagnóstico</th><th>Solução</th></tr>
+        <tr><td>blackboard roda o mesmo especialista várias vezes</td><td><code class="inline">produz</code> aponta um campo que "vazio" parece ausente (lista/False)</td><td>veja <code class="inline">Dossie.tem</code></td><td>use um marcador booleano dedicado (<code class="inline">revisado</code>)</td></tr>
+        <tr><td>broker deixa pedido pendente</td><td>a dependência não foi satisfeita por outro pedido</td><td>a pendência diz "não pôde despachar"</td><td>incluir os pedidos das dependências, ou deixar o broker inferi-las</td></tr>
+        <tr><td>supervisor entra em loop</td><td><code class="inline">decidir</code> nunca retorna "concluir"</td><td>o estado que ele checa não muda</td><td>a trava <code class="inline">max_rodadas</code> (Aula 4) segura; corrigir a condição</td></tr>
+        <tr><td><code class="inline">UnicodeEncodeError</code> no Windows</td><td>caractere fora do cp1252 no <code class="inline">print</code></td><td>ex.: <code class="inline">≈</code>, <code class="inline">→</code></td><td>usar <code class="inline">~</code>, <code class="inline">-&gt;</code>; ou <code class="inline">PYTHONUTF8=1</code></td></tr>
+      </table>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>O exercício 1 é curto — reserve os últimos 15 min do bloco para o exercício 2 e a
+      pergunta central: por que o Blackboard é o mais fácil de estender <em>e</em> o mais
+      difícil de prever. Peça à turma que não programa para desenhar o grafo de dependências
+      (precisa/produz) dos 5 especialistas — é o mesmo grafo que a Aula 6 vai formalizar.</p>
+    </div>
+  </section>
+
+  <!-- ===================== INTERVALO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Intervalo</p>
+    <h2>15 minutos</h2>
+    <p>Ao voltar: <em>um Supervisor comprometido (prompt envenenado, modelo trocado) pode pular o Revisor em todos os casos e ninguém percebe por semanas. Que padrão não tem esse risco, e o que ele troca por essa robustez?</em></p>
+  </section>
+
+  <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <span class="nivel intermediario">Nível intermediário</span>
+    <h2>Escolher o padrão pela carga</h2>
+    <p>O projeto traz o barramento em <code class="inline">app/barramento.py</code> e as referências
+    em <code class="inline">solucao_exercicios.py</code> (<code class="inline">escolher_padrao()</code>,
+    <code class="inline">supervisor_com_teto()</code>, <code class="inline">lab_barramento()</code>);
+    o <code class="inline">main_comparar.py</code> já publica <code class="inline">orquestracao.concluida</code>.</p>
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>Política de orquestração + orçamento</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py</code>. Estude <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">escolher_padrao()</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">supervisor_com_teto()</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">lab_barramento()</code> (métricas → Auditor).</li>
+        <li>Estenda <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">escolher_padrao()</code>: acrescente o eixo "casos parecidos entre si" (alto → pipeline; baixo → supervisor) e um caso de teste.</li>
+        <li>Faça o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">Auditor</code> somar o custo total por padrão ao longo de N ocorrências. Se o Supervisor custa 55% a mais no agregado, isso muda a sua recomendação para a triagem em massa?</li>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">main_comparar.py</code> nas duas ocorrências. Em qual o Supervisor "vale a pena"? Por quê?</li>
+      </ol>
+    </div>
+
+    <div class="exercicio">
+      <p class="rotulo">Exercício 2</p>
+      <h3>O padrão híbrido</h3>
+      <ol>
+        <li>Implemente <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">hibrido(d)</code>: roda o Pipeline; <strong>se</strong> o Classificador diz "Furto" mas os campos indicam violência (<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">tem_violencia</code>), dispara o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">debate("Furto ou Roubo?", d.texto)</code> e substitui a natureza pelo veredito.</li>
+        <li>Escreva o teste que prova: o Debate <strong>só</strong> roda quando há esse conflito (e não na ocorrência complexa, onde o Classificador já acerta).</li>
+        <li>Referência em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: hibrido()</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">test_hibrido_so_chama_debate_no_conflito</code>.</li>
+      </ol>
+    </div>
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>O item 3 (custo agregado) é o que muda decisões na vida real: um padrão 55% mais caro
+      por ocorrência, multiplicado por 8 mil boletins/dia, é uma conta de infraestrutura. Traga
+      esse número para o quadro. O exercício 2 (híbrido) é o gancho para o projeto integrador
+      (Aula 10) — vale deixar a turma esboçar mesmo sem terminar de codificar.</p>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 2</p>
+      <ul class="lista-check">
+        <li>Sei descrever cada padrão em 5 dimensões (custo, latência, complexidade, observabilidade, extensibilidade)</li>
+        <li>Escolho o padrão a partir de: volume, variabilidade dos casos, ambiguidade</li>
+        <li>O Supervisor respeita um teto de custo e degrada com pendência</li>
+        <li>As métricas de orquestração chegam ao Auditor</li>
+        <li><code class="inline">pytest -q</code> continua verde</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <span class="nivel avancado">Nível avançado</span>
+    <h2>A orquestração do SIGMA</h2>
+    <div class="exercicio">
+      <p class="rotulo">Desafio</p>
+      <h3>Requisitos (projete; implemente o que der)</h3>
+      <ol>
+        <li>Defina o padrão para cada cenário: (a) triagem noturna de 8 mil boletins; (b) apoio a uma investigação complexa de um caso; (c) revisão de tipificações duvidosas de um mês. Justifique cada escolha em custo × latência × qualidade.</li>
+        <li>Onde entra o <strong>Debate</strong>? Que sub-decisões do SIGMA merecem duas opiniões, e quais seriam desperdício?</li>
+        <li>O Supervisor é ponto único de falha. Desenhe a mitigação: monitor de "todos os passos aconteceram?", fallback para pipeline, alerta.</li>
+        <li>Como impedir que o <em>texto da ocorrência</em> influencie a escolha do padrão ("caso urgente, pule a revisão")? — é injeção.</li>
+        <li>Um padrão híbrido: pipeline no geral, mas <em>chama o Debate</em> quando o Classificador e o Revisor discordam da natureza. Esboce.</li>
+      </ol>
+      <p style="margin-bottom:0">Orientação no gabarito.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <h2>Trade-offs e riscos</h2>
+    <ul>
+      <li><strong>Não existe padrão certo — existe padrão certo para a carga.</strong> Volume alto e casos parecidos → pipeline. Casos variados, volume baixo → supervisor. Conjunto de especialistas instável → blackboard. Decisão ambígua e cara → debate.</li>
+      <li><strong>Ponto único de decisão ≠ ponto único de falha, mas quase.</strong> Supervisor e Broker centralizam; se caem ou erram, tudo para. Pipeline e Blackboard distribuem a decisão.</li>
+      <li><strong>Adaptação tem preço.</strong> Cada decisão do Supervisor é uma chamada de LLM — lenta, cara, e ela mesma sujeita a erro.</li>
+    </ul>
+
+    <h3>Segurança</h3>
+    <div class="grade col-3">
+      <div class="aviso perigo"><div class="titulo">⛔ Supervisor comprometido</div>
+        <p>Um prompt envenenado ou modelo trocado pode fazer o Supervisor pular o Revisor sistematicamente. Mitigação: monitor independente de completude, alertas, revisão periódica das decisões.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Viés de grupo no Debate</div>
+        <p>Debatedores do mesmo modelo tendem aos mesmos erros e "concordam" por convergência, não por acerto. Mitigação: modelos/prompts diferentes, um debatedor "advogado do diabo", juiz que exige evidência.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Injeção na escolha do padrão</div>
+        <p>Se o texto da ocorrência influencia qual padrão roda, um relato pode se "auto-triar" para o caminho rápido. A escolha do padrão vem da carga/configuração, nunca do conteúdo.</p></div>
+    </div>
+    <ul>
+      <li><strong>Observabilidade é parte do desenho.</strong> Blackboard sem instrumentação é uma caixa-preta; publique cada contribuição.</li>
+      <li><strong>Protótipo ≠ produção.</strong> Falta: retry por especialista, timeout global, fila entre padrões, métricas agregadas (Aula 9).</li>
+    </ul>
+
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável</div>
+      <p>O padrão de orquestração muda <strong>o custo e a rota</strong> — não a natureza da
+      saída. Pipeline, Supervisor, Blackboard ou Debate, o que sai é sempre um <strong>dossiê
+      de triagem para revisão humana</strong>: campos extraídos, uma natureza <em>sugerida</em>,
+      consultas <em>de apoio</em>, pendências. O Debate produz um "voto", não uma decisão
+      jurídica. Nenhum arranjo de agentes tipifica um crime, aponta autor ou dispara medida —
+      isso é do servidor, e o traço de qual padrão rodou fica registrado.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <h2>Fechamento da aula</h2>
+
+    <h3>Perguntas conceituais</h3>
+    <ol>
+      <li>Diferença entre Pipeline e Broker, já que os dois não usam LLM para decidir.</li>
+      <li>Por que o Supervisor custa mais que o Pipeline mesmo processando os mesmos especialistas?</li>
+      <li>No Blackboard, como a ordem de execução é determinada se ninguém a define?</li>
+      <li>Dê um caso em que o Debate vale o custo e um em que é desperdício.</li>
+      <li>Qual padrão você escolheria para 10 mil ocorrências/dia, e qual para uma investigação única?</li>
+    </ol>
+
+    <h3>Exercício prático</h3>
+    <p>Implemente o padrão <strong>híbrido</strong> do desafio: pipeline, mas se o Classificador diz "Furto" e o Revisor aponta "há violência", dispara o Debate para decidir a natureza. Teste que o Debate só roda nesse conflito.</p>
+
+    <h3>Desafio</h3>
+    <p>Escreva um teste que prove que, na ocorrência trivial, o Supervisor executa <strong>menos</strong> especialistas que o Pipeline — e mesmo assim entrega um dossiê com <code class="inline">completo=True</code>.</p>
+
+    <h3>Checklist de aprendizagem</h3>
+    <ul class="lista-check">
+      <li>Explico os 5 padrões e desenho o diagrama de cada</li>
+      <li>Comparo os 5 em custo, latência, complexidade, observabilidade, extensibilidade</li>
+      <li>Implementei os 5 sobre um conjunto comum de especialistas</li>
+      <li>Escolho o padrão a partir da carga de trabalho</li>
+      <li>Sei o risco do ponto único de decisão e como mitigar</li>
+      <li>Entendo por que o padrão não muda a natureza da saída</li>
+    </ul>
+  </section>
+
+  <!-- ===================== GLOSSÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Referência rápida</p>
+    <h2>Glossário</h2>
+    <div class="glossario">
+      <dl>
+        <dt>Orquestração</dt><dd>A lógica que coordena vários agentes: quem age, quando, com que entrada.</dd>
+        <dt>Especialista</dt><dd>Agente com um papel único e bem definido (extrair, classificar…).</dd>
+        <dt>Pipeline</dt><dd>Padrão em que os agentes rodam numa ordem fixa; a saída de um é a entrada do próximo.</dd>
+        <dt>Supervisor</dt><dd>Um agente que decide, a cada passo, qual especialista chamar (um loop sobre agentes).</dd>
+        <dt>Broker</dt><dd>Componente que despacha pedidos para o especialista com a capacidade certa, sem decidir o fluxo.</dd>
+        <dt>Blackboard</dt><dd>Um estado compartilhado onde cada especialista contribui quando suas pré-condições estão satisfeitas.</dd>
+        <dt>Debate</dt><dd>Vários agentes opinam sobre a mesma pergunta, leem-se e refinam em rodadas; um juiz decide.</dd>
+        <dt>Capacidade (capability)</dt><dd>O que um especialista sabe fazer — a chave que o Broker usa para rotear.</dd>
+        <dt>Pré-condição</dt><dd>O que precisa existir no estado para um especialista poder rodar.</dd>
+        <dt>Ordem emergente</dt><dd>A sequência de execução que resulta das dependências, sem ninguém defini-la.</dd>
+        <dt>Ponto único de falha</dt><dd>Componente cuja queda para o sistema inteiro (o Supervisor, o Broker, o juiz).</dd>
+        <dt>Juiz / agregador</dt><dd>Quem toma a decisão final a partir das opiniões dos debatedores.</dd>
+        <dt>Viés de grupo</dt><dd>Debatedores do mesmo modelo convergindo para o mesmo erro e "concordando".</dd>
+        <dt>Quadro compartilhado</dt><dd>O estado central que os especialistas leem e escrevem no Blackboard.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===================== REFERÊNCIAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Fontes</p>
+    <h2>Referências</h2>
+    <ol class="refs">
+      <li><span class="fonte">Anthropic — <em>Building Effective Agents</em> (2024)</span>. <a href="https://www.anthropic.com/research/building-effective-agents">anthropic.com/research/building-effective-agents</a>.
+        <span class="assoc">Padrões orchestrator-workers, routing, prompt chaining; quando cada um.</span></li>
+      <li><span class="fonte">Hayes-Roth, B. — <em>A Blackboard Architecture for Control</em> (1985)</span>. Artificial Intelligence 26(3). <a href="https://doi.org/10.1016/0004-3702(85)90063-3">doi.org/10.1016/0004-3702(85)90063-3</a>.
+        <span class="assoc">O modelo blackboard: fontes de conhecimento contribuindo oportunisticamente.</span></li>
+      <li><span class="fonte">Du, Y. et al. — <em>Improving Factuality and Reasoning in Language Models through Multiagent Debate</em> (2023)</span>. arXiv:2305.14325. <a href="https://arxiv.org/abs/2305.14325">arxiv.org/abs/2305.14325</a>.
+        <span class="assoc">Debate entre múltiplos agentes melhora fatualidade e raciocínio.</span></li>
+      <li><span class="fonte">Wu, Q. et al. — <em>AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation</em> (2023)</span>. arXiv:2308.08155. <a href="https://arxiv.org/abs/2308.08155">arxiv.org/abs/2308.08155</a>.
+        <span class="assoc">Framework de conversa multiagente; papéis, group chat, supervisor.</span></li>
+      <li><span class="fonte">LangGraph — <em>Documentação</em> (seção Multi-agent)</span>. LangChain. <a href="https://langchain-ai.github.io/langgraph/">langchain-ai.github.io/langgraph</a>.
+        <span class="assoc">Supervisor, swarm e hierarquia como grafos de execução (retomado na Aula 6).</span></li>
+      <li><span class="fonte">Hohpe, G.; Woolf, B. — <em>Enterprise Integration Patterns</em> (2003)</span>. Addison-Wesley. <a href="https://www.enterpriseintegrationpatterns.com/">enterpriseintegrationpatterns.com</a>.
+        <span class="assoc">Message Broker, Routing Slip (pipeline), Content-Based Router.</span></li>
+      <li><span class="fonte">OWASP — <em>Top 10 for LLM Applications</em> (2025)</span>. <a href="https://genai.owasp.org/">genai.owasp.org</a>.
+        <span class="assoc">LLM06 Excessive Agency — um coordenador comprometido controla tudo.</span></li>
+      <li><span class="fonte">NIST — <em>AI Risk Management Framework (AI RMF 1.0)</em> (2023)</span>. <a href="https://www.nist.gov/itl/ai-risk-management-framework">nist.gov/itl/ai-risk-management-framework</a>.
+        <span class="assoc">Monitorar e limitar sistemas compostos de múltiplos componentes de IA.</span></li>
+    </ol>
+  </section>
+
+  <!-- ===================== GABARITO ===================== -->
+  <details class="gabarito reveal">
+    <summary>Gabarito / Orientação ao Instrutor</summary>
+    <div class="conteudo">
+      <h3>Tempos (5h = 300 min)</h3>
+      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
+      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar:
+      no Bloco 2, apresente 3 padrões a fundo (pipeline, supervisor, debate) e os outros dois
+      pela tabela; o desafio pode ser só a discussão dos itens 1–3.</p>
+
+      <h3>Lab básico — o Sintetizador</h3>
+      <p><code class="inline">solucao_exercicios.py :: lab_basico()</code>: no Blackboard basta
+      <code class="inline">REGISTRO["sintetizador"] = SpecEspecialista(...)</code> — a ordem
+      emerge das dependências. No Pipeline você edita <code class="inline">ORDEM_PIPELINE</code>.
+      No Supervisor, acrescenta a opção no <code class="inline">decidir</code> (prompt/lógica).
+      No Broker, registra a capacidade. <strong>Blackboard é o mais fácil de estender</strong>,
+      e o mais difícil de prever — é o mesmo trade-off.</p>
+
+      <h3>Lab intermediário — respostas-guia</h3>
+      <ul>
+        <li><strong>Escolha por carga:</strong> volume alto + casos homogêneos → pipeline;
+        volume baixo + casos variados → supervisor; decisão ambígua → debate sobre a
+        sub-decisão, dentro de um dos outros.</li>
+        <li><strong><code class="inline">supervisor_com_teto</code>:</strong> checar
+        <code class="inline">m.custo &gt;= custo_max</code> no início de cada rodada, antes de
+        chamar <code class="inline">decidir</code>; ao estourar, <code class="inline">break</code>
+        com pendência. É a fusão Aula 4 + Aula 5.</li>
+        <li><strong>Métrica no barramento:</strong> ao fim, <code class="inline">barramento.publicar(EnvelopeA2A.informar("orquestrador", "orquestracao.concluida", metricas.__dict__))</code>.</li>
+      </ul>
+
+      <h3>Desafio — respostas-guia</h3>
+      <ul>
+        <li><strong>(a) 8 mil boletins:</strong> pipeline — previsível, sem custo de decisão, paraleliza por lote. <strong>(b) investigação:</strong> supervisor — adapta, e o volume (1 caso) paga as decisões. <strong>(c) revisão de tipificações:</strong> pipeline curto (só reclassificar) + debate nos casos que o classificador marcar como incertos.</li>
+        <li><strong>Debate onde:</strong> natureza quando há elementos de mais de um tipo penal; prioridade quando os sinais conflitam. <strong>Desperdício:</strong> extração de campos, contagem — não há ambiguidade de julgamento.</li>
+        <li><strong>Supervisor como SPOF:</strong> um verificador determinístico pós-execução ("todos os campos obrigatórios? revisor rodou?"); se falhar, reprocessa por pipeline e alerta; painel com taxa de "passos pulados" por período.</li>
+        <li><strong>Injeção na escolha:</strong> o seletor de padrão recebe só metadados da carga (quantidade, origem, perfil do solicitante), nunca o texto. O texto entra só nos especialistas, como dado.</li>
+        <li><strong>Híbrido:</strong> pipeline normal; após o Revisor, se
+        <code class="inline">campos["tem_violencia"] and classificacao["natureza"] == "Furto"</code>,
+        chamar <code class="inline">debate("Furto ou Roubo?", texto)</code> e sobrescrever a natureza pelo veredito.</li>
+      </ul>
+
+      <h3>Avaliação — respostas-guia</h3>
+      <ol>
+        <li>Pipeline fixa a ordem no código; o Broker roteia pedidos que chegam (fora de ordem, de fontes variadas) por capacidade.</li>
+        <li>Cada decisão do Supervisor é uma chamada de LLM adicional — os especialistas são os mesmos, o overhead é a coordenação.</li>
+        <li>Pelas pré-condições: a cada rodada roda quem tem o que precisa e ainda não contribuiu; a ordem cai das dependências.</li>
+        <li>Vale: "Furto ou Roubo?" num relato com elementos dos dois. Desperdício: "qual a data do fato?".</li>
+        <li>10 mil/dia → pipeline; investigação única → supervisor (ou supervisor + debate nas sub-decisões).</li>
+      </ol>
+    </div>
+  </details>
+
+  <!-- ===================== FECHAMENTO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Próximos passos</p>
+    <h2>Evolução do SIGMA — Aula 5</h2>
+    <p>O SIGMA agora sabe coordenar vários agentes — e sabe que a escolha do padrão é um trade-off. Mas os padrões ainda estão espalhados em cinco arquivos com lógica de controle na mão. Na Aula 6 eles viram um <strong>grafo de execução explícito</strong>: nós (agentes), arestas (transições), estado compartilhado, condicionais e ciclos — com o <strong>LangGraph</strong>. O Supervisor e o Blackboard desta aula são, no fundo, dois jeitos de desenhar o mesmo grafo.</p>
+    <div class="mermaid">
+flowchart LR
+  O[("Boletim sintético")] --> ORQ{"Orquestrador — qual padrão?"}
+  ORQ -- "carga alta, homogênea" --> PIPE["Pipeline"]
+  ORQ -- "caso a caso" --> SUP["Supervisor"]
+  ORQ -- "sub-decisão ambígua" --> DEB["Debate"]
+  PIPE --> DOS[("Dossiê de triagem")]
+  SUP --> DOS
+  DEB --> DOS
+  DOS --> H["Revisão humana"]
+  ORQ -. "orquestracao.concluida (métricas)" .-> AU["Auditor"]
+    </div>
+    <p class="legenda">O que a Aula 5 acrescentou: entre o boletim e o dossiê entrou um seletor de padrão de orquestração, escolhido pela carga — e cada execução publica suas métricas (padrão, custo, latência) para o Auditor.</p>
+
+    <blockquote class="ancora">"A pergunta não é 'qual o melhor padrão de orquestração' — é 'qual a minha carga de trabalho'. O resto se deduz."</blockquote>
+
+    <div class="nav-aulas">
+      <a href="aula-04-agent-loops.html"><span>Anterior</span>← Aula 4 — Agent Loops</a>
+      <a href="../index.html"><span>Em breve</span>Aula 6 — Grafos e LangGraph →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · Aula 5 de 10</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="../assets/aula.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# Só para o caminho "MCP de verdade" (pasta mcp_real/), com o SDK oficial.
+# A API do SDK muda entre versões maiores — pinado no 1.x (FastMCP).
+mcp>=1.2,<2
+openai>=1.40          # só se for usar o OpenAIConsultor em vez do MockConsultor

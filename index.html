@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistemas Multiagentes com IA · PCDF</title>
+<title>Unidade 8 — Sistemas Multiagentes em Segurança Pública · PCDF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
     font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
     letter-spacing: .1em; text-transform: uppercase; color: var(--ouro);
   }
-  .bloco-desc { font-size: 15px; color: var(--tinta-suave); margin: 0 0 20px; max-width: 620px; }
+  .bloco-desc { font-size: 15px; color: var(--tinta-suave); margin: 0 0 20px; max-width: 640px; }
 
   .aula-card { display: block; text-decoration: none; color: inherit; position: relative; transition: transform .15s ease, box-shadow .15s ease; }
   a.aula-card:hover { transform: translateY(-3px); box-shadow: var(--sombra); }
@@ -26,7 +26,7 @@
   .aula-card h4 { font-family: 'Fraunces', serif; font-size: 18px; margin: 8px 0; }
   .aula-card p { font-size: 14.5px; color: var(--tinta-suave); margin: 0; }
   .aula-card.pronta { border-left: 4px solid var(--teal); }
-  .aula-card.breve { opacity: .6; }
+  .aula-card.breve { opacity: .62; }
   .aula-card .abrir {
     display: inline-block; margin-top: 14px; font-family: 'JetBrains Mono', monospace;
     font-size: 12px; color: var(--teal); font-weight: 500;
@@ -65,21 +65,21 @@
   <div class="marca">
     <img src="assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
     <div class="sep"></div>
-    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Sistemas Multiagentes</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
   </div>
-  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>50h · 70% prática</div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>50h · 10 aulas</div>
 </header>
 
 <div class="hero">
   <div class="wrap">
-    <p class="eyebrow">PCDF · Curso de IA</p>
-    <h1>Sistemas Multiagentes <span class="destaque">com IA</span></h1>
-    <p class="sub">Do loop de um único agente até times de agentes coordenados em produção — construindo, testando e avaliando cada peça. Os exemplos rodam sem chave de API.</p>
+    <p class="eyebrow">PCDF · Unidade 8</p>
+    <h1>Sistemas Multiagentes em <span class="destaque">Segurança Pública</span></h1>
+    <p class="sub">Projetar, construir, integrar, proteger e operar arquiteturas com vários agentes de IA aplicadas ao apoio da atividade policial — do primeiro agente de triagem de ocorrências até um sistema distribuído em Kubernetes, com observabilidade e segurança. A decisão final é sempre humana.</p>
     <div class="meta">
-      <span class="tag">7 aulas · 50h</span>
-      <span class="tag">Python + Claude</span>
+      <span class="tag">10 aulas · 50h</span>
+      <span class="tag">Python + OpenAI</span>
       <span class="tag">70% prática</span>
-      <span class="tag">turma mista</span>
+      <span class="tag">dados sintéticos</span>
     </div>
   </div>
 </div>
@@ -90,13 +90,14 @@
     <p class="rotulo">Onde estamos</p>
     <div class="progresso-curso">
       <div class="linha-topo">
-        <strong>2 de 7 aulas publicadas</strong>
-        <span class="pct">~10h de 50h · 29%</span>
+        <strong>5 de 10 aulas publicadas</strong>
+        <span class="pct">~25h de 50h · 50%</span>
       </div>
-      <div class="barra-ext"><div class="barra-int" style="width:29%"></div></div>
+      <div class="barra-ext"><div class="barra-int" style="width:50%"></div></div>
       <div class="mini-links">
         <a href="aulas/aula-01-fundamentos.html">→ Começar pela Aula 1</a>
         <a href="#codigo">→ Código de exemplo</a>
+        <a href="#responsavel">→ Uso responsável</a>
         <a href="https://github.com/franciscomduarte/curso-pcdf">→ Repositório</a>
       </div>
     </div>
@@ -104,47 +105,48 @@
 
   <section class="reveal">
     <p class="rotulo">Trilha</p>
-    <h2>As aulas, em três blocos</h2>
-    <p style="color:var(--tinta-suave);max-width:620px">
-      Cada bloco fecha um ciclo: primeiro você entende e constrói na mão, depois
-      adota ferramentas de produção e, por fim, coloca um sistema completo para rodar
-      com avaliação embutida.
+    <h2>As 10 aulas, em quatro blocos</h2>
+    <p style="color:var(--tinta-suave);max-width:640px">
+      O curso constrói progressivamente o <strong>SIGMA</strong> — um sistema fictício de
+      apoio à análise de ocorrências. Cada aula tem 5 horas de laboratório: teoria curta,
+      demonstração, três níveis de prática (básico → intermediário → avançado) e debriefing.
     </p>
 
     <!-- BLOCO A -->
     <div class="bloco">
       <div class="bloco-cab">
         <span class="faixa">Bloco A</span>
-        <h3>Fundamentos e construção manual</h3>
+        <h3>Fundamentos e comunicação</h3>
       </div>
       <p class="bloco-desc">
-        O que é (e o que não é) um agente, o critério para usar vários e como escrever
-        o loop na mão — sem nenhum framework escondendo a mecânica.
+        O que é um agente, como agentes conversam entre si e como um agente acessa
+        ferramentas e dados externos de forma controlada.
       </p>
       <div class="grade col-2">
 
         <a class="aula-card cartao pronta" href="aulas/aula-01-fundamentos.html">
           <span class="selo ok">Pronta</span>
-          <span class="num">Aula 1 · Módulo 1 · 4h</span>
-          <h4>Fundamentos e critério single vs. multi-agente</h4>
-          <p>O que é um agente, o que não é, e a pergunta que evita 90% dos erros: preciso mesmo de vários?</p>
+          <span class="num">Aula 1 · 5h</span>
+          <h4>Fundamentos de Agentes e Engenharia Básica</h4>
+          <p>Ambiente, estado, memória e autonomia. Primeiro agente: extrai campos estruturados de um boletim de ocorrência sintético.</p>
           <span class="abrir">Abrir aula →</span>
         </a>
 
-        <a class="aula-card cartao pronta" href="aulas/aula-02-agente-do-zero.html">
+        <a class="aula-card cartao pronta" href="aulas/aula-02-comunicacao-a2a.html">
           <span class="selo ok">Pronta</span>
-          <span class="num">Aula 2 · Módulo 2 · 6h</span>
-          <h4>Um agente do zero, sem framework</h4>
-          <p>Escreva o loop na mão: ferramentas, memória, interface do LLM e a trava anti-loop.</p>
+          <span class="num">Aula 2 · 5h</span>
+          <h4>Protocolos de Comunicação Agente-a-Agente (A2A)</h4>
+          <p>Síncrono e assíncrono; Request/Response, Pub/Sub e mensageria; contratos via MQTT, gRPC e FIPA-ACL.</p>
           <span class="abrir">Abrir aula →</span>
         </a>
 
-        <div class="aula-card cartao breve">
-          <span class="selo wip">Em breve</span>
-          <span class="num">Aula 3 · Módulo 3 · 8h</span>
-          <h4>Padrões de coordenação</h4>
-          <p>Sequencial, supervisor, paralelo e debate — ainda sem framework.</p>
-        </div>
+        <a class="aula-card cartao pronta" href="aulas/aula-03-mcp-integracao.html">
+          <span class="selo ok">Pronta</span>
+          <span class="num">Aula 3 · 5h</span>
+          <h4>Model Context Protocol (MCP) e Integração</h4>
+          <p>Tool e function calling; arquitetura MCP (Client/Server, Tools, Resources); acesso a APIs e bancos com controle de acesso.</p>
+          <span class="abrir">Abrir aula →</span>
+        </a>
 
       </div>
     </div>
@@ -153,26 +155,35 @@
     <div class="bloco">
       <div class="bloco-cab">
         <span class="faixa">Bloco B</span>
-        <h3>Frameworks e integração</h3>
+        <h3>Coordenação e orquestração</h3>
       </div>
       <p class="bloco-desc">
-        O mesmo projeto reescrito com ferramentas de produção, para sentir os trade-offs,
-        e os protocolos que fazem agentes compartilharem contexto e conversarem entre si.
+        O ciclo de decisão de um agente, os padrões para coordenar vários e a modelagem
+        de fluxos de execução como grafos.
       </p>
       <div class="grade col-2">
 
-        <div class="aula-card cartao breve">
-          <span class="selo wip">Em breve</span>
-          <span class="num">Aula 4 · Módulo 4 · 10h</span>
-          <h4>Frameworks de produção (LangGraph + CrewAI)</h4>
-          <p>O mesmo projeto reescrito, para sentir os trade-offs de cada abstração.</p>
-        </div>
+        <a class="aula-card cartao pronta" href="aulas/aula-04-agent-loops.html">
+          <span class="selo ok">Pronta</span>
+          <span class="num">Aula 4 · 5h</span>
+          <h4>Engenharia de Agent Loops</h4>
+          <p>Percepção-Planejamento-Decisão-Ação-Observação; padrão ReAct; critérios de parada, retries e controle de autonomia.</p>
+          <span class="abrir">Abrir aula →</span>
+        </a>
+
+        <a class="aula-card cartao pronta" href="aulas/aula-05-orquestracao.html">
+          <span class="selo ok">Pronta</span>
+          <span class="num">Aula 5 · 5h</span>
+          <h4>Padrões de Orquestração Multiagente</h4>
+          <p>Supervisor, Broker, Blackboard, Pipeline e Debate — comparados por custo, latência e complexidade.</p>
+          <span class="abrir">Abrir aula →</span>
+        </a>
 
         <div class="aula-card cartao breve">
           <span class="selo wip">Em breve</span>
-          <span class="num">Aula 5 · Módulo 5 · 8h</span>
-          <h4>Estado, memória e interoperabilidade (MCP / A2A)</h4>
-          <p>Como agentes compartilham contexto e conversam entre frameworks.</p>
+          <span class="num">Aula 6 · 5h</span>
+          <h4>Modelagem de Sistemas Baseados em Grafos</h4>
+          <p>Nós, arestas, DAGs e ciclos; estado compartilhado; introdução ao LangGraph e a grafos de execução.</p>
         </div>
 
       </div>
@@ -182,26 +193,55 @@
     <div class="bloco">
       <div class="bloco-cab">
         <span class="faixa">Bloco C</span>
-        <h3>Produção e projeto final</h3>
+        <h3>Especialização e operação</h3>
       </div>
       <p class="bloco-desc">
-        Onde os projetos costumam morrer — tracing, avaliação de trajetória e segurança —
-        e um sistema multiagente ponta a ponta como capstone.
+        Agentes com papéis distintos e validação humana obrigatória; empacotamento e deploy
+        distribuído; escala, observabilidade e segurança.
       </p>
       <div class="grade col-2">
 
         <div class="aula-card cartao breve">
           <span class="selo wip">Em breve</span>
-          <span class="num">Aula 6 · Módulo 6 · 6h</span>
-          <h4>Avaliação, observabilidade e segurança</h4>
-          <p>Onde os projetos morrem: tracing, avaliação de trajetória e injeção de prompt.</p>
+          <span class="num">Aula 7 · 5h</span>
+          <h4>Agentes Especializados e Human-in-the-Loop</h4>
+          <p>Papéis (Investigador, Jurídico, Analista); persistência de estado e memória; breakpoints com validação humana.</p>
         </div>
 
         <div class="aula-card cartao breve">
           <span class="selo wip">Em breve</span>
-          <span class="num">Aula 7 · Módulo 7 · 8h</span>
-          <h4>Projeto final (capstone)</h4>
-          <p>Sistema multiagente ponta a ponta, com avaliação embutida.</p>
+          <span class="num">Aula 8 · 5h</span>
+          <h4>Arquitetura Distribuída e Deploy com Kubernetes</h4>
+          <p>Containerização com Docker; microsserviços; Deployments, Services, ConfigMaps e comunicação no cluster.</p>
+        </div>
+
+        <div class="aula-card cartao breve">
+          <span class="selo wip">Em breve</span>
+          <span class="num">Aula 9 · 5h</span>
+          <h4>Auto-scaling, Observabilidade e Segurança</h4>
+          <p>HPA e balanceamento; tracing de trajetórias, métricas e auditoria; prompt injection, excessive agency e guardrails.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BLOCO D -->
+    <div class="bloco">
+      <div class="bloco-cab">
+        <span class="faixa">Bloco D</span>
+        <h3>Integração</h3>
+      </div>
+      <p class="bloco-desc">
+        Tudo junto: um sistema multiagente fim a fim para um cenário complexo e fictício
+        de investigação.
+      </p>
+      <div class="grade col-2">
+
+        <div class="aula-card cartao breve">
+          <span class="selo wip">Em breve</span>
+          <span class="num">Aula 10 · 5h</span>
+          <h4>Projeto Integrador e Estudo de Caso</h4>
+          <p>Desenvolvimento e apresentação do SIGMA completo: agentes, comunicação, MCP, grafo, HITL, deploy, observabilidade e segurança.</p>
         </div>
 
       </div>
@@ -211,22 +251,47 @@
   <section class="reveal" id="codigo">
     <p class="rotulo">Prática</p>
     <h2>Código de exemplo</h2>
-    <p style="color:var(--tinta-suave);max-width:620px">
-      Cada módulo prático traz código Python que roda localmente com um LLM falso (mock),
-      sem chave de API. Para usar o Claude real: <code class="inline">pip install anthropic</code>
-      e <code class="inline">export ANTHROPIC_API_KEY=...</code>.
+    <p style="color:var(--tinta-suave);max-width:640px">
+      Cada aula traz um projeto Python próprio. O padrão é a <strong>OpenAI API</strong>, mas
+      todos os laboratórios rodam <strong>offline</strong> com um <code class="inline">MockExtrator</code>
+      (LLM falso e roteirizado) quando não há <code class="inline">OPENAI_API_KEY</code> — resultado
+      sempre igual, sem custo, ótimo para aula.
     </p>
     <div class="grade col-2">
-      <a class="aula-card cartao pronta" href="codigo/modulo-02-agente-do-zero/">
-        <span class="num">Módulo 2</span>
-        <h4>Agente do zero</h4>
-        <p><code class="inline">agente_do_zero.py</code> · <code class="inline">solucao_exercicio.py</code> — o loop completo, ferramentas e trava anti-loop.</p>
+      <a class="aula-card cartao pronta" href="codigo/aula-01-extrator-ocorrencias/">
+        <span class="num">Aula 1</span>
+        <h4>Agente extrator de ocorrências</h4>
+        <p><code class="inline">app/</code> · <code class="inline">main.py</code> · <code class="inline">main_lote.py</code> · <code class="inline">tests/</code> — extração, classificação e relatório consolidado.</p>
+        <span class="abrir">Ver código →</span>
+      </a>
+      <a class="aula-card cartao pronta" href="codigo/aula-02-comunicacao-a2a/">
+        <span class="num">Aula 2</span>
+        <h4>Barramento A2A + MQTT + gRPC</h4>
+        <p><code class="inline">app/</code> · <code class="inline">main_local.py</code> · <code class="inline">main_mqtt.py</code> · <code class="inline">grpc_demo/</code> — pub/sub, request/response e os contratos.</p>
+        <span class="abrir">Ver código →</span>
+      </a>
+      <a class="aula-card cartao pronta" href="codigo/aula-03-mcp-integracao/">
+        <span class="num">Aula 3</span>
+        <h4>Servidor MCP + agente consultor</h4>
+        <p><code class="inline">app/</code> · <code class="inline">main.py</code> · <code class="inline">main_escopo.py</code> · <code class="inline">mcp_real/</code> — tools, resources, escopo e auditoria.</p>
+        <span class="abrir">Ver código →</span>
+      </a>
+      <a class="aula-card cartao pronta" href="codigo/aula-04-agent-loops/">
+        <span class="num">Aula 4</span>
+        <h4>Loop ReAct + orçamento</h4>
+        <p><code class="inline">app/loop.py</code> · <code class="inline">app/orcamento.py</code> · <code class="inline">main_limites.py</code> — as 5 fases, 7 critérios de parada, autonomia e retry.</p>
+        <span class="abrir">Ver código →</span>
+      </a>
+      <a class="aula-card cartao pronta" href="codigo/aula-05-orquestracao/">
+        <span class="num">Aula 5</span>
+        <h4>Os 5 padrões, comparados</h4>
+        <p><code class="inline">app/padroes/</code> · <code class="inline">main_comparar.py</code> — pipeline, supervisor, broker, blackboard e debate sobre os mesmos especialistas.</p>
         <span class="abrir">Ver código →</span>
       </a>
       <div class="aula-card cartao breve">
-        <span class="num">Módulos 3–7</span>
+        <span class="num">Aulas 6–10</span>
         <h4>Em breve</h4>
-        <p>Coordenação, frameworks, MCP/A2A, avaliação e o capstone.</p>
+        <p>LangGraph, HITL, Kubernetes, observabilidade e o projeto integrador.</p>
       </div>
     </div>
   </section>
@@ -238,26 +303,41 @@
       <div class="cartao">
         <div class="ic">📖</div>
         <h4>Leia na ordem</h4>
-        <p>Cada aula assume a anterior. A barra no topo marca seu progresso de leitura.</p>
+        <p>Cada aula assume a anterior e avança o SIGMA. A barra no topo marca seu progresso de leitura.</p>
       </div>
       <div class="cartao">
         <div class="ic">⌨️</div>
-        <h4>Rode o código</h4>
-        <p>Abra a pasta <code class="inline">codigo/</code> do módulo e execute. Nada de API obrigatória.</p>
+        <h4>Rode os laboratórios</h4>
+        <p>Abra a pasta <code class="inline">codigo/</code> da aula e execute. Sem chave de API obrigatória.</p>
       </div>
       <div class="cartao">
-        <div class="ic">🧭</div>
-        <h4>Turma mista</h4>
-        <p>50h, 70% prática. Blocos A→C vão do conceito ao sistema em produção.</p>
+        <div class="ic">🔒</div>
+        <h4>Só dados sintéticos</h4>
+        <p>Nenhum dado real, pessoal ou sigiloso. Nomes, placas e endereços são fictícios, para treinamento.</p>
       </div>
+    </div>
+  </section>
+
+  <section class="reveal" id="responsavel">
+    <p class="rotulo">Princípio do curso</p>
+    <h2>Uso responsável</h2>
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável</div>
+      <p>Os sistemas construídos nesta unidade são <strong>ferramentas de apoio</strong>:
+      recuperam informação, organizam, classificam, extraem, correlacionam e geram rascunhos.
+      Eles <strong>não</strong> determinam culpabilidade, autoria, prisão, indiciamento ou medida
+      cautelar, e não classificam definitivamente ninguém como suspeito.</p>
+      <p style="margin-bottom:0">A decisão em situações sensíveis é sempre humana, com
+      supervisão, validação, rastreabilidade, auditoria, controle de acesso e proteção de dados
+      (LGPD). Todo o material usa dados fictícios.</p>
     </div>
   </section>
 
 </main>
 
 <footer>
-  <p><strong>Curso PCDF · Sistemas Multiagentes com IA</strong></p>
-  <p>Prof. Francisco Molina Jr</p>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · 50h · 10 aulas</p>
 </footer>
 
 <script src="assets/aula.js"></script>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 2 — Comunicação A2A · Unidade 8 · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="../assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 2 de 10 · 5h</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Aula 2 · Protocolos de Comunicação Agente-a-Agente (A2A)</p>
+    <h1>Agentes que <span class="destaque">conversam</span> sem se conhecer</h1>
+    <p class="sub">Na Aula 1 o extrator entregava o resultado direto para o humano. Conforme o SIGMA ganha um classificador, um auditor e um painel, amarrar tudo com chamadas diretas vira um nó. Esta aula troca as chamadas por <em>mensagens</em>: Request/Response, Pub/Sub, e os contratos de MQTT, gRPC e FIPA-ACL.</p>
+    <div class="meta">
+      <span class="tag">5h · laboratório</span>
+      <span class="tag">Python · pub/sub · MQTT · gRPC</span>
+      <span class="tag">pré: Aula 1</span>
+      <span class="tag">dados sintéticos</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <h2>O problema: o SIGMA cresceu</h2>
+    <p>O extrator da Aula 1 funciona. Agora a triagem quer mais: <strong>classificar</strong> a prioridade, manter uma <strong>trilha de auditoria</strong> de tudo que foi processado e alimentar um <strong>painel</strong> com os números do dia. Se cada peça chamar a próxima diretamente (<code class="inline">classificador.classificar(extrator.extrair(texto))</code>), em pouco tempo:</p>
+    <ul>
+      <li>todo mundo precisa <em>importar</em> e <em>instanciar</em> todo mundo;</li>
+      <li>acrescentar o auditor obriga a mexer no extrator e no classificador;</li>
+      <li>se o classificador cair, o extrator cai junto;</li>
+      <li>não dá para rodar as peças em máquinas diferentes.</li>
+    </ul>
+    <p>A saída é os agentes trocarem <strong>mensagens</strong> por um canal comum, em vez de se chamarem. Hoje construímos esse canal — primeiro em memória, depois sobre MQTT e gRPC.</p>
+
+    <div class="painel">
+      <div class="grade-painel">
+        <div>
+          <h4>Objetivos</h4>
+          <ul>
+            <li>Distinguir comunicação síncrona de assíncrona</li>
+            <li>Implementar Request/Response e Pub/Sub e saber quando usar cada um</li>
+            <li>Modelar um contrato de mensagem inspirado na FIPA-ACL</li>
+            <li>Mapear o mesmo fluxo para MQTT e para gRPC</li>
+            <li>Reconhecer os riscos que a mensageria adiciona (spoofing, vazamento)</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Pré-requisitos</h4>
+          <ul>
+            <li>Aula 1 (agente, esquema, dados sintéticos)</li>
+            <li>Python: classes, <code class="inline">Protocol</code>, funções de callback</li>
+            <li>Noção de cliente/servidor</li>
+            <li>Docker (só para o trecho MQTT)</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Stack</h4>
+          <ul>
+            <li>Python 3.11+ (funciona em 3.10) · <code class="inline">pydantic</code></li>
+            <li><code class="inline">paho-mqtt</code> + Eclipse Mosquitto <em>(opcional)</em></li>
+            <li><code class="inline">grpcio</code> + <code class="inline">grpcio-tools</code> <em>(opcional)</em></li>
+            <li>Protocol Buffers 3</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <ol>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>o SIGMA cresceu; chamada direta vs mensagem</small></span></li>
+        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>síncrono/assíncrono; Req/Resp; Pub/Sub; MQTT; gRPC; FIPA-ACL</small></span></li>
+        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>EnvelopeA2A, BarramentoLocal, os 3 agentes</small></span></li>
+        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>acrescentar um assinante; curingas de tópico</small></span></li>
+        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>Request/Response, performativas, acoplamento; MQTT</small></span></li>
+        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>arquitetura distribuída; escolher o transporte por enlace</small></span></li>
+        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>custo/latência/complexidade; segurança do barramento</small></span></li>
+        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício prático, desafio, checklist</small></span></li>
+      </ol>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Abra desenhando no quadro o SIGMA da Aula 1 (1 seta) e vá acrescentando caixas
+      (classificador, auditor, painel) ligadas por chamadas diretas. Quando o desenho virar
+      um emaranhado, apague e desenhe um único barramento no meio. O "estalo" visual vale mais
+      que a explicação. Turmas mistas: quem programa implementa; quem não programa desenha os
+      contratos de mensagem.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <h2>Síncrono × assíncrono</h2>
+    <p>Na comunicação <strong>síncrona</strong> quem envia <em>para e espera</em> a resposta — como um telefonema. Na <strong>assíncrona</strong>, envia e segue a vida; a resposta (se houver) chega depois — como um e-mail. Não é "melhor" e "pior": é acoplamento no tempo. Síncrono é simples de raciocinar e ruim de escalar; assíncrono escala e é mais difícil de depurar.</p>
+
+    <h3>Request/Response — o telefonema</h3>
+    <p>O chamador conhece o serviço, manda um pedido e bloqueia até a resposta. É o modelo de REST e de gRPC. Bom quando você <em>precisa</em> da resposta para continuar ("classifique esta ocorrência agora, vou mostrar na tela").</p>
+    <div class="mermaid">
+sequenceDiagram
+  participant T as Triagem
+  participant C as Classificador
+  T->>C: REQUEST  classificar(ocorrência)
+  Note right of C: aplica a regra
+  C-->>T: CONFIRM  prioridade = alta, revisar = true
+    </div>
+    <p class="legenda">Simples e direto — mas se o Classificador estiver fora do ar, a Triagem trava ou recebe erro.</p>
+
+    <h3>Pub/Sub — o mural</h3>
+    <p>Quem produz <strong>publica</strong> um evento num tópico e não sabe (nem se importa) quem lê. Quem tem interesse <strong>assina</strong> o tópico. Um <em>broker</em> no meio faz a entrega. Acrescentar um novo consumidor não toca em ninguém.</p>
+    <div class="mermaid">
+flowchart LR
+  E["Extrator"] -- "publica: ocorrencia.extraida" --> B[["barramento / broker"]]
+  B --> C["Classificador"]
+  B --> A["Auditor"]
+  B --> P["Painel"]
+  C -- "publica: ocorrencia.classificada" --> B
+    </div>
+    <p class="legenda">O Extrator não conhece o Classificador. O Painel foi acrescentado sem mexer em nada.</p>
+
+    <h3>Eventos, filas e mensageria</h3>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Termo</th><th>O que é</th></tr>
+        <tr><td><strong>Evento</strong></td><td>"Isto aconteceu" — fato no passado, imutável (<code class="inline">ocorrencia.extraida</code>).</td></tr>
+        <tr><td><strong>Mensagem</strong></td><td>Qualquer envelope trafegado: evento, comando ou resposta.</td></tr>
+        <tr><td><strong>Fila</strong></td><td>Um consumidor por mensagem, com ordem e retentativa (trabalho a fazer).</td></tr>
+        <tr><td><strong>Tópico (pub/sub)</strong></td><td>Todos os assinantes recebem cada mensagem (notificação).</td></tr>
+        <tr><td><strong>Broker</strong></td><td>O intermediário que roteia, entrega e (às vezes) guarda mensagens.</td></tr>
+        <tr><td><strong>Backpressure</strong></td><td>O que fazer quando chega mais rápido do que se consome.</td></tr>
+      </table>
+    </div>
+
+    <h3>MQTT — pub/sub leve, feito para muitos clientes</h3>
+    <p>Protocolo de mensageria sobre TCP, criado para telemetria e IoT: cabeçalho minúsculo, milhares de conexões, tópicos hierárquicos separados por <code class="inline">/</code>. Um <strong>broker</strong> (ex.: Eclipse Mosquitto) recebe os <code class="inline">PUBLISH</code> e distribui aos assinantes.</p>
+    <div class="mermaid">
+flowchart TD
+  R["sigma/#  (tudo)"] --> O["sigma/ocorrencia/+  (um nível)"]
+  O --> E["sigma/ocorrencia/extraida"]
+  O --> K["sigma/ocorrencia/classificada"]
+  R --> S["sigma/sistema/heartbeat"]
+    </div>
+    <p class="legenda">A árvore é só o espaço de nomes dos tópicos. Quem assina escolhe o nível: <code class="inline">sigma/ocorrencia/extraida</code> pega um tópico exato; <code class="inline">sigma/ocorrencia/+</code> pega extraídas e classificadas; <code class="inline">sigma/#</code> (o Auditor) pega tudo, inclusive o heartbeat do sistema.</p>
+    <ul>
+      <li><strong>Curingas na assinatura:</strong> <code class="inline">+</code> = um nível; <code class="inline">#</code> = tudo dali para baixo. O Auditor assina <code class="inline">sigma/#</code>.</li>
+      <li><strong>QoS 0/1/2:</strong> "no máximo uma vez", "pelo menos uma vez", "exatamente uma vez". Mais garantia = mais latência.</li>
+      <li><strong>Retain:</strong> o broker guarda a última mensagem do tópico para quem chegar depois.</li>
+      <li><strong>Segurança:</strong> autenticação usuário/senha, TLS, e <strong>ACL por tópico</strong> — quem pode publicar/assinar o quê.</li>
+    </ul>
+
+    <h3>gRPC — Request/Response tipado e rápido</h3>
+    <p>Framework RPC sobre HTTP/2. O contrato é um arquivo <code class="inline">.proto</code> <strong>obrigatório</strong>: define serviços, métodos e mensagens. Um compilador gera o código de cliente (<em>stub</em>) e servidor. O payload trafega em <strong>binário</strong> (Protocol Buffers), não JSON — menor e mais rápido de serializar.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">grpc_demo/classificador.proto</span></div>
+<pre>syntax = "proto3";
+package sigma.a2a.v1;
+
+service Classificador {
+  rpc Classificar(OcorrenciaExtraida) returns (Classificacao);
+}
+
+message OcorrenciaExtraida {
+  string id = 1;
+  string natureza = 2;
+  string data_fato = 3;
+  string local = 4;
+  string resumo = 5;
+}
+
+message Classificacao {
+  string id = 1;
+  string natureza = 2;
+  string prioridade = 3;
+  bool   revisao_humana_obrigatoria = 4;
+}</pre>
+    </div>
+    <p>Além do <em>unary</em> (um pedido, uma resposta), o gRPC tem <em>streaming</em> nos dois sentidos — útil quando um agente precisa acompanhar um fluxo contínuo (Aula 4).</p>
+
+    <h3>FIPA-ACL — a semântica da mensagem</h3>
+    <p>A <strong>FIPA Agent Communication Language</strong> é um padrão (anos 2000) que não define <em>transporte</em>, e sim a <strong>estrutura</strong> e a <strong>intenção</strong> da mensagem. O campo central é a <strong>performativa</strong> (ou "ato comunicativo"):</p>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Performativa</th><th>Significa</th><th>No SIGMA</th></tr>
+        <tr><td><code class="inline">inform</code></td><td>comunico um fato</td><td>Extrator anuncia <code class="inline">ocorrencia.extraida</code></td></tr>
+        <tr><td><code class="inline">request</code></td><td>peço uma ação</td><td>Triagem pede "classifique já"</td></tr>
+        <tr><td><code class="inline">query-ref</code></td><td>pergunto o valor de algo</td><td>"qual a prioridade da SIM-0002?"</td></tr>
+        <tr><td><code class="inline">agree</code> / <code class="inline">refuse</code></td><td>aceito / recuso executar</td><td>Classificador recusa ontologia desconhecida</td></tr>
+        <tr><td><code class="inline">failure</code></td><td>tentei e não consegui</td><td>erro no handler vira resposta <code class="inline">failure</code></td></tr>
+      </table>
+    </div>
+    <p>Outros campos: <code class="inline">sender</code>, <code class="inline">receiver</code>, <code class="inline">conversation-id</code> (amarra a troca), <code class="inline">ontology</code> (o vocabulário do conteúdo), <code class="inline">reply-with</code>. Nosso <code class="inline">EnvelopeA2A</code> é um subconjunto pragmático disso, em JSON.</p>
+
+    <h3>Comparando</h3>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>&nbsp;</th><th>REST/HTTP</th><th>gRPC</th><th>MQTT</th><th>FIPA-ACL</th></tr>
+        <tr><td>Padrão</td><td>Req/Resp</td><td>Req/Resp + streaming</td><td>Pub/Sub</td><td>modelo de mensagem (agnóstico de transporte)</td></tr>
+        <tr><td>Sínc/Assínc</td><td>síncrono</td><td>síncrono / stream</td><td>assíncrono</td><td>ambos</td></tr>
+        <tr><td>Contrato</td><td>OpenAPI (opcional)</td><td class="sim"><code class="inline">.proto</code> obrigatório</td><td>tópico + payload livre</td><td>performativa + ontologia</td></tr>
+        <tr><td>Acoplamento</td><td>médio (URL)</td><td>médio (endpoint)</td><td class="sim">baixo (via broker)</td><td>—</td></tr>
+        <tr><td>Payload</td><td>JSON (texto)</td><td class="sim">protobuf (binário)</td><td>qualquer (bytes)</td><td>qualquer</td></tr>
+        <tr><td>Melhor para</td><td>APIs externas</td><td>microsserviços internos rápidos</td><td>eventos, muitos consumidores</td><td>intenção entre agentes</td></tr>
+        <tr><td>Latência típica</td><td>média</td><td class="sim">baixa</td><td>baixa</td><td>—</td></tr>
+        <tr><td>Custo operacional</td><td>baixo</td><td>médio</td><td>médio (broker)</td><td>conceitual</td></tr>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">Especificações: MQTT v5.0 (OASIS), gRPC e Protocol Buffers (Google), FIPA ACL Message Structure (SC00061) — ver Referências.</p>
+  </section>
+
+  <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <h2>Construindo o barramento</h2>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
+<pre>cd codigo/aula-02-comunicacao-a2a
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt    # só pydantic, dotenv, pytest
+
+python -c "import pydantic; print('ambiente ok')"</pre>
+    </div>
+    <p>O laboratório principal roda <strong>sem broker e sem chave</strong>. MQTT e gRPC são as versões "de produção", com <code class="inline">requirements-opcionais.txt</code>.</p>
+
+    <h3>Peça 1 — o envelope (contrato)</h3>
+    <p>Toda mensagem do SIGMA é um <code class="inline">EnvelopeA2A</code>. A <strong>performativa</strong> diz a intenção; <code class="inline">conteudo</code> é validado por quem recebe.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/mensagem.py</span></div>
+<pre data-lang="python">import uuid
+from datetime import datetime, timezone
+from enum import Enum
+from pydantic import BaseModel, Field
+
+class Performativa(str, Enum):
+    INFORM = "inform"
+    REQUEST = "request"
+    CONFIRM = "confirm"
+    REFUSE = "refuse"
+    FAILURE = "failure"
+    NOT_UNDERSTOOD = "not-understood"     # (arquivo tem mais)
+
+class EnvelopeA2A(BaseModel):
+    performativa: Performativa
+    remetente: str
+    destinatario: str | None = None       # None = mensagem de tópico
+    topico: str
+    conversa_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    responder_a: str | None = None
+    ontologia: str = "sigma/ocorrencia/v1"
+    conteudo: dict = Field(default_factory=dict)
+    enviado_em: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+    @classmethod
+    def informar(cls, remetente, topico, conteudo, **kw):
+        return cls(performativa=Performativa.INFORM, remetente=remetente,
+                   topico=topico, conteudo=conteudo, **kw)
+
+    def resposta(self, remetente, performativa, conteudo):
+        return EnvelopeA2A(performativa=performativa, remetente=remetente,
+            destinatario=self.remetente, topico=self.responder_a or f"{self.topico}.resposta",
+            conversa_id=self.conversa_id, ontologia=self.ontologia, conteudo=conteudo)</pre>
+    </div>
+
+    <h3>Peça 2 — o transporte (interface + pub/sub em memória)</h3>
+    <p>Mesma ideia da Aula 1: o agente conhece só a <em>interface</em>. Trocar o barramento local pelo MQTT não muda uma linha dos agentes.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/transporte.py</span></div>
+<pre data-lang="python">import fnmatch
+from typing import Callable, Protocol
+from .mensagem import EnvelopeA2A
+
+Assinante = Callable[[EnvelopeA2A], None]
+
+class Transporte(Protocol):
+    def publicar(self, envelope: EnvelopeA2A) -> None: ...
+    def assinar(self, filtro_topico: str, callback: Assinante) -> None: ...
+
+class BarramentoLocal:
+    """Entrega síncrona e ordenada. Curingas fnmatch: 'ocorrencia.*', '*'."""
+    def __init__(self):
+        self._assinantes: list[tuple[str, Assinante]] = []
+        self.entregues = 0
+
+    def assinar(self, filtro_topico, callback):
+        self._assinantes.append(("*" if filtro_topico == "#" else filtro_topico, callback))
+
+    def publicar(self, envelope):
+        for filtro, callback in list(self._assinantes):
+            if fnmatch.fnmatch(envelope.topico, filtro):
+                self.entregues += 1
+                callback(envelope)</pre>
+    </div>
+    <p>Para o Request/Response há um <code class="inline">ServicoLocal</code>: um registro de handlers em que <code class="inline">chamar(nome, envelope)</code> devolve a resposta — e levanta <code class="inline">ServicoNaoEncontrado</code> se o serviço não estiver registrado (é o acoplamento aparecendo).</p>
+
+    <h3>Peça 3 — os três agentes</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/agentes.py</span></div>
+<pre data-lang="python">class AgenteExtrator:
+    nome = "extrator"
+    def publicar_todas(self, barramento):
+        for item in self._ocorrencias:
+            conteudo = {"id": item["id"], **extrair(item["texto"])}
+            barramento.publicar(EnvelopeA2A.informar(self.nome, "ocorrencia.extraida", conteudo))
+
+class AgenteClassificador:
+    nome = "classificador"
+    def ao_receber(self, env):                       # assíncrono (pub/sub)
+        resultado = classificar(env.conteudo)
+        self._barramento.publicar(EnvelopeA2A(
+            performativa=Performativa.INFORM, remetente=self.nome,
+            topico="ocorrencia.classificada", conversa_id=env.conversa_id,
+            conteudo={"id": env.conteudo.get("id"), **resultado}))
+    def responder(self, env):                         # síncrono (request/response)
+        return env.resposta(self.nome, Performativa.CONFIRM, classificar(env.conteudo))
+
+class AgenteAuditor:
+    nome = "auditor"
+    def ao_receber(self, env):
+        self.trilha.append(env)                       # trilha imutável — só acrescenta</pre>
+    </div>
+
+    <h3>Ligando tudo</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">main_local.py — trecho do pub/sub</span></div>
+<pre data-lang="python">barramento = BarramentoLocal()
+auditor = AgenteAuditor()
+classificador = AgenteClassificador(barramento)
+
+barramento.assinar("#", auditor.ao_receber)                    # audita tudo
+barramento.assinar("ocorrencia.extraida", classificador.ao_receber)
+
+AgenteExtrator(OCORRENCIAS_BRUTAS).publicar_todas(barramento)  # ninguém é chamado direto</pre>
+    </div>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_local.py</span></div>
+<pre>INFO sigma.a2a: publica PCDF-SIM-0001 (Furto)
+INFO sigma.a2a: classifica PCDF-SIM-0001 -> normal
+...                                    (5 pares, no stderr — vêm do logging)
+
+* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+=== REQUEST/RESPONSE (síncrono) ===
+  triagem --request--> #classificar
+  classificador --confirm--> triagem  ->  {'natureza': 'Roubo', 'prioridade': 'alta', 'revisao_humana_obrigatoria': True}
+
+=== PUB/SUB (assíncrono) ===
+
+Envelopes entregues: 20
+Classificações:
+  PCDF-SIM-0001: Furto        prioridade=normal [ok]
+  PCDF-SIM-0002: Roubo        prioridade=alta   [REVISAR]
+  PCDF-SIM-0003: Ameaça       prioridade=normal [ok]
+  PCDF-SIM-0004: Dano         prioridade=normal [ok]
+  PCDF-SIM-0005: Estelionato  prioridade=normal [ok]
+
+=== TRILHA DE AUDITORIA ===
+ 1. extrator --inform--> #ocorrencia.extraida  [PCDF-SIM-0001]
+ 2. classificador --inform--> #ocorrencia.classificada  [PCDF-SIM-0001]
+ ...
+10. classificador --inform--> #ocorrencia.classificada  [PCDF-SIM-0005]</pre>
+    </div>
+    <p>"Envelopes entregues: 20" = 5 extraídas + 5 classificadas, cada uma vista pelo Auditor (<code class="inline">#</code>) e a extraída também pelo Classificador. O Extrator publicou 5 vezes sem citar ninguém.</p>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 1</p>
+      <ul class="lista-check">
+        <li><code class="inline">python main_local.py</code> imprime as 3 seções sem erro</li>
+        <li>Você aponta no código onde o Extrator decide o <em>tópico</em> (e vê que ele não nomeia o Classificador)</li>
+        <li>Entende por que a trilha tem 10 linhas e "entregues" é 20</li>
+        <li><code class="inline">pytest -q</code> passa</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <span class="nivel basico">Nível básico</span>
+    <h2>Um consumidor a mais, zero mudança nos outros</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício guiado</p>
+      <h3>O AgentePainel</h3>
+      <ol>
+        <li>Crie um <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">AgentePainel</code> com um método <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ao_receber(env)</code> que conta quantas ocorrências de cada <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">prioridade</code> chegaram.</li>
+        <li>Assine-o em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ocorrencia.classificada</code>. <strong>Não altere</strong> o Extrator nem o Classificador.</li>
+        <li>Rode e confira: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">{'normal': 4, 'alta': 1}</code>.</li>
+        <li>Troque a assinatura do Painel para <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ocorrencia.*</code>. O que muda na contagem? Por quê?</li>
+      </ol>
+      <p style="margin-bottom:0">Solução em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py</code> → <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">lab_basico()</code>.</p>
+    </div>
+
+    <h3>Problemas comuns</h3>
+    <div class="tabela-wrap">
+      <table class="problemas">
+        <tr><th>Erro</th><th>Causa</th><th>Diagnóstico</th><th>Solução</th></tr>
+        <tr><td>Painel não recebe nada</td><td>assinou o tópico errado</td><td>imprima <code class="inline">env.topico</code> num assinante <code class="inline">#</code></td><td>o Classificador publica em <code class="inline">ocorrencia.classificada</code></td></tr>
+        <tr><td>KeyError: 'prioridade'</td><td>contando na mensagem errada</td><td>a <code class="inline">extraida</code> não tem prioridade</td><td>filtrar por tópico ou usar <code class="inline">.get()</code></td></tr>
+        <tr><td>ordem inesperada dos logs</td><td>entrega é recursiva e síncrona</td><td>o classificador publica <em>dentro</em> do callback</td><td>é esperado; no MQTT a ordem entre tópicos não é garantida</td></tr>
+        <tr><td>ModuleNotFoundError: app</td><td>rodando de dentro de <code class="inline">app/</code></td><td>confira o diretório</td><td>rodar da raiz do projeto da aula</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== INTERVALO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Intervalo</p>
+    <h2>15 minutos</h2>
+    <p>Ao voltar: <em>se qualquer processo pode publicar em <code class="inline">ocorrencia.classificada</code>, o que impede alguém de injetar uma classificação falsa de "prioridade baixa" para enterrar um caso?</em> Segure a resposta para o debriefing.</p>
+  </section>
+
+  <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <span class="nivel intermediario">Nível intermediário</span>
+    <h2>Request/Response, performativas e acoplamento</h2>
+    <p>Quando a Triagem precisa da classificação <em>na hora</em> (para exibir na tela), pub/sub não serve — ela quer uma resposta. Aí entra o <code class="inline">ServicoLocal</code>.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">exemplo — request/response com recusa por ontologia</span></div>
+<pre data-lang="python">servico = ServicoLocal()
+
+def handler(env):
+    if env.ontologia != "sigma/ocorrencia/v1":
+        return env.resposta("classificador", Performativa.REFUSE,
+                            {"motivo": f"ontologia não suportada: {env.ontologia}"})
+    return classificador.responder(env)               # devolve CONFIRM
+
+servico.registrar("classificador", handler)
+
+ok   = EnvelopeA2A.pedir("triagem", "classificar", {...}, responder_a="r")
+ruim = ok.model_copy(update={"ontologia": "outro/v9"})
+
+servico.chamar("classificador", ok).performativa      # -> confirm
+servico.chamar("classificador", ruim).performativa    # -> refuse</pre>
+    </div>
+
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>Sentir o acoplamento</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py</code> e leia <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">lab_intermediario()</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">desafio()</code>.</li>
+        <li>No <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ServicoLocal</code>, chame um serviço não registrado. Que exceção? Como a Triagem deveria tratar isso?</li>
+        <li>Faça o handler devolver <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">FAILURE</code> quando <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">conteudo</code> não tiver <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">natureza</code>. Compare: no pub/sub, o que aconteceria com uma mensagem malformada?</li>
+        <li><em>(Opcional, com Docker)</em> <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">docker compose up -d</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">pip install -r requirements-opcionais.txt</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python main_mqtt.py</code>. Os agentes são os mesmos — só o transporte mudou.</li>
+      </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 2</p>
+      <ul class="lista-check">
+        <li>Sei explicar quando usar Request/Response e quando usar Pub/Sub</li>
+        <li>Uso a performativa certa: <code class="inline">inform</code> para fato, <code class="inline">request</code> para ação, <code class="inline">refuse</code>/<code class="inline">failure</code> para negativas</li>
+        <li>Identifico onde o Request/Response acopla (serviço precisa existir e estar no ar)</li>
+        <li><em>(se fez o MQTT)</em> o <code class="inline">main_mqtt.py</code> produziu a mesma trilha do <code class="inline">main_local.py</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <span class="nivel avancado">Nível avançado</span>
+    <h2>Distribuir o SIGMA</h2>
+    <p>Cada agente vira um processo separado, possivelmente em outra máquina. Você escolhe o transporte de <em>cada enlace</em> pela necessidade: evento que muitos ouvem → MQTT; "responda agora" → gRPC.</p>
+    <div class="mermaid">
+flowchart LR
+  subgraph p1["Processo: Extrator"]
+    EX["AgenteExtrator"]
+  end
+  subgraph bk["Broker MQTT"]
+    BK[["sigma/#"]]
+  end
+  subgraph p2["Processo: Classificador"]
+    CL["AgenteClassificador"]
+    GS["gRPC :50051"]
+  end
+  subgraph p3["Processo: Auditor"]
+    AU["AgenteAuditor + armazenamento"]
+  end
+  EX -- "MQTT publish: ocorrencia.extraida" --> BK
+  BK -- "assina: ocorrencia.extraida" --> CL
+  CL -- "MQTT publish: ocorrencia.classificada" --> BK
+  BK -- "assina: sigma/#" --> AU
+  UI["Triagem (tela)"] -- "gRPC Classificar()" --> GS
+    </div>
+    <p class="legenda">Cada caixa é um processo isolado. As setas do Extrator, Classificador e Auditor passam todas pelo broker MQTT (assíncrono, ninguém conhece ninguém). A única seta que <em>não</em> passa pelo broker é a da tela de Triagem: ela chama o Classificador direto por gRPC porque precisa da resposta na hora. O mesmo <code class="inline">AgenteClassificador</code> atende os dois caminhos.</p>
+    <div class="exercicio">
+      <p class="rotulo">Desafio</p>
+      <h3>Requisitos</h3>
+      <ol>
+        <li>Descrever, numa tabela, cada <strong>enlace</strong> do diagrama: origem, destino, transporte, síncrono/assíncrono, performativa, o que trafega e por que essa escolha.</li>
+        <li>Definir os <strong>contratos</strong>: os tópicos MQTT (nome + schema do <code class="inline">conteudo</code>) e o <code class="inline">.proto</code> do gRPC.</li>
+        <li>Responder: o que acontece se o Classificador ficar 30s fora do ar? (analise os dois enlaces — MQTT e gRPC — separadamente).</li>
+        <li>Apontar 3 pontos onde falta segurança neste desenho e a mitigação de cada um.</li>
+        <li><em>(Implementação opcional)</em> rodar <code class="inline">grpc_demo/servidor.py</code> + <code class="inline">cliente.py</code> e o <code class="inline">main_mqtt.py</code> ao mesmo tempo.</li>
+      </ol>
+      <p style="margin-bottom:0">Orientação e uma solução de referência no gabarito.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <h2>Trade-offs e riscos</h2>
+
+    <h3>Quando cada padrão</h3>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Situação</th><th>Escolha</th></tr>
+        <tr><td>Preciso da resposta para continuar</td><td class="sim">Request/Response (gRPC, REST)</td></tr>
+        <tr><td>Vários interessados no mesmo fato; a lista muda</td><td class="sim">Pub/Sub (MQTT)</td></tr>
+        <tr><td>Trabalho a processar, uma vez, com retentativa</td><td class="sim">Fila</td></tr>
+        <tr><td>Contrato rígido entre times internos</td><td class="sim">gRPC (<code class="inline">.proto</code>)</td></tr>
+        <tr><td>Integração com sistema externo/legado</td><td>REST/HTTP</td></tr>
+      </table>
+    </div>
+    <p><strong>Custo do assíncrono:</strong> mais partes móveis (broker é infraestrutura para manter, monitorar, escalar), depuração mais difícil (o fluxo não está numa pilha de chamadas), e você precisa lidar com entrega duplicada, fora de ordem e mensagens "envenenadas".</p>
+
+    <h3>Segurança do barramento</h3>
+    <div class="grade col-3">
+      <div class="aviso perigo"><div class="titulo">⛔ Spoofing de tópico</div>
+        <p>Sem autenticação, qualquer processo publica <code class="inline">ocorrencia.classificada</code> com "prioridade baixa" e enterra um caso. Mitigação: broker com <strong>auth + ACL por tópico</strong>, <strong>TLS/mTLS</strong>, e assinatura/verificação do envelope.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Envelope não confiável</div>
+        <p>O <code class="inline">conteudo</code> que chega pode ser malformado ou hostil (a mesma lógica de <em>prompt injection</em> da Aula 1). <strong>Valide contra o schema</strong> antes de agir; rejeite ontologia desconhecida com <code class="inline">refuse</code>.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Broadcast vaza dados</div>
+        <p>Quem pode assinar <code class="inline">sigma/#</code>? O Auditor sim; um serviço de terceiros, não — seria acesso a todo o fluxo de ocorrências (risco LGPD). <strong>Least privilege por tópico</strong> na ACL.</p></div>
+    </div>
+    <ul>
+      <li><strong>Trilha imutável = base de auditoria.</strong> O Auditor só acrescenta. Isso vira observabilidade e prova de rastreabilidade na Aula 9.</li>
+      <li><strong>Protótipo ≠ produção.</strong> O <code class="inline">BarramentoLocal</code> é síncrono e sem falhas; um broker real tem QoS, dead-letter, particionamento.</li>
+    </ul>
+
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável</div>
+      <p>O barramento apenas <strong>distribui</strong> mensagens — ele não cria autoridade. A
+      "prioridade" e o "revisar" continuam sendo <strong>rascunho de triagem</strong>. Nenhuma
+      mensagem no SIGMA determina autoria, indiciamento ou medida cautelar; a decisão
+      permanece com o servidor, e a trilha do Auditor existe justamente para tornar cada passo
+      automatizado auditável.</p>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Peça à turma um exemplo real da PCDF em que um evento tem "muitos interessados que
+      mudam com o tempo" (candidato a pub/sub) e outro em que "preciso da resposta agora"
+      (candidato a request/response). Discuta por que misturar os dois no mesmo sistema é o
+      caso comum, não a exceção.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <h2>Fechamento da aula</h2>
+
+    <h3>Perguntas conceituais</h3>
+    <ol>
+      <li>Diferença entre síncrono e assíncrono em uma frase, com um exemplo de cada no SIGMA.</li>
+      <li>Por que acrescentar o Auditor no pub/sub não exigiu mudar o Extrator?</li>
+      <li>O que a performativa acrescenta a uma mensagem que já tem remetente, tópico e conteúdo?</li>
+      <li>Cite duas diferenças concretas entre MQTT e gRPC.</li>
+      <li>Como um atacante poderia abusar de um tópico sem ACL, e qual a mitigação?</li>
+    </ol>
+
+    <h3>Exercício prático</h3>
+    <p>Acrescente um tópico <code class="inline">ocorrencia.arquivada</code> e um <code class="inline">AgenteArquivador</code> que assina <code class="inline">ocorrencia.classificada</code>, e — só para prioridade <code class="inline">normal</code> sem revisão — publica <code class="inline">ocorrencia.arquivada</code>. O Auditor deve registrar os três tipos de evento. Testes continuam verdes.</p>
+
+    <h3>Desafio</h3>
+    <p>Escreva um teste que prove que uma mensagem publicada em <code class="inline">ocorrencia.classificada</code> por um remetente que <em>não</em> seja <code class="inline">"classificador"</code> é ignorada por um novo <code class="inline">guardião</code> (primeira linha de defesa contra spoofing, em código).</p>
+
+    <h3>Checklist de aprendizagem</h3>
+    <ul class="lista-check">
+      <li>Sei quando escolher Request/Response e quando escolher Pub/Sub</li>
+      <li>Modelo um contrato de mensagem com performativa e ontologia</li>
+      <li>Explico tópicos, curingas e QoS do MQTT</li>
+      <li>Explico o papel do <code class="inline">.proto</code> no gRPC</li>
+      <li>Implementei um novo consumidor sem tocar nos produtores</li>
+      <li>Sei apontar 3 riscos de segurança de um barramento e suas mitigações</li>
+    </ul>
+  </section>
+
+  <!-- ===================== GLOSSÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Referência rápida</p>
+    <h2>Glossário</h2>
+    <div class="glossario">
+      <dl>
+        <dt>Síncrono</dt><dd>Quem envia bloqueia até a resposta chegar.</dd>
+        <dt>Assíncrono</dt><dd>Quem envia segue adiante; a resposta, se houver, chega depois.</dd>
+        <dt>Request/Response</dt><dd>Padrão em que o chamador conhece o serviço e espera o retorno.</dd>
+        <dt>Pub/Sub</dt><dd>Produtor publica em um tópico; assinantes interessados recebem. Produtor e consumidor não se conhecem.</dd>
+        <dt>Broker</dt><dd>Intermediário que roteia e entrega mensagens (ex.: Mosquitto para MQTT).</dd>
+        <dt>MQTT</dt><dd>Protocolo de mensageria pub/sub leve, sobre TCP, criado para telemetria/IoT; tópicos hierárquicos e broker central.</dd>
+        <dt>Tópico</dt><dd>Canal nomeado, hierárquico (<code class="inline">sigma/ocorrencia/extraida</code>).</dd>
+        <dt>Curinga (MQTT)</dt><dd>Na assinatura: <code class="inline">+</code> casa um nível; <code class="inline">#</code> casa tudo dali para baixo (<code class="inline">sigma/ocorrencia/+</code>, <code class="inline">sigma/#</code>).</dd>
+        <dt>Fila</dt><dd>Cada mensagem é consumida por um único trabalhador, com ordem e retentativa.</dd>
+        <dt>Envelope</dt><dd>A mensagem completa que trafega: metadados (remetente, tópico, performativa, conversa) + o <code class="inline">conteudo</code>.</dd>
+        <dt>QoS (MQTT)</dt><dd>Garantia de entrega: 0 (no máximo uma vez), 1 (pelo menos uma), 2 (exatamente uma).</dd>
+        <dt>Retain (MQTT)</dt><dd>O broker guarda a última mensagem do tópico para novos assinantes.</dd>
+        <dt>ACL por tópico</dt><dd>Regra no broker que define quem pode publicar e quem pode assinar cada tópico — a defesa principal contra publicação forjada.</dd>
+        <dt>TLS / mTLS</dt><dd>Criptografia do transporte; no mTLS os dois lados apresentam certificado, autenticando cliente e servidor.</dd>
+        <dt>RPC</dt><dd>Remote Procedure Call: chamar um método que executa em outro processo/máquina como se fosse local.</dd>
+        <dt>gRPC</dt><dd>Framework RPC sobre HTTP/2 com contrato <code class="inline">.proto</code> e payload binário.</dd>
+        <dt>Streaming (gRPC)</dt><dd>Modo em que cliente e/ou servidor enviam uma sequência de mensagens na mesma chamada, em vez de uma só.</dd>
+        <dt>Protocol Buffers</dt><dd>Formato de serialização binária, tipado, usado pelo gRPC.</dd>
+        <dt>Stub</dt><dd>Código de cliente gerado a partir do <code class="inline">.proto</code>; chama o método remoto como se fosse local.</dd>
+        <dt>FIPA-ACL</dt><dd>Padrão de linguagem de comunicação entre agentes: estrutura e intenção da mensagem.</dd>
+        <dt>Performativa</dt><dd>O ato comunicativo da mensagem: <code class="inline">inform</code>, <code class="inline">request</code>, <code class="inline">refuse</code>…</dd>
+        <dt>Ontologia</dt><dd>O vocabulário/esquema que dá sentido ao conteúdo da mensagem.</dd>
+        <dt>conversation-id</dt><dd>Identificador que amarra as mensagens de uma mesma troca.</dd>
+        <dt>Desacoplamento</dt><dd>Reduzir o quanto uma parte precisa saber sobre as outras.</dd>
+        <dt>Backpressure</dt><dd>Mecanismo para lidar com produção mais rápida que o consumo.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===================== REFERÊNCIAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Fontes</p>
+    <h2>Referências</h2>
+    <ol class="refs">
+      <li><span class="fonte">OASIS — <em>MQTT Version 5.0</em> (2019)</span>. OASIS Standard. <a href="https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html">docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html</a>.
+        <span class="assoc">Conceitos: PUBLISH/SUBSCRIBE, tópicos, curingas, QoS, retain.</span></li>
+      <li><span class="fonte">Eclipse Mosquitto — <em>Documentação</em></span>. <a href="https://mosquitto.org/documentation/">mosquitto.org/documentation</a>.
+        <span class="assoc">Broker MQTT usado no laboratório; autenticação e ACL.</span></li>
+      <li><span class="fonte">gRPC — <em>Documentation</em> (Core concepts, Python)</span>. <a href="https://grpc.io/docs/">grpc.io/docs</a>.
+        <span class="assoc">RPC sobre HTTP/2, unary e streaming, geração de stubs.</span></li>
+      <li><span class="fonte">Protocol Buffers — <em>Language Guide (proto 3)</em></span>. Google. <a href="https://protobuf.dev/programming-guides/proto3/">protobuf.dev/programming-guides/proto3</a>.
+        <span class="assoc">Definição de <code class="inline">service</code> e <code class="inline">message</code>.</span></li>
+      <li><span class="fonte">FIPA — <em>ACL Message Structure Specification</em> (SC00061G) e <em>Communicative Act Library</em> (SC00037J)</span>. Foundation for Intelligent Physical Agents (adotadas pela IEEE, 2002/2005). <a href="https://fipa.org/specs/fipa00061/SC00061G.html">fipa.org/specs/fipa00061/SC00061G.html</a> · <a href="https://fipa.org/specs/fipa00037/SC00037J.html">fipa.org/specs/fipa00037/SC00037J.html</a>.
+        <span class="assoc">Performativas, ontologia, conversation-id, protocolos de interação.</span></li>
+      <li><span class="fonte">Hohpe, G.; Woolf, B. — <em>Enterprise Integration Patterns</em> (2003)</span>. Addison-Wesley. <a href="https://www.enterpriseintegrationpatterns.com/">enterpriseintegrationpatterns.com</a>.
+        <span class="assoc">Publish-Subscribe Channel, Message, Dead Letter Channel, Message Router.</span></li>
+      <li><span class="fonte">OWASP — <em>Top 10 for LLM Applications</em> (2025)</span>. <a href="https://genai.owasp.org/">genai.owasp.org</a>.
+        <span class="assoc">LLM01 Prompt Injection, LLM05 Improper Output Handling e LLM06 Excessive Agency — riscos ao consumir mensagens de agentes não confiáveis.</span></li>
+      <li><span class="fonte">Microsoft — <em>STRIDE threat model</em></span> e <span class="fonte">MITRE ATT&amp;CK — <em>Valid Accounts (T1078)</em></span>. <a href="https://attack.mitre.org/techniques/T1078/">attack.mitre.org/techniques/T1078</a>.
+        <span class="assoc">"Spoofing" é a categoria S do STRIDE; T1078 cobre o abuso de credenciais para publicar em tópico sem ACL.</span></li>
+    </ol>
+  </section>
+
+  <!-- ===================== GABARITO ===================== -->
+  <details class="gabarito reveal">
+    <summary>Gabarito / Orientação ao Instrutor</summary>
+    <div class="conteudo">
+      <h3>Tempos (5h = 300 min)</h3>
+      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
+      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar: no
+      Bloco 2, corte o detalhamento de QoS/retain (deixe para leitura) e foque em Req/Resp vs
+      Pub/Sub; o gRPC pode virar demonstração de 5 min em vez de leitura do <code class="inline">.proto</code> linha a linha.</p>
+
+      <h3>Lab básico — AgentePainel</h3>
+      <p>Referência em <code class="inline">solucao_exercicios.py :: lab_basico()</code>. Saída
+      esperada: <code class="inline">painel: {'normal': 4, 'alta': 1}</code>. Ao assinar
+      <code class="inline">ocorrencia.*</code>, o Painel passa a receber também as
+      <code class="inline">extraida</code> (sem <code class="inline">prioridade</code>) — daí a
+      importância do <code class="inline">.get()</code> e de filtrar por tópico. Ponto-chave:
+      nenhuma linha do Extrator/Classificador mudou.</p>
+
+      <h3>Lab intermediário</h3>
+      <p><code class="inline">ServicoLocal.chamar</code> de serviço não registrado levanta
+      <code class="inline">ServicoNaoEncontrado</code> — a Triagem deveria capturar e degradar
+      (ex.: enfileirar para classificação assíncrona, ou mostrar "classificação pendente").
+      No pub/sub, mensagem malformada é entregue e cabe ao assinante validar/descartar (o
+      broker não sabe o schema). <code class="inline">temperature</code> não se aplica aqui —
+      a Aula 2 não chama LLM.</p>
+
+      <h3>Desafio — tabela de enlaces (referência)</h3>
+      <div class="tabela-wrap">
+        <table>
+          <tr><th>Enlace</th><th>Transporte</th><th>Sínc/Assínc</th><th>Performativa</th><th>Por quê</th></tr>
+          <tr><td>Extrator → Broker</td><td>MQTT <code class="inline">sigma/ocorrencia/extraida</code></td><td>assínc</td><td>inform</td><td>fato; múltiplos interessados; produtor não deve conhecer consumidores</td></tr>
+          <tr><td>Broker → Classificador</td><td>MQTT (assina)</td><td>assínc</td><td>inform</td><td>reage a evento; pode escalar horizontalmente</td></tr>
+          <tr><td>Classificador → Broker</td><td>MQTT <code class="inline">sigma/ocorrencia/classificada</code></td><td>assínc</td><td>inform</td><td>novo fato; Painel e Auditor consomem</td></tr>
+          <tr><td>Broker → Auditor</td><td>MQTT <code class="inline">sigma/#</code></td><td>assínc</td><td>—</td><td>precisa ver tudo; trilha imutável</td></tr>
+          <tr><td>Triagem (UI) → Classificador</td><td>gRPC <code class="inline">Classificar()</code></td><td>sínc</td><td>request/confirm</td><td>usuário espera na tela; contrato rígido; baixa latência</td></tr>
+        </table>
+      </div>
+      <p><strong>Classificador 30s fora do ar:</strong> no enlace MQTT, as
+      <code class="inline">ocorrencia.extraida</code> ficam no broker (QoS 1 + sessão
+      persistente) e são processadas quando ele volta — degradação graciosa. No enlace gRPC,
+      a Triagem recebe <code class="inline">UNAVAILABLE</code> na hora — precisa de timeout,
+      retry com backoff e um fallback (ex.: "classificação pendente").</p>
+      <p><strong>Três falhas de segurança no desenho + mitigação:</strong> (1) broker sem
+      auth/ACL → autenticação por serviço + ACL por tópico; (2) tráfego em claro → TLS no MQTT
+      e mTLS no gRPC; (3) sem verificação de origem do envelope → assinar o envelope e o
+      Auditor/consumidores rejeitarem remetente inesperado por tópico.</p>
+
+      <h3>Avaliação — respostas-guia</h3>
+      <ol>
+        <li>Síncrono bloqueia (gRPC da Triagem); assíncrono não (Extrator publicando eventos).</li>
+        <li>Porque o Extrator publica num tópico e não chama ninguém; o Auditor só assina.</li>
+        <li>Intenção: distinguir "informo um fato" de "peço uma ação" de "recuso" — muda como o receptor deve reagir.</li>
+        <li>MQTT: pub/sub, assíncrono, payload livre, broker. gRPC: req/resp, síncrono, contrato <code class="inline">.proto</code>, binário.</li>
+        <li>Publicar evento forjado (classificação falsa); mitigação: ACL por tópico + autenticação + assinatura do envelope.</li>
+      </ol>
+      <p><strong>Exercício prático (Arquivador):</strong> novo assinante de
+      <code class="inline">ocorrencia.classificada</code> que republica
+      <code class="inline">ocorrencia.arquivada</code> só quando
+      <code class="inline">prioridade == "normal"</code> e
+      <code class="inline">not revisao_humana_obrigatoria</code>. Cuidado com laço: o
+      Arquivador não pode assinar o próprio tópico.</p>
+      <p><strong>Desafio (guardião anti-spoofing):</strong> um wrapper de assinatura que só
+      repassa ao callback se <code class="inline">env.remetente == esperado_por_topico[env.topico]</code>.
+      É a versão em código do que a ACL do broker faria em produção.</p>
+    </div>
+  </details>
+
+  <!-- ===================== FECHAMENTO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Próximos passos</p>
+    <h2>Evolução do SIGMA — Aula 2</h2>
+    <p>Os agentes agora conversam por um barramento, sem se conhecerem, e cada mensagem carrega sua intenção. Na Aula 3 damos ao agente algo que ele ainda não tem: <strong>acesso controlado a ferramentas e dados externos</strong> — uma base de consultas, uma API — através do <strong>Model Context Protocol (MCP)</strong>. O barramento distribui; o MCP dá poder de agir, com autorização.</p>
+    <div class="mermaid">
+flowchart LR
+  O[("Boletim sintético")] --> E["Extrator"]
+  E -- "inform" --> BUS[["barramento A2A"]]
+  BUS --> C["Classificador"]
+  BUS --> A["Auditor — trilha"]
+  C -- "inform" --> BUS
+  C --> H["Revisão humana"]
+  UI["Triagem"] -- "request (gRPC)" --> C
+    </div>
+    <p class="legenda">Comparado com o fim da Aula 1, o que mudou: entre o Extrator e a decisão humana entrou um barramento. O Extrator só publica <code class="inline">inform</code>; Classificador e Auditor reagem sem serem chamados; e a tela de Triagem tem um atalho síncrono (gRPC) para pedir uma classificação sob demanda.</p>
+
+    <blockquote class="ancora">"Trocar chamadas por mensagens não é sofisticação gratuita: é o que permite acrescentar um auditor sem pedir licença a ninguém — e é também uma nova porta que alguém pode tentar arrombar."</blockquote>
+
+    <div class="nav-aulas">
+      <a href="aula-01-fundamentos.html"><span>Anterior</span>← Aula 1 — Fundamentos</a>
+      <a href="aula-03-mcp-integracao.html"><span>Próxima</span>Aula 3 — MCP e Integração →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · Aula 2 de 10</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="../assets/aula.js"></script>
+</body>
+</html>
