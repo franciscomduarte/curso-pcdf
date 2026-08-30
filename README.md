@@ -27,14 +27,16 @@ curso-pcdf/
 │   ├── aula-03-mcp-integracao.html  # ✅ pronta
 │   ├── aula-04-agent-loops.html     # ✅ pronta
 │   ├── aula-05-orquestracao.html    # ✅ pronta
-│   └── aula-06-grafos-langgraph.html # ✅ pronta
+│   ├── aula-06-grafos-langgraph.html # ✅ pronta
+│   └── aula-07-especializados-hitl.html # ✅ pronta
 └── codigo/
     ├── aula-01-extrator-ocorrencias/ # código da Aula 1 (roda offline, sem chave)
     ├── aula-02-comunicacao-a2a/      # código da Aula 2 (pub/sub offline; MQTT/gRPC opcionais)
     ├── aula-03-mcp-integracao/       # código da Aula 3 (MCP mínimo offline; SDK oficial opcional)
     ├── aula-04-agent-loops/          # código da Aula 4 (loop ReAct offline)
     ├── aula-05-orquestracao/         # código da Aula 5 (os 5 padrões + comparação, offline)
-    └── aula-06-grafos-langgraph/      # código da Aula 6 (motor de grafo mínimo; LangGraph opcional)
+    ├── aula-06-grafos-langgraph/      # código da Aula 6 (motor de grafo mínimo; LangGraph opcional)
+    └── aula-07-especializados-hitl/   # código da Aula 7 (agentes com papel + HITL/checkpoint, offline)
 ```
 
 ## Ementa (10 aulas de 5h)
@@ -82,6 +84,7 @@ pytest -q                          # testes rodam sem chave/broker
 - **Aula 4:** `python main.py` · `python main_limites.py` (offline).
 - **Aula 5:** `python main_comparar.py` · `python main.py <padrão>` (offline).
 - **Aula 6:** `python main.py` · `python main_ciclo.py` (offline).
+- **Aula 7:** `python main.py` · `python main_retomar.py iniciar` (offline).
 
 ## Publicar no GitHub Pages
 
@@ -96,4 +99,5 @@ Settings → Pages → Branch `main` / `/root`. Fica em
 - [x] Aula 4 — Engenharia de Agent Loops
 - [x] Aula 5 — Padrões de Orquestração Multiagente
 - [x] Aula 6 — Modelagem de Sistemas Baseados em Grafos
-- [ ] Aulas 7 a 10 — geradas uma por vez, a partir de `aulas/_modelo-aula.html`
+- [x] Aula 7 — Agentes Especializados e Human-in-the-Loop
+- [ ] Aulas 8 a 10 — geradas uma por vez, a partir de `aulas/_modelo-aula.html`

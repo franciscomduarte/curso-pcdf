@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 7 — Especializados e Human-in-the-Loop · Unidade 8 · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="../assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 7 de 10 · 5h</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Aula 7 · Agentes Especializados e Human-in-the-Loop</p>
+    <h1>Papéis, memória, e um <span class="destaque">ponto de parada</span> obrigatório</h1>
+    <p class="sub">Os nós do grafo da Aula 6 viram agentes com papéis — Investigador, Analista, Jurídico — cada um com a sua memória. E o fluxo <em>para e espera um humano</em> antes da ação sensível: propor a tipificação. Para isso o estado é persistido, e a execução sabe retomar.</p>
+    <div class="meta">
+      <span class="tag">5h · laboratório</span>
+      <span class="tag">Python · HITL · checkpoint</span>
+      <span class="tag">pré: Aulas 5–6</span>
+      <span class="tag">dados sintéticos</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <h2>O problema: nem toda etapa pode ser automática</h2>
+    <p>Na Aula 6, os nós eram funções genéricas. Uma investigação real tem <strong>papéis</strong>: quem reúne os fatos não é quem forma a hipótese, que não é quem propõe o enquadramento legal. Dividir assim deixa cada agente com um contexto menor, um prompt mais focado, e uma responsabilidade auditável.</p>
+    <p>Mas há um limite duro: <strong>a tipificação de um crime é decisão de um servidor</strong>, não de um sistema. O agente pode <em>propor</em> "isto parece Art. 157"; quem decide é a pessoa. A pergunta técnica desta aula: como fazer o fluxo <strong>parar</strong> exatamente nesse ponto, esperar a decisão (que pode vir horas depois, de outra máquina), e então continuar?</p>
+
+    <div class="painel">
+      <div class="grade-painel">
+        <div>
+          <h4>Objetivos</h4>
+          <ul>
+            <li>Decompor um fluxo em agentes com papéis e responsabilidade única</li>
+            <li>Dar a cada agente uma memória própria (append-only)</li>
+            <li>Persistir o estado (checkpoint) e retomar de outro processo</li>
+            <li>Implementar um breakpoint HITL: aprovar / corrigir / rejeitar-com-nota</li>
+            <li>Distinguir human-in-the-loop de human-on-the-loop</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Pré-requisitos</h4>
+          <ul>
+            <li>Aula 5 (especialistas, Dossiê), Aula 6 (grafo, estado compartilhado)</li>
+            <li>Python: dataclasses, serialização JSON, exceções</li>
+            <li>Noção de "estado que sobrevive ao processo"</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Stack</h4>
+          <ul>
+            <li>Python 3.11+ (funciona em 3.10) — só a biblioteca padrão</li>
+            <li>LangGraph <code class="inline">interrupt()</code> + checkpointer <em>— conceito</em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <ol>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>papéis; o que não pode ser automático</small></span></li>
+        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>separação de responsabilidades; memória; persistência; HITL × HOTL</small></span></li>
+        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>os 4 agentes, o breakpoint, o checkpoint, o fluxo rodando</small></span></li>
+        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>aprovar × rejeitar; inserir um agente</small></span></li>
+        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>retomar de outro processo; painel de decisão</small></span></li>
+        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>onde colocar um 2º breakpoint; fadiga de aprovação</small></span></li>
+        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>HITL × HOTL; checkpoint com PII; quem aprova</small></span></li>
+        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício, desafio, checklist</small></span></li>
+      </ol>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Abra perguntando: "que etapas de uma investigação <em>nunca</em> deveriam acontecer
+      sem um humano assinar embaixo?". A lista da turma (tipificação, indiciamento, medida
+      cautelar, difusão de dados) é a lista de onde ficam os breakpoints. Depois mostre que
+      "esperar o humano" é um problema técnico real: o processo não pode ficar preso na
+      memória por 3 horas. Turma mista: quem não programa desenha o fluxo com os pontos de
+      parada e simula ser o operador que aprova.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <h2>Separação de responsabilidades</h2>
+    <p>Um agente que faz tudo tem um prompt gigante, um contexto poluído e uma falha difícil de localizar. Quatro agentes com um papel cada:</p>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Agente</th><th>Só lê</th><th>Só escreve</th></tr>
+        <tr><td><strong>Investigador</strong></td><td>o texto da ocorrência</td><td><code class="inline">fatos</code> (campos + consultas)</td></tr>
+        <tr><td><strong>Analista</strong></td><td><code class="inline">fatos</code></td><td><code class="inline">hipotese</code> (natureza provável + linha do tempo)</td></tr>
+        <tr><td><strong>Jurídico</strong></td><td><code class="inline">hipotese</code></td><td><code class="inline">tipificacao_proposta</code> (+ marca: exige decisão humana)</td></tr>
+        <tr><td><strong>Consolidador</strong></td><td>tudo + a decisão do humano</td><td><code class="inline">dossie</code> final</td></tr>
+      </table>
+    </div>
+    <p>O Jurídico nunca toca em <code class="inline">fatos</code>; o Investigador nunca opina sobre tipificação. Cada um é testável isoladamente, e a memória de cada um conta o que <em>aquele</em> agente fez.</p>
+
+    <h3>Memória do agente × estado compartilhado</h3>
+    <div class="mermaid">
+flowchart LR
+  E[("Estado compartilhado — passa por todos")] --- INV["Investigador"]
+  E --- ANA["Analista"]
+  INV -.-> MI[("memória do Investigador")]
+  ANA -.-> MA[("memória do Analista")]
+    </div>
+    <p class="legenda">O <strong>estado compartilhado</strong> é o que todos leem e escrevem (o Dossiê da Aula 5). A <strong>memória do agente</strong> é o bloco de notas <em>dele</em> — append-only, para ele consultar o que já fez. As duas coisas vão juntas no checkpoint.</p>
+
+    <h3>Persistência e checkpoint</h3>
+    <p>Por que salvar o estado em disco? Duas razões concretas:</p>
+    <ul>
+      <li><strong>O humano não responde na hora.</strong> O breakpoint pode ficar aberto por horas. O processo não pode ficar preso na memória esse tempo todo.</li>
+      <li><strong>O processo pode morrer.</strong> Deploy, reinício, falha. Se o estado está no disco (ou num store), a execução retoma de onde parou — inclusive de <em>outra máquina</em>.</li>
+    </ul>
+    <div class="mermaid">
+flowchart LR
+  P1["Processo A — roda até o breakpoint"] --> CK[("checkpoint.json  (estado + memórias dos agentes)")]
+  CK --> P2["Processo B — horas depois, outra máquina: carrega e retoma"]
+    </div>
+    <p class="legenda">O checkpoint é a serialização do estado. Retomar = carregar o JSON, aplicar a decisão do humano, continuar o fluxo. É o que o LangGraph chama de <em>checkpointer</em>.</p>
+
+    <h3>Human-in-the-loop × human-on-the-loop</h3>
+    <div class="mermaid">
+flowchart TB
+  subgraph HITL["Human-IN-the-loop"]
+    a1["agente age"] --> a2{{"PARA e espera"}}
+    a2 --> a3["humano decide"] --> a4["agente continua"]
+  end
+  subgraph HOTL["Human-ON-the-loop"]
+    b1["agente roda até o fim sozinho"] --> b2["humano monitora — pode interromper depois"]
+  end
+    </div>
+    <p class="legenda">No <strong>in-the-loop</strong> a execução não avança sem o humano — é o que dá garantia de responsabilidade numa decisão sensível. No <strong>on-the-loop</strong> o humano só supervisiona; útil para volume alto e baixo risco, mas não substitui a assinatura de quem decide. O <em>EU AI Act</em>, art. 14, e a LGPD, art. 20 (revisão de decisão automatizada), tratam disso.</p>
+
+    <h3>O ciclo HITL</h3>
+    <p>Quando o fluxo para, o operador tem três saídas:</p>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Decisão</th><th>O que acontece</th></tr>
+        <tr><td><strong>Aprovar</strong></td><td>a proposta vira <code class="inline">tipificacao_final</code>; segue para o Consolidador</td></tr>
+        <tr><td><strong>Corrigir</strong></td><td>a tipificação <em>do humano</em> prevalece e é registrada como "correção humana"</td></tr>
+        <tr><td><strong>Rejeitar com nota</strong></td><td>volta ao Jurídico com a nota; ele repropõe considerando-a (ciclo, com limite)</td></tr>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">Persistência e interrupt em LangGraph: documentação oficial. Memória de agentes: MemGPT (Packer et al., 2023). Supervisão humana: EU AI Act art. 14; LGPD art. 20. Ver Referências.</p>
+  </section>
+
+  <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <h2>Construindo o fluxo com breakpoint</h2>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
+<pre>cd codigo/aula-07-especializados-hitl
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt    # só pytest
+python -c "print('ambiente ok')"</pre>
+    </div>
+
+    <h3>Peça 1 — memória e estado (serializáveis)</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/memoria.py</span></div>
+<pre data-lang="python">@dataclass
+class Memoria:
+    dono: str
+    notas: list[str] = field(default_factory=list)
+    def anotar(self, nota): self.notas.append(f"[{hora()}] {nota}")
+
+@dataclass
+class Estado:
+    id: str; texto: str
+    fatos: dict | None = None                 # Investigador
+    hipotese: dict | None = None              # Analista
+    tipificacao_proposta: dict | None = None  # Jurídico
+    tipificacao_final: dict | None = None
+    dossie: dict | None = None
+    etapa: str = "investigar"
+    aprovacoes: list[dict] = field(default_factory=list)   # trilha das decisões humanas
+    memorias: dict = field(default_factory=dict)           # dono -> memória
+    def to_dict(self): ...        # vai para o checkpoint
+    @classmethod
+    def from_dict(cls, d): ...     # volta do checkpoint</pre>
+    </div>
+
+    <h3>Peça 2 — os agentes, cada um uma chave</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/agentes.py — trecho</span></div>
+<pre data-lang="python">def juridico(e: Estado) -> Estado:
+    m = e.memoria_de("juridico")
+    natureza = (e.hipotese or {}).get("natureza_provavel", "Furto")
+    tip = TIPIFICACOES["com_ameaca"] if natureza == "Roubo" else TIPIFICACOES["sem_ameaca"]
+    e.tipificacao_proposta = {
+        "artigo": tip["artigo"], "natureza": tip["natureza"],
+        "fundamento": "presença de grave ameaça" if natureza == "Roubo" else "ausência de violência ou grave ameaça",
+        "requer_decisao_humana": True,      # SEMPRE
+        "considerou_nota_do_operador": _ultima_nota_humano(e),
+    }
+    m.anotar(f"proposta: {e.tipificacao_proposta['artigo']}")
+    e.guardar_memoria(m); return e</pre>
+    </div>
+
+    <h3>Peça 3 — o breakpoint e o checkpoint</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/hitl.py</span></div>
+<pre data-lang="python">class PausaParaHumano(Exception):
+    def __init__(self, checkpoint, proposta, pergunta): ...
+
+class Checkpoint:
+    @staticmethod
+    def salvar(estado) -> str:          # grava saida/&lt;id&gt;--&lt;hash&gt;.json, devolve o id
+    @staticmethod
+    def carregar(cid) -> Estado:        # lê o JSON de volta
+
+class Fluxo:
+    def _rodar(self, e):
+        while e.etapa not in ("fim", "aguardando_aprovacao"):
+            e = ORDEM[e.etapa](e)                 # roda o agente da etapa
+            e.etapa = PROXIMA[e.etapa]
+        if e.etapa == "aguardando_aprovacao":
+            cid = Checkpoint.salvar(e)            # <-- salva ANTES de parar
+            raise PausaParaHumano(cid, e.tipificacao_proposta, "Aprovar? ...")
+        return Concluido(e)
+
+    def retomar(self, checkpoint, decisao: DecisaoHumana):
+        e = Checkpoint.carregar(checkpoint)
+        e.aprovacoes.append({... "operador": decisao.operador, "aprovado": decisao.aprovado ...})
+        if decisao.aprovado:          e.tipificacao_final = e.tipificacao_proposta; e.etapa = "consolidar"
+        elif decisao.tipificacao_corrigida:  e.tipificacao_final = {**decisao.tipificacao_corrigida, "origem": "correção humana"}; e.etapa = "consolidar"
+        else:                         e.etapa = "juridico"    # rejeição com nota -> ciclo
+        return self._rodar(e)</pre>
+    </div>
+
+    <div class="mermaid">
+flowchart LR
+  INV["Investigador"] --> ANA["Analista"] --> JUR["Jurídico"]
+  JUR --> BP{{"BREAKPOINT — aprovação humana"}}
+  BP -- "aprovar" --> CON["Consolidador"] --> F(("fim"))
+  BP -- "corrigir" --> CON
+  BP -- "rejeitar + nota" --> JUR
+    </div>
+    <p class="legenda">O breakpoint fica <strong>antes</strong> de a tipificação virar definitiva. "Rejeitar com nota" devolve ao Jurídico (que repropõe considerando a nota); "corrigir" impõe a decisão do humano. Ambos ficam registrados em <code class="inline">aprovacoes</code>.</p>
+
+    <h3>Rodando</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py   (PCDF-SIM-0002, aprovar)</span></div>
+<pre>=== BREAKPOINT — o fluxo parou ===
+pergunta.: Aprovar a tipificação proposta para PCDF-SIM-0002? (aprovar / corrigir / rejeitar-com-nota)
+proposta.: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo',
+            'fundamento': 'presença de grave ameaça', 'requer_decisao_humana': True}
+checkpoint gravado: PCDF-SIM-0002--92df209f
+
+=== DOSSIÊ CONSOLIDADO ===
+tipificação: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo', ...}
+decisões humanas: [{'operador': 'escrivão de plantão', 'aprovado': True, 'nota': '', 'corrigiu': False}]
+aviso......: Rascunho de triagem. A decisão final é do servidor responsável.
+
+memória do Jurídico: ['[..] proposta: Art. 157 do CP (roubo)']</pre>
+    </div>
+    <p>Com <code class="inline">python main.py PCDF-SIM-0002 rejeitar</code>: o operador rejeita ("a testemunha não viu arma"), o Jurídico repropõe considerando a nota, para de novo, e então o operador <em>corrige</em> para Art. 155 — que prevalece, marcado "correção humana", com as duas decisões registradas.</p>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 1</p>
+      <ul class="lista-check">
+        <li><code class="inline">python main.py</code> mostra o breakpoint e depois o dossiê consolidado</li>
+        <li>Você aponta no código onde o fluxo <em>salva</em> antes de parar, e onde <em>carrega</em> ao retomar</li>
+        <li>Entende por que o Consolidador nunca roda antes da decisão humana</li>
+        <li>Vê a memória do Jurídico crescer entre a proposta e a reproposta</li>
+        <li><code class="inline">pytest -q</code> passa (9 testes)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <span class="nivel basico">Nível básico</span>
+    <h2>Aprovar, rejeitar, e um agente a mais</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício guiado</p>
+      <h3>O agente Vitimologia</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python main.py</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python main.py PCDF-SIM-0002 rejeitar</code>. Compare os dois <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">decisões humanas</code>.</li>
+        <li>Crie um agente <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">vitimologia(e)</code> que lê <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">fatos</code>/<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">hipotese</code> e acrescenta <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">atencao_vitima</code> à hipótese. Ele tem a sua própria memória.</li>
+        <li>Insira-o entre Analista e Jurídico: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">PROXIMA["analisar"] = "vitimologia"</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">PROXIMA["vitimologia"] = "juridico"</code>, registre em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ORDEM</code>.</li>
+        <li>Rode e confira: o breakpoint continua no mesmo lugar? A memória de Vitimologia aparece no checkpoint?</li>
+      </ol>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: lab_basico()</code>.</p>
+    </div>
+    <h3>Problemas comuns</h3>
+    <div class="tabela-wrap">
+      <table class="problemas">
+        <tr><th>Erro</th><th>Causa</th><th>Diagnóstico</th><th>Solução</th></tr>
+        <tr><td>consolidador rodou sem tipificação aprovada</td><td>o fluxo pulou o breakpoint (etapa errada em <code class="inline">PROXIMA</code>)</td><td>o Consolidador levanta <code class="inline">RuntimeError</code></td><td>garantir que "juridico" → "aguardando_aprovacao"</td></tr>
+        <tr><td>FileNotFoundError ao carregar checkpoint</td><td>id errado, ou <code class="inline">saida/</code> apagada</td><td>liste <code class="inline">saida/*.json</code></td><td>usar o id impresso pelo <code class="inline">iniciar()</code></td></tr>
+        <tr><td>a nota do operador não muda a reproposta</td><td>o Jurídico não lê <code class="inline">aprovacoes</code></td><td>veja <code class="inline">_ultima_nota_humano</code></td><td>a reproposta precisa consultar a última nota</td></tr>
+        <tr><td>o ciclo de rejeição não termina</td><td>rejeita sempre sem corrigir</td><td>o contador <code class="inline">max_ciclos_hitl</code></td><td>ao bater o limite, encaminhar ao humano com "PENDENTE"</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== INTERVALO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Intervalo</p>
+    <h2>15 minutos</h2>
+    <p>Ao voltar: <em>o checkpoint é um JSON com o texto da ocorrência, os fatos, os nomes citados. Ele fica em <code class="inline">saida/</code> no disco. Liste tudo o que precisaria mudar para isso ser aceitável com dados reais.</em></p>
+  </section>
+
+  <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <span class="nivel intermediario">Nível intermediário</span>
+    <h2>Retomar de outro processo · o painel de decisão</h2>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_retomar.py iniciar   →   (processo encerra)   →   python main_retomar.py aprovar &lt;cid&gt;</span></div>
+<pre>fluxo pausou. checkpoint = PCDF-SIM-0002--5220b284
+proposta aguardando aprovação: Art. 157 do CP (roubo)
+(este processo vai encerrar agora — o estado está no disco em saida/)
+
+--- processo NOVO ---
+carregou o checkpoint PCDF-SIM-0002--5220b284
+  ocorrência: PCDF-SIM-0002  etapa: aguardando_aprovacao
+  memória do Investigador (persistida): ['[..] campos extraídos: [...]', '[..] consulta de veículo ABC1D23: consta alerta ...']
+concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
+    </div>
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>O que o operador vê antes de decidir</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py intermediario</code>: um "painel" que, a partir do checkpoint, mostra a <strong>memória de cada agente</strong> + a proposta, para o operador decidir com contexto.</li>
+        <li>Um operador que só vê "Aprovar? [S/N]" carimba sem ler (fadiga de aprovação). O que <em>tem</em> que estar no painel para a decisão ser informada?</li>
+        <li>Acrescente ao painel: quanto tempo o breakpoint está aberto (use o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">mtime</code> do checkpoint). Por que isso importa?</li>
+        <li>Faça um teste: depois de <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">Checkpoint.carregar</code>, a <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">memoria</code> de todos os agentes que já rodaram está lá.</li>
+      </ol>
+    </div>
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 2</p>
+      <ul class="lista-check">
+        <li>Um processo novo retoma a partir do checkpoint e conclui</li>
+        <li>A memória dos agentes sobrevive à serialização</li>
+        <li>Sei o que precisa estar no painel de decisão para evitar aprovação automática</li>
+        <li>Distingo human-in-the-loop de human-on-the-loop com um exemplo de cada</li>
+        <li><code class="inline">pytest -q</code> continua verde</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <span class="nivel avancado">Nível avançado</span>
+    <h2>Onde colocam-se os pontos de parada</h2>
+    <div class="exercicio">
+      <p class="rotulo">Desafio</p>
+      <h3>Requisitos</h3>
+      <ol>
+        <li>Formule a regra: <em>qual tipo de nó precisa de um breakpoint antes?</em> (dica: distinga "organizar informação" de "produzir algo que embasa uma ação sobre pessoas").</li>
+        <li>Aplique ao SIGMA: além da tipificação, que outros nós — se existissem — precisariam de parada? (análise de vínculos entre investigados, difusão de dados para outro órgão, priorização que muda ordem de atendimento…).</li>
+        <li>Implemente um <strong>segundo breakpoint</strong>: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">aguardando_aprovacao_vinculos</code> antes de um nó fictício <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">analisar_vinculos</code>. O <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">_rodar</code>/<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">retomar</code> precisa distinguir os dois pontos de parada.</li>
+        <li>Discuta a fadiga de aprovação: se o SIGMA processa 500 ocorrências/dia e cada uma para na tipificação, o gargalo é o operador. Como manter o controle sem transformar a aprovação em carimbo? (amostragem? aprovação por lote de casos parecidos? só os casos que o Analista marcou como incertos?)</li>
+        <li>Em LangGraph, isso é <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">interrupt()</code> + um checkpointer. Leia como o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">interrupt</code> retoma com <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">Command(resume=...)</code>.</li>
+      </ol>
+      <p style="margin-bottom:0">Orientação no gabarito.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <h2>Trade-offs e riscos</h2>
+    <ul>
+      <li><strong>HITL × HOTL.</strong> In-the-loop para decisões sensíveis, de baixo volume, onde alguém precisa assinar. On-the-loop para volume alto e baixo risco. Não são exclusivos: o SIGMA pode ser on-the-loop no geral e in-the-loop na tipificação.</li>
+      <li><strong>Custo do HITL.</strong> Latência humana (horas), fadiga de aprovação, e a infraestrutura de persistência. O breakpoint só onde realmente importa.</li>
+      <li><strong>Especializar tem limite.</strong> Quatro agentes é bom; vinte agentes com um papel minúsculo cada vira coordenação demais (Aula 5). Divida por responsabilidade real, não por etapa.</li>
+    </ul>
+
+    <h3>Segurança</h3>
+    <div class="grade col-3">
+      <div class="aviso perigo"><div class="titulo">⛔ Checkpoint com dados pessoais</div>
+        <p>O estado serializado tem o relato, nomes, placas. Em produção: criptografia em repouso, controle de acesso ao store, retenção definida, e o mínimo de dados necessário no checkpoint (LGPD).</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Aprovação sem leitura</div>
+        <p>Um breakpoint que só mostra "Aprovar?" e um operador sob pressão = carimbo. O painel precisa mostrar a memória dos agentes e o fundamento; e a auditoria registra <em>quem</em> aprovou e <em>quando</em> — se todas as aprovações levam 2 segundos, é sinal.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Quem pode aprovar</div>
+        <p>O breakpoint é um ponto de autorização. Quem tem permissão para aprovar uma tipificação? O <code class="inline">operador</code> no registro não pode ser autodeclarado — precisa vir de autenticação (Aula 9).</p></div>
+    </div>
+    <ul>
+      <li><strong>O ciclo de rejeição tem limite.</strong> Rejeitar 10 vezes não pode travar; ao bater o teto, o caso vai inteiro para o humano ("PENDENTE").</li>
+      <li><strong>Protótipo ≠ produção.</strong> Falta: store real (não arquivo), fila de aprovações, notificação do operador, expiração de breakpoint.</li>
+    </ul>
+
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável</div>
+      <p>A tipificação que o Jurídico produz é uma <strong>proposta</strong>, marcada
+      <code class="inline">requer_decisao_humana: true</code>, e o fluxo <strong>não continua</strong>
+      sem um servidor decidir. Aprovar, corrigir ou rejeitar — a decisão fica registrada com
+      operador, data e conteúdo (é o que a LGPD, art. 20, chama de direito à revisão). O
+      breakpoint não é um detalhe de implementação: é o mecanismo que mantém a decisão
+      sensível com a pessoa responsável por ela. Indiciamento, medida cautelar e difusão de
+      dados nem sequer são nós deste fluxo.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <h2>Fechamento da aula</h2>
+
+    <h3>Perguntas conceituais</h3>
+    <ol>
+      <li>O que é separação de responsabilidades entre agentes, e um benefício concreto dela?</li>
+      <li>Diferença entre a memória de um agente e o estado compartilhado.</li>
+      <li>Por que o estado precisa ser persistido para um breakpoint HITL funcionar?</li>
+      <li>Human-in-the-loop × human-on-the-loop: dê um exemplo de cada no SIGMA.</li>
+      <li>O operador rejeita a tipificação sem corrigir. O que o fluxo faz, e qual o limite?</li>
+    </ol>
+
+    <h3>Exercício prático</h3>
+    <p>Acrescente ao registro da decisão (<code class="inline">aprovacoes</code>) um campo <code class="inline">segundos_ate_decidir</code>, calculado do <code class="inline">mtime</code> do checkpoint. Faça um teste que falha se a "decisão" veio em menos de, digamos, 1 segundo depois do breakpoint (proxy de aprovação sem leitura).</p>
+
+    <h3>Desafio</h3>
+    <p>Escreva um teste que prove que, se o processo for "morto" logo após o breakpoint (simule: só guarde o <code class="inline">checkpoint</code> id, descarte o objeto <code class="inline">Fluxo</code> e o <code class="inline">Estado</code>), um <code class="inline">Fluxo</code> novo consegue retomar e concluir, com todas as memórias intactas.</p>
+
+    <h3>Checklist de aprendizagem</h3>
+    <ul class="lista-check">
+      <li>Decomponho um fluxo em agentes com responsabilidade única</li>
+      <li>Dou a cada agente uma memória própria, append-only</li>
+      <li>Persisto o estado e retomo de outro processo</li>
+      <li>Implementei um breakpoint com aprovar / corrigir / rejeitar</li>
+      <li>Sei quando usar in-the-loop e quando on-the-loop</li>
+      <li>Sei apontar 3 riscos (checkpoint com PII, aprovação sem leitura, quem aprova)</li>
+    </ul>
+  </section>
+
+  <!-- ===================== GLOSSÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Referência rápida</p>
+    <h2>Glossário</h2>
+    <div class="glossario">
+      <dl>
+        <dt>Agente especializado</dt><dd>Agente com um papel único e bem delimitado (Investigador, Jurídico…).</dd>
+        <dt>Separação de responsabilidades</dt><dd>Cada agente lê só o que precisa e escreve só a sua parte do estado.</dd>
+        <dt>Memória do agente</dt><dd>O bloco de notas append-only de <em>um</em> agente — o que ele fez, para ele consultar.</dd>
+        <dt>Estado compartilhado</dt><dd>O objeto que passa por todos os agentes; todos leem e escrevem.</dd>
+        <dt>Persistência</dt><dd>Salvar o estado fora da memória do processo (disco, banco, store).</dd>
+        <dt>Checkpoint</dt><dd>Uma cópia serializada do estado num ponto do fluxo, usada para retomar.</dd>
+        <dt>Serialização</dt><dd>Converter o estado em algo que se grava (aqui, JSON) e se lê de volta.</dd>
+        <dt>Human-in-the-loop (HITL)</dt><dd>A execução para e não avança sem a decisão de um humano.</dd>
+        <dt>Human-on-the-loop</dt><dd>O sistema roda sozinho; o humano só monitora e pode interromper.</dd>
+        <dt>Breakpoint / interrupt</dt><dd>O ponto do fluxo onde a execução é suspensa à espera de um humano.</dd>
+        <dt>Ciclo HITL</dt><dd>Rejeitar → o agente repropõe considerando a nota → novo breakpoint (com limite).</dd>
+        <dt>Fadiga de aprovação</dt><dd>Quando há aprovações demais, o operador carimba sem ler.</dd>
+        <dt>Retomada (resume)</dt><dd>Carregar um checkpoint, aplicar a decisão, e continuar o fluxo de onde parou.</dd>
+        <dt>Checkpointer (LangGraph)</dt><dd>O componente que salva/carrega o estado do grafo a cada passo.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===================== REFERÊNCIAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Fontes</p>
+    <h2>Referências</h2>
+    <ol class="refs">
+      <li><span class="fonte">LangGraph — <em>Human-in-the-loop</em> e <em>Persistence</em> (documentação)</span>. LangChain. <a href="https://langchain-ai.github.io/langgraph/">langchain-ai.github.io/langgraph</a>.
+        <span class="assoc"><code class="inline">interrupt()</code>, <code class="inline">Command(resume=...)</code>, checkpointer.</span></li>
+      <li><span class="fonte">Anthropic — <em>Building Effective Agents</em> (2024)</span>. <a href="https://www.anthropic.com/research/building-effective-agents">anthropic.com/research/building-effective-agents</a>.
+        <span class="assoc">Orchestrator-workers; agentes com papéis; quando parar para o humano.</span></li>
+      <li><span class="fonte">Packer, C. et al. — <em>MemGPT: Towards LLMs as Operating Systems</em> (2023)</span>. arXiv:2310.08560. <a href="https://arxiv.org/abs/2310.08560">arxiv.org/abs/2310.08560</a>.
+        <span class="assoc">Memória de agente: o que fica no contexto e o que vai para um store.</span></li>
+      <li><span class="fonte">União Europeia — <em>AI Act</em>, Artigo 14 (<em>Human oversight</em>) (2024)</span>. <a href="https://artificialintelligenceact.eu/article/14/">artificialintelligenceact.eu/article/14</a>.
+        <span class="assoc">Define supervisão humana para sistemas de IA de alto risco.</span></li>
+      <li><span class="fonte">Brasil — <em>LGPD (Lei nº 13.709/2018)</em>, Art. 20</span>. Planalto. <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm">planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm</a>.
+        <span class="assoc">Direito à revisão de decisões tomadas unicamente com base em tratamento automatizado. Referência normativa — não é aconselhamento jurídico.</span></li>
+      <li><span class="fonte">OWASP — <em>Top 10 for LLM Applications</em> (2025)</span>. <a href="https://genai.owasp.org/">genai.owasp.org</a>.
+        <span class="assoc">LLM06 Excessive Agency — o breakpoint humano como mitigação.</span></li>
+      <li><span class="fonte">NIST — <em>AI Risk Management Framework (AI RMF 1.0)</em> (2023)</span>. <a href="https://www.nist.gov/itl/ai-risk-management-framework">nist.gov/itl/ai-risk-management-framework</a>.
+        <span class="assoc">Função "Govern": papéis, responsabilidade e supervisão humana.</span></li>
+    </ol>
+  </section>
+
+  <!-- ===================== GABARITO ===================== -->
+  <details class="gabarito reveal">
+    <summary>Gabarito / Orientação ao Instrutor</summary>
+    <div class="conteudo">
+      <h3>Tempos (5h = 300 min)</h3>
+      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
+      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar:
+      no Bloco 2, apresente HITL×HOTL pela figura e deixe o ciclo HITL para o código; o
+      desafio pode ser só os itens 1, 2 e 4 (a regra e a discussão de fadiga).</p>
+
+      <h3>Lab básico — o agente Vitimologia</h3>
+      <p><code class="inline">solucao_exercicios.py :: lab_basico()</code>: inserir é mexer nos
+      dicionários <code class="inline">ORDEM</code> e <code class="inline">PROXIMA</code> —
+      <code class="inline">PROXIMA["analisar"]="vitimologia"</code>,
+      <code class="inline">PROXIMA["vitimologia"]="juridico"</code>. O breakpoint continua
+      exatamente onde estava (depois de <code class="inline">juridico</code>), e a memória de
+      Vitimologia entra no checkpoint como qualquer outra. Ponto: acrescentar um papel não
+      move o ponto de parada.</p>
+
+      <h3>Lab intermediário — o painel</h3>
+      <p><code class="inline">lab_intermediario()</code> monta o painel a partir de
+      <code class="inline">Checkpoint.carregar(cid)</code>: a proposta + as
+      <code class="inline">e.memorias[agente]["notas"]</code> de investigador/analista/jurídico.
+      O que <em>tem</em> que estar: o fundamento da proposta, o que cada agente observou, e há
+      quanto tempo o breakpoint está aberto. Sem isso, o operador não tem como discordar — e
+      "não ter como discordar" é o mesmo que não haver supervisão.</p>
+
+      <h3>Desafio — a regra e o 2º breakpoint</h3>
+      <ul>
+        <li><strong>Regra:</strong> um nó precisa de breakpoint antes quando seu resultado
+        <em>embasa uma ação sobre uma pessoa</em> (tipificar, indiciar, priorizar atendimento,
+        difundir dado) — e não quando ele só <em>organiza informação</em> (extrair, resumir,
+        cruzar bases fictícias).</li>
+        <li><strong>2º breakpoint:</strong> acrescentar <code class="inline">"aguardando_aprovacao_vinculos"</code>
+        aos estados de parada; <code class="inline">_rodar</code> passa a checar
+        <code class="inline">e.etapa in ("fim", "aguardando_aprovacao", "aguardando_aprovacao_vinculos")</code>
+        e salva um checkpoint com um <code class="inline">tipo_pausa</code>; <code class="inline">retomar</code>
+        despacha pela <code class="inline">tipo_pausa</code>.</li>
+        <li><strong>Fadiga:</strong> aprovar por lote os casos que o Analista marcou como
+        "sem ambiguidade" e concentrar a atenção humana nos incertos; medir o tempo médio de
+        aprovação e alertar quando cair demais; nunca deixar o operador aprovar sem o painel.</li>
+      </ul>
+
+      <h3>Avaliação — respostas-guia</h3>
+      <ol>
+        <li>Cada agente com um papel; benefício: contexto/prompt menor, teste isolado, falha localizável, e a memória de cada um é uma trilha do que ele fez.</li>
+        <li>Memória do agente = privada dele, append-only, "o que eu fiz". Estado compartilhado = de todos, "onde a tarefa está".</li>
+        <li>Porque o humano pode demorar horas e o processo pode morrer nesse meio-tempo; sem persistência, o breakpoint prende o processo ou perde o trabalho.</li>
+        <li>In-the-loop: a tipificação — não segue sem aprovação. On-the-loop: a extração de campos — roda sozinha, o humano vê no dossiê depois.</li>
+        <li>Volta ao Jurídico com a nota; ele repropõe considerando-a; ao bater <code class="inline">max_ciclos_hitl</code> rejeições, o caso vai inteiro para o humano com tipificação "PENDENTE".</li>
+      </ol>
+    </div>
+  </details>
+
+  <!-- ===================== FECHAMENTO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Próximos passos</p>
+    <h2>Evolução do SIGMA — Aula 7</h2>
+    <p>Os agentes agora têm papéis e memória, e o fluxo para para um humano decidir a tipificação — persistindo o estado para retomar depois. Tudo isso ainda roda num processo só. Na Aula 8, cada agente vira um <strong>serviço containerizado</strong> (Docker), o checkpoint vira um <strong>store compartilhado</strong>, e a comunicação entre eles acontece <strong>entre pods</strong> num cluster Kubernetes — Deployments, Services, ConfigMaps.</p>
+    <div class="mermaid">
+flowchart LR
+  O[("Boletim sintético")] --> INV["Investigador"] --> ANA["Analista"] --> JUR["Jurídico"]
+  JUR --> BP{{"aprovação humana (breakpoint)"}}
+  BP --> CON["Consolidador"] --> DOS[("Dossiê")]
+  BP -. "checkpoint (estado + memórias)" .-> DISK[("store")]
+  CON -. "decisões humanas registradas" .-> AU["Auditor"]
+    </div>
+    <p class="legenda">O que a Aula 7 acrescentou: os nós viraram agentes com papel e memória; o fluxo ganhou um ponto de parada obrigatório antes da tipificação; e o estado passou a ser persistido para que a decisão humana possa vir de outro processo, mais tarde.</p>
+
+    <blockquote class="ancora">"Automatizar até a borda da decisão sensível, e ali parar de verdade — não 'avisar depois'. O breakpoint é onde o sistema devolve a responsabilidade a quem ela pertence."</blockquote>
+
+    <div class="nav-aulas">
+      <a href="aula-06-grafos-langgraph.html"><span>Anterior</span>← Aula 6 — Grafos e LangGraph</a>
+      <a href="../index.html"><span>Em breve</span>Aula 8 — Kubernetes →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · Aula 7 de 10</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="../assets/aula.js"></script>
+</body>
+</html>
