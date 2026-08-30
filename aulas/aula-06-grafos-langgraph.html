@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 6 — Grafos e LangGraph · Unidade 8 · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="../assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 6 de 10 · 5h</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Aula 6 · Modelagem de Sistemas Baseados em Grafos</p>
+    <h1>O fluxo vira um <span class="destaque">grafo</span> que dá para desenhar</h1>
+    <p class="sub">Na Aula 5, os cinco padrões eram cinco arquivos com <code>for</code>, <code>while</code> e <code>if</code> escondendo o fluxo. Esta aula transforma o fluxo num objeto explícito: nós, arestas, estado compartilhado, condicionais e um ciclo — o modelo que o LangGraph formaliza.</p>
+    <div class="meta">
+      <span class="tag">5h · laboratório</span>
+      <span class="tag">Python · grafos · LangGraph</span>
+      <span class="tag">pré: Aulas 4–5</span>
+      <span class="tag">dados sintéticos</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <h2>O problema: o fluxo está escondido no código</h2>
+    <p>Pegue o Supervisor da Aula 5: um <code class="inline">while</code>, um <code class="inline">llm.decidir()</code>, um <code class="inline">if proximo == "concluir"</code>. Para responder "o que acontece depois de <em>classificar</em>?" você precisa <em>ler o loop</em>. Para testar um caminho específico, precisa montar o estado certo e torcer. Para mudar a ordem, mexe na lógica de controle.</p>
+    <p>Um <strong>grafo de execução</strong> tira o fluxo de dentro do código de controle e o coloca num objeto: os <strong>nós</strong> (as etapas) e as <strong>arestas</strong> (as transições possíveis). Aí dá para <em>desenhar</em> o fluxo, <em>validar</em> antes de rodar, <em>instrumentar</em> cada caminho, e mudar a rota sem tocar nas etapas. É o que o <strong>LangGraph</strong> faz — e hoje construímos a versão mínima para entender o mecanismo.</p>
+
+    <div class="painel">
+      <div class="grade-painel">
+        <div>
+          <h4>Objetivos</h4>
+          <ul>
+            <li>Definir nó, aresta, grafo dirigido, DAG, ciclo, transição, estado compartilhado</li>
+            <li>Distinguir aresta estática de condicional (roteador)</li>
+            <li>Construir um motor de grafo com validação e trava de passos</li>
+            <li>Modelar o fluxo do SIGMA como grafo, com um ciclo controlado</li>
+            <li>Reconhecer os padrões da Aula 5 como grafos; introduzir o LangGraph</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Pré-requisitos</h4>
+          <ul>
+            <li>Aula 4 (trava de passos), Aula 5 (os 5 padrões, o Dossiê)</li>
+            <li>Python: funções de 1ª classe, dicionários, recursão</li>
+            <li>Noção de grafo (nós ligados por setas)</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Stack</h4>
+          <ul>
+            <li>Python 3.11+ (funciona em 3.10) — só a biblioteca padrão</li>
+            <li><code class="inline">langgraph</code> <em>— opcional</em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <ol>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>o fluxo escondido no código de controle</small></span></li>
+        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>nó, aresta, DAG, ciclo, condicional; os padrões como grafos; LangGraph</small></span></li>
+        <li><span class="hora">01:20</span><span class="bloco-nome">Demonstração<small>estado, o motor de grafo, o grafo do SIGMA rodando</small></span></li>
+        <li><span class="hora">02:10</span><span class="bloco-nome">Laboratório básico<small>rodar os 3 caminhos; inserir um nó</small></span></li>
+        <li><span class="hora">02:55</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:10</span><span class="bloco-nome">Laboratório intermediário<small>DAG × ciclo × ciclo sem saída; validação; ramos + junção</small></span></li>
+        <li><span class="hora">03:55</span><span class="bloco-nome">Desafio avançado<small>converter o Supervisor num grafo; LangGraph de verdade</small></span></li>
+        <li><span class="hora">04:25</span><span class="bloco-nome">Debriefing<small>grafo × código; ciclo runaway; roteador e injeção</small></span></li>
+        <li><span class="hora">04:40</span><span class="bloco-nome">Avaliação<small>perguntas, exercício, desafio, checklist</small></span></li>
+      </ol>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Comece desenhando no quadro o fluxo do SIGMA como caixas e setas — a turma
+      naturalmente desenha um grafo. Depois mostre o <code class="inline">while</code> do
+      Supervisor da Aula 5 e pergunte: "onde está esse desenho, no código?". A resposta
+      ("espalhado") é a motivação. Turma mista: quem não programa desenha e valida grafos
+      no papel a aula toda.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 55 min</p>
+    <h2>Grafo: nós e arestas</h2>
+    <p>Um <strong>grafo dirigido</strong> é um conjunto de <strong>nós</strong> ligados por <strong>arestas</strong> com direção (setas). Aqui: cada nó é uma <em>etapa</em> — uma função <code class="inline">no(estado) → estado</code>; cada aresta é uma <em>transição possível</em>. Dois nós sentinela, <code class="inline">START</code> e <code class="inline">END</code>, marcam começo e fim.</p>
+    <div class="mermaid">
+flowchart LR
+  I(("START")) --> A["nó A"] --> B["nó B"] --> F(("END"))
+    </div>
+    <p class="legenda">O grafo mais simples: uma sequência. A execução entra por START, roda cada nó, segue a aresta, e para em END.</p>
+
+    <h3>Estado compartilhado</h3>
+    <p>Um único objeto — o <code class="inline">Estado</code> — passa por todos os nós. Cada nó <em>lê</em> o que precisa e <em>escreve</em> a sua contribuição. É o Dossiê da Aula 5, com dois campos a mais para o grafo se enxergar: <code class="inline">caminho</code> (a sequência de nós visitados) e <code class="inline">passos</code> (a trava da Aula 4).</p>
+
+    <h3>DAG × ciclo</h3>
+    <div class="mermaid">
+flowchart LR
+  subgraph DAG["DAG — grafo acíclico dirigido"]
+    a1["A"] --> a2["B"] --> a3["C"] --> a4(("END"))
+  end
+  subgraph CIC["Grafo com ciclo"]
+    b1["A"] --> b2["B"]
+    b2 -- "condição de saída falsa" --> b1
+    b2 -- "verdadeira" --> b3(("END"))
+  end
+    </div>
+    <p class="legenda">Num <strong>DAG</strong> (sem volta) a execução <em>sempre</em> termina — não há como voltar. Um <strong>ciclo</strong> (uma aresta que retorna a um nó já visitado) só é seguro se o roteador tiver uma condição que <em>eventualmente</em> fica falsa — e mesmo assim precisa da trava de passos como rede.</p>
+
+    <h3>Aresta condicional — o roteador</h3>
+    <p>Uma aresta <strong>estática</strong> sempre vai para o mesmo destino. Uma aresta <strong>condicional</strong> tem um <em>roteador</em>: uma função <code class="inline">rota(estado) → nome_do_próximo_nó</code> que decide para onde ir <em>a partir do estado atual</em>.</p>
+    <div class="mermaid">
+flowchart LR
+  C["classificar"] --> R{"roteador — o estado diz o quê?"}
+  R -- "relato confuso" --> H["encaminhar_humano"]
+  R -- "senão" --> N["consultar"]
+    </div>
+    <p class="legenda">O roteador roda <em>depois</em> do nó <code class="inline">classificar</code> — ele enxerga o estado já atualizado. É assim que o fluxo se adapta ao caso.</p>
+
+    <h3>Os padrões da Aula 5, agora como grafos</h3>
+    <div class="mermaid">
+flowchart LR
+  subgraph PIPE["Pipeline = arestas estáticas em linha"]
+    p1["extrair"] --> p2["classificar"] --> p3["consultar"] --> p4["revisar"]
+  end
+  subgraph SUP["Supervisor = estrela + ciclo condicional"]
+    s0{"supervisor"} --> s1["extrair"]
+    s0 --> s2["classificar"]
+    s0 --> s3["..."]
+    s1 --> s0
+    s2 --> s0
+    s3 --> s0
+  end
+    </div>
+    <p class="legenda">Pipeline é uma linha de arestas estáticas. Supervisor é uma estrela: cada especialista volta ao supervisor, que decide o próximo por uma aresta condicional. Blackboard é mais difícil de desenhar como grafo fixo — as arestas mudam com as dependências.</p>
+
+    <h3>LangGraph</h3>
+    <p>O <strong>LangGraph</strong> (LangChain) é a biblioteca que formaliza isso. Você declara um <code class="inline">StateGraph</code>, adiciona nós e arestas, <code class="inline">compile()</code>, e <code class="inline">invoke(estado)</code>. O que ele acrescenta ao motor mínimo:</p>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Motor mínimo (nosso)</th><th>LangGraph</th></tr>
+        <tr><td>o nó devolve o estado inteiro</td><td>o nó devolve só as chaves que mudou; o LangGraph faz o merge</td></tr>
+        <tr><td><code class="inline">caminho</code> acumulado à mão</td><td><code class="inline">Annotated[list, reducer]</code> — o reducer concatena</td></tr>
+        <tr><td>roteador devolve o nome do nó</td><td>roteador devolve um rótulo; um dicionário mapeia rótulo → nó</td></tr>
+        <tr><td><code class="inline">max_passos</code> no compilar</td><td><code class="inline">recursion_limit</code> no invoke</td></tr>
+        <tr><td>execução estritamente sequencial</td><td>ramos independentes em <strong>paralelo</strong>; <strong>checkpointing</strong>; pausa para humano (Aula 7); streaming</td></tr>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">Grafos e DAGs: Cormen et al., <em>Introduction to Algorithms</em>, cap. 22. LangGraph: documentação oficial. Modelo "pense como um vértice": Pregel (Malewicz et al., 2010). Ver Referências.</p>
+  </section>
+
+  <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <h2>O motor de grafo mínimo</h2>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
+<pre>cd codigo/aula-06-grafos-langgraph
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt    # só pytest
+python -c "print('ambiente ok')"</pre>
+    </div>
+
+    <h3>Peça 1 — o estado</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/estado.py</span></div>
+<pre data-lang="python">@dataclass
+class Estado:
+    id: str; texto: str
+    campos: dict | None = None
+    classificacao: dict | None = None
+    enriquecimento: list | None = None
+    pendencias: list[str] = field(default_factory=list)
+    tentativas_enriquecer: int = 0
+    caminho: list[str] = field(default_factory=list)   # instrumentação do grafo
+    passos: int = 0                                    # trava anti-loop (Aula 4)
+
+    def visitou(self, no: str) -> None:
+        self.caminho.append(no); self.passos += 1</pre>
+    </div>
+
+    <h3>Peça 2 — o grafo (nós, arestas, validação)</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/grafo.py — trechos</span></div>
+<pre data-lang="python">START, END = "__start__", "__end__"
+
+class Grafo:
+    def no(self, nome, funcao):           # registra uma etapa
+        self._nos[nome] = funcao; return self
+
+    def aresta(self, origem, destino):     # transição fixa
+        if origem == START: self._entrada = destino
+        else: self._arestas[origem] = destino
+        return self
+
+    def aresta_condicional(self, origem, roteador):   # roteador(estado) -> nome do nó | END
+        self._condicionais[origem] = roteador; return self
+
+    def validar(self):
+        if self._entrada is None: raise GrafoInvalido("falta aresta de START")
+        for nome in self._nos:
+            if nome not in self._arestas and nome not in self._condicionais:
+                raise GrafoInvalido(f"nó '{nome}' não tem aresta de saída")
+        # ... e toda aresta aponta para nó existente
+
+    def compilar(self, max_passos=25):
+        self.validar()
+        return GrafoCompilado(self, max_passos)</pre>
+    </div>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/grafo.py — o laço de execução</span></div>
+<pre data-lang="python">def executar(self, estado):
+    atual = self._g._entrada
+    while atual != END:
+        if estado.passos >= self._max:                  # a trava da Aula 4
+            estado.pendencias.append(f"grafo interrompido: {self._max} passos")
+            return estado
+        estado.visitou(atual)
+        estado = self._g._nos[atual](estado)            # roda o nó
+        if atual in self._g._condicionais:
+            atual = self._g._condicionais[atual](estado)  # roteador decide
+        else:
+            atual = self._g._arestas[atual]               # aresta fixa
+    estado.caminho.append(END)
+    return estado</pre>
+    </div>
+
+    <h3>Peça 3 — o grafo do SIGMA</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/sigma_grafo.py</span></div>
+<pre data-lang="python">g = Grafo()
+g.no("extrair", nos.extrair).no("classificar", nos.classificar)
+g.no("consultar", nos.consultar).no("revisar", nos.revisar)
+g.no("encaminhar_humano", nos.encaminhar_humano)
+
+g.aresta(START, "extrair")
+g.aresta("extrair", "classificar")
+g.aresta_condicional("classificar", nos.rota_pos_classificar)   # confuso -> humano
+g.aresta("consultar", "revisar")
+g.aresta_condicional("revisar", nos.rota_pos_revisar)           # CICLO: volta a consultar
+g.aresta("encaminhar_humano", END)</pre>
+    </div>
+    <div class="mermaid">
+flowchart TD
+  I(("START")) --> EX["extrair"]
+  EX --> CL["classificar"]
+  CL --> RC{"relato confuso?"}
+  RC -- "sim" --> HU["encaminhar_humano"]
+  RC -- "não" --> CO["consultar"]
+  CO --> RV["revisar"]
+  RV --> RR{"enriquecimento vazio e tentativas < 2?"}
+  RR -- "sim" --> CO
+  RR -- "não" --> F(("END"))
+  HU --> F
+    </div>
+    <p class="legenda">Um DAG com <em>um</em> ciclo controlado: <code class="inline">revisar → consultar</code> só volta enquanto o enriquecimento vier vazio e houver tentativas. A 2ª ida a <code class="inline">consultar</code> faz uma busca mais ampla.</p>
+
+    <h3>Rodando</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py   /   python main.py PCDF-SIM-0002   /   python main.py PCDF-SIM-0011</span></div>
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+grafo tem ciclo (arestas estáticas)? False  (o ciclo real está nas condicionais)
+
+ocorrência: PCDF-SIM-0009                       # furto simples, região sem histórico
+caminho...: extrair -> classificar -> consultar -> revisar -> consultar -> revisar -> __end__
+passos....: 6                                   # 1ª consulta por região = vazio -> volta -> 2ª ampla acha
+natureza..: Furto
+pendências: nenhuma
+
+ocorrência: PCDF-SIM-0002                       # roubo com placa
+caminho...: extrair -> classificar -> consultar -> revisar -> __end__
+passos....: 4                                   # placa consta alerta -> enriquecimento útil -> não volta
+
+ocorrência: PCDF-SIM-0011                       # relato confuso, faltam data e local
+caminho...: extrair -> classificar -> encaminhar_humano -> __end__
+passos....: 3                                   # o roteador desviou para o humano</pre>
+    </div>
+    <p>Três ocorrências, três caminhos diferentes <strong>pelo mesmo grafo</strong> — e o <code class="inline">caminho</code> de cada uma fica registrado.</p>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 1</p>
+      <ul class="lista-check">
+        <li><code class="inline">python main.py</code> imprime o caminho das 3 ocorrências sem erro</li>
+        <li>Você aponta no diagrama: qual aresta é o ciclo, e qual é a condição de saída dele</li>
+        <li>Entende por que <code class="inline">tem_ciclo()</code> devolve <code class="inline">False</code> (o ciclo está numa condicional, não numa aresta estática)</li>
+        <li><code class="inline">pytest -q</code> passa (9 testes)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <span class="nivel basico">Nível básico</span>
+    <h2>Inserir um nó no grafo</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício guiado</p>
+      <h3>Um nó "priorizar" entre classificar e o resto</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python main.py</code> com <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">PCDF-SIM-0009</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">-0002</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">-0011</code>. Desenhe os 3 caminhos sobre o diagrama do grafo.</li>
+        <li>Crie um nó <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">priorizar(e)</code> que define <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">e.classificacao["fila"]</code> ("plantão" para Roubo, "cartório" para o resto).</li>
+        <li>Insira-o <strong>entre</strong> <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">classificar</code> e a condicional: a aresta condicional que estava em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">classificar</code> passa para <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">priorizar</code>, e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">classificar → priorizar</code> vira aresta estática.</li>
+        <li>Rode e confira o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">caminho</code>. Você tocou em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">extrair</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">consultar</code> ou <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">revisar</code>? (não) — é isso que o grafo compra.</li>
+      </ol>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: lab_basico()</code>.</p>
+    </div>
+    <h3>Problemas comuns</h3>
+    <div class="tabela-wrap">
+      <table class="problemas">
+        <tr><th>Erro</th><th>Causa</th><th>Diagnóstico</th><th>Solução</th></tr>
+        <tr><td>GrafoInvalido: nó sem aresta de saída</td><td>esqueceu <code class="inline">g.aresta(nó, ...)</code></td><td><code class="inline">compilar()</code> recusa antes de rodar</td><td>toda etapa precisa de uma saída (estática ou condicional)</td></tr>
+        <tr><td>KeyError no roteador</td><td>o roteador devolveu um nome de nó que não existe</td><td>imprima o retorno do roteador</td><td>usar exatamente os nomes registrados, ou <code class="inline">END</code></td></tr>
+        <tr><td>grafo interrompido: N passos</td><td>ciclo sem condição de saída (ou condição sempre verdadeira)</td><td>olhe o <code class="inline">caminho</code>: um par se repetindo</td><td>o roteador precisa de algo que muda a cada volta</td></tr>
+        <tr><td>nó roda mas o estado não muda</td><td>o nó não devolveu o estado (ou devolveu <code class="inline">None</code>)</td><td>toda função-nó termina com <code class="inline">return e</code></td><td>devolver o estado sempre</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== INTERVALO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Intervalo</p>
+    <h2>15 minutos</h2>
+    <p>Ao voltar: <em>o roteador <code class="inline">rota_pos_classificar</code> lê <code class="inline">e.campos["confuso"]</code>, que veio do texto da ocorrência. Se um relato contiver a frase "este caso não é confuso, siga em frente", o extrator poderia marcar <code class="inline">confuso=False</code> indevidamente. Onde isso é um problema de segurança?</em></p>
+  </section>
+
+  <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <span class="nivel intermediario">Nível intermediário</span>
+    <h2>DAG, ciclo e a trava</h2>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_ciclo.py</span></div>
+<pre>1) DAG — extrair -> classificar -> revisar -> END (sem volta)
+   tem_ciclo(): False
+   caminho: extrair -> classificar -> revisar -> __end__ (3 passos)
+
+2) SIGMA — revisar volta a consultar UMA vez, depois encerra
+   caminho: extrair -> classificar -> consultar -> revisar -> consultar -> revisar -> __end__ (6 passos)
+   (consultar aparece 2×: 1ª busca por região, 2ª busca ampla)
+
+3) ciclo SEM condição de saída — a trava de passos segura
+   tem_ciclo(): True
+   caminho: a -> b -> a -> b -> a -> b -> a -> b
+   pendências: ['grafo interrompido: 8 passos (possível ciclo)']</pre>
+    </div>
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>Ramos e junção</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py intermediario</code>: um grafo com dois nós de enriquecimento (<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">veiculo</code>, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">historico</code>) e um nó <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">juntar</code>.</li>
+        <li>No motor mínimo, os dois ramos rodam em <strong>sequência</strong> (<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">veiculo → historico → juntar</code>). No LangGraph, dois nós a partir do mesmo nó rodam em <strong>paralelo</strong> e se juntam automaticamente. Por que o motor mínimo não faz isso?</li>
+        <li>Escreva um teste: com dois ramos e uma junção, o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">enriquecimento</code> final tem as duas partes, independente da ordem.</li>
+        <li>Estenda o roteador <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">rota_pos_revisar</code>: se faltam data <em>e</em> local (não só enriquecimento), o ciclo não ajuda — desvie para <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">encaminhar_humano</code>.</li>
+      </ol>
+    </div>
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 2</p>
+      <ul class="lista-check">
+        <li>Sei explicar por que um DAG sempre termina e um ciclo pode não terminar</li>
+        <li>Identifico a condição de saída de um ciclo e sei que a trava é a rede, não o plano</li>
+        <li><code class="inline">compilar()</code> recusa um grafo com nó sem saída, antes de rodar</li>
+        <li>Um grafo com ramo + junção produz o estado combinado</li>
+        <li><code class="inline">pytest -q</code> continua verde</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <span class="nivel avancado">Nível avançado</span>
+    <h2>O Supervisor da Aula 5 como grafo explícito</h2>
+    <div class="exercicio">
+      <p class="rotulo">Desafio</p>
+      <h3>Requisitos</h3>
+      <ol>
+        <li>Desenhe o Supervisor da Aula 5 como grafo: um nó <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">supervisor</code>, arestas para cada especialista, e cada especialista com uma aresta <strong>de volta</strong> ao supervisor. O que é a aresta condicional aqui?</li>
+        <li>Implemente-o com o motor mínimo. Onde entra a trava de passos? Compare o número de nós/arestas com o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">while</code> da Aula 5 — o grafo tem mais partes, mas o fluxo está visível.</li>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python langgraph_real/grafo_lg.py</code>: o mesmo grafo do SIGMA com o pacote <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">langgraph</code>. Aponte 3 diferenças de API (ver <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">langgraph_real/README.md</code>).</li>
+        <li>Onde no grafo do SIGMA você colocaria um nó que <strong>para e espera um humano</strong> antes de continuar? (é a Aula 7).</li>
+      </ol>
+      <p style="margin-bottom:0">Orientação no gabarito.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <h2>Trade-offs e riscos</h2>
+    <ul>
+      <li><strong>Grafo × código de controle.</strong> Fluxo simples e fixo (2–3 passos) → um <code class="inline">if</code> resolve. Fluxo com ramos, ciclos, e que muda com frequência → grafo: dá para desenhar, validar e instrumentar. O grafo tem mais cerimônia.</li>
+      <li><strong>DAG × ciclo.</strong> Prefira DAG sempre que possível — terminação garantida. Só use ciclo quando a tarefa realmente é "tente, avalie, tente de novo" — e sempre com condição de saída <em>e</em> trava.</li>
+      <li><strong>Motor próprio × LangGraph.</strong> Para entender e para casos pequenos, o motor de 80 linhas basta. LangGraph vale quando você precisa de paralelismo real, checkpointing (retomar de onde parou) ou pausa para humano.</li>
+    </ul>
+
+    <h3>Segurança</h3>
+    <div class="grade col-3">
+      <div class="aviso perigo"><div class="titulo">⛔ Ciclo runaway</div>
+        <p>Um roteador com condição de saída que nunca fica falsa transforma o grafo num gerador de custo (o mesmo LLM10 / consumo ilimitado da Aula 4). A trava de passos <strong>tem</strong> que estar lá, e passos altos demais escondem o problema.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Roteador lê dado não confiável</div>
+        <p>Se a rota depende de um campo que veio do texto da ocorrência (<code class="inline">confuso</code>, <code class="inline">tem_violencia</code>), um relato pode se "auto-rotear" para o caminho rápido. Valide o campo; ou faça o roteamento depender de sinais que o agente não controla.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Estado compartilhado mutável</div>
+        <p>Dois nós que escrevem o mesmo campo criam ordem-dependência silenciosa. O LangGraph usa reducers explícitos; no motor mínimo, a ordem é sua responsabilidade — documente quem escreve o quê.</p></div>
+    </div>
+    <ul>
+      <li><strong>Observabilidade de graça.</strong> O <code class="inline">caminho</code> de cada execução responde "por que esta ocorrência foi para este ramo" — registre-o.</li>
+      <li><strong>Protótipo ≠ produção.</strong> Falta: execução paralela real, retomada após falha (checkpoint), versionamento do grafo (Aula 9).</li>
+    </ul>
+
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável</div>
+      <p>O grafo é a <strong>rota</strong>, não o veredito. Que uma ocorrência passe por
+      <code class="inline">consultar</code> duas vezes ou desvie para <code class="inline">encaminhar_humano</code>
+      é uma decisão de <em>processo</em> — registrada no <code class="inline">caminho</code> e
+      auditável. Repare que um relato confuso ou com dados faltando vai para o humano
+      <strong>por desenho do grafo</strong>, não por acaso: o sistema é construído para
+      devolver ao servidor o que não consegue tratar com segurança. Nenhum nó tipifica um
+      crime ou aponta autor — isso continua fora do grafo.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 8 · Avaliação · 20 min</p>
+    <h2>Fechamento da aula</h2>
+
+    <h3>Perguntas conceituais</h3>
+    <ol>
+      <li>O que é um nó e o que é uma aresta, no motor desta aula?</li>
+      <li>Por que um DAG sempre termina e um grafo com ciclo pode não terminar?</li>
+      <li>Diferença entre aresta estática e aresta condicional. Quando o roteador roda?</li>
+      <li>O grafo do SIGMA tem <code class="inline">tem_ciclo() == False</code> mas tem um ciclo. Como?</li>
+      <li>Cite duas coisas que o LangGraph faz e o motor mínimo não faz.</li>
+    </ol>
+
+    <h3>Exercício prático</h3>
+    <p>Acrescente ao grafo um nó <code class="inline">arquivar</code> depois de <code class="inline">revisar</code>, mas <strong>só</strong> quando não há pendências e a prioridade é "normal". Faça isso com uma aresta condicional a partir de <code class="inline">revisar</code> (rota: pendência? → humano-ish; normal sem pendência? → arquivar; senão → END). Teste os três destinos.</p>
+
+    <h3>Desafio</h3>
+    <p>Escreva um teste que prove que o motor recusa (na <code class="inline">compilar()</code>) um grafo cujo roteador <em>poderia</em> devolver o nome de um nó que não existe — ou explique por que isso não é detectável estaticamente e o que fazer em vez disso.</p>
+
+    <h3>Checklist de aprendizagem</h3>
+    <ul class="lista-check">
+      <li>Defino nó, aresta, grafo dirigido, DAG, ciclo, roteador, estado compartilhado</li>
+      <li>Construí um grafo com validação e trava de passos</li>
+      <li>Modelei um fluxo com desvio condicional e um ciclo controlado</li>
+      <li>Sei ver o Pipeline e o Supervisor da Aula 5 como grafos</li>
+      <li>Rodei o mesmo grafo no LangGraph e sei 3 diferenças de API</li>
+      <li>Sei apontar 3 riscos (ciclo runaway, roteador injetável, estado mutável)</li>
+    </ul>
+  </section>
+
+  <!-- ===================== GLOSSÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Referência rápida</p>
+    <h2>Glossário</h2>
+    <div class="glossario">
+      <dl>
+        <dt>Grafo dirigido</dt><dd>Nós ligados por arestas com direção (setas).</dd>
+        <dt>Nó</dt><dd>Uma etapa do fluxo — aqui, uma função <code class="inline">no(estado) → estado</code>.</dd>
+        <dt>Aresta</dt><dd>Uma transição possível de um nó para outro.</dd>
+        <dt>Aresta estática</dt><dd>Sempre leva ao mesmo destino.</dd>
+        <dt>Aresta condicional</dt><dd>Um roteador decide o destino a partir do estado.</dd>
+        <dt>Roteador</dt><dd>Função <code class="inline">rota(estado) → nome do próximo nó</code> (ou END).</dd>
+        <dt>Estado compartilhado</dt><dd>O objeto que passa por todos os nós; cada nó lê e escreve.</dd>
+        <dt>DAG</dt><dd>Grafo acíclico dirigido — sem volta; a execução sempre termina.</dd>
+        <dt>Ciclo</dt><dd>Uma aresta que retorna a um nó já visitado.</dd>
+        <dt>Condição de saída</dt><dd>O teste no roteador que, ao ficar falso, tira a execução do ciclo.</dd>
+        <dt>START / END</dt><dd>Nós sentinela que marcam entrada e saída do grafo.</dd>
+        <dt>Transição</dt><dd>O ato de seguir uma aresta de um nó para o próximo.</dd>
+        <dt>StateGraph</dt><dd>A classe do LangGraph que representa o grafo antes de <code class="inline">compile()</code>.</dd>
+        <dt>Reducer</dt><dd>No LangGraph, a função que combina o valor antigo de um campo com o update de um nó (ex.: concatenar listas).</dd>
+        <dt>recursion_limit</dt><dd>A trava de passos do LangGraph — máximo de transições antes de abortar.</dd>
+        <dt>Checkpointing</dt><dd>Salvar o estado do grafo a cada passo para retomar de onde parou (LangGraph).</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===================== REFERÊNCIAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Fontes</p>
+    <h2>Referências</h2>
+    <ol class="refs">
+      <li><span class="fonte">LangGraph — <em>Documentação</em></span>. LangChain. <a href="https://langchain-ai.github.io/langgraph/">langchain-ai.github.io/langgraph</a>.
+        <span class="assoc">StateGraph, nós, arestas condicionais, reducers, recursion_limit, checkpointing.</span></li>
+      <li><span class="fonte">Cormen, T. et al. — <em>Introduction to Algorithms</em> (3ª/4ª ed.)</span>. MIT Press. Parte VI, "Graph Algorithms" (grafos dirigidos, DAG, ordenação topológica, DFS/detecção de ciclo).
+        <span class="assoc">A base formal de nó, aresta, DAG e ciclo.</span></li>
+      <li><span class="fonte">Malewicz, G. et al. — <em>Pregel: A System for Large-Scale Graph Processing</em> (2010)</span>. SIGMOD. <a href="https://doi.org/10.1145/1807167.1807184">doi.org/10.1145/1807167.1807184</a>.
+        <span class="assoc">O modelo "pense como um vértice" que inspira frameworks de grafo de execução.</span></li>
+      <li><span class="fonte">Anthropic — <em>Building Effective Agents</em> (2024)</span>. <a href="https://www.anthropic.com/research/building-effective-agents">anthropic.com/research/building-effective-agents</a>.
+        <span class="assoc">Workflows (prompt chaining, routing) como grafos de passos fixos.</span></li>
+      <li><span class="fonte">Apache Airflow — <em>DAGs</em> (documentação)</span>. <a href="https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html">airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html</a>.
+        <span class="assoc">DAG como modelo de orquestração em produção (fora de IA).</span></li>
+      <li><span class="fonte">OWASP — <em>Top 10 for LLM Applications</em> (2025)</span>. <a href="https://genai.owasp.org/">genai.owasp.org</a>.
+        <span class="assoc">LLM10 Unbounded Consumption — o ciclo runaway.</span></li>
+      <li><span class="fonte">NIST — <em>AI Risk Management Framework (AI RMF 1.0)</em> (2023)</span>. <a href="https://www.nist.gov/itl/ai-risk-management-framework">nist.gov/itl/ai-risk-management-framework</a>.
+        <span class="assoc">Rastreabilidade do caminho de decisão de um sistema composto.</span></li>
+      <li><span class="fonte">Brasil — <em>Lei nº 13.709/2018 (LGPD)</em></span>. Planalto. <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm">planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm</a>.
+        <span class="assoc">Registro do caminho percorrido como parte da trilha de decisão automatizada. Referência normativa — não é aconselhamento jurídico.</span></li>
+    </ol>
+  </section>
+
+  <!-- ===================== GABARITO ===================== -->
+  <details class="gabarito reveal">
+    <summary>Gabarito / Orientação ao Instrutor</summary>
+    <div class="conteudo">
+      <h3>Tempos (5h = 300 min)</h3>
+      <p>Abertura 25 · Fundamentos 55 · Demonstração 50 · Lab básico 45 · Intervalo 15 ·
+      Lab intermediário 45 · Desafio 30 · Debriefing 15 · Avaliação 20 = 300. Se atrasar:
+      no Bloco 2, apresente "padrões como grafos" e o LangGraph pela tabela; o desafio
+      pode ser só os itens 1 e 4 (desenho e discussão).</p>
+
+      <h3>Lab básico — o nó priorizar</h3>
+      <p>Referência em <code class="inline">solucao_exercicios.py :: lab_basico()</code>: a
+      condicional que estava em <code class="inline">classificar</code> passa para
+      <code class="inline">priorizar</code> (<code class="inline">g._condicionais["priorizar"] = g._condicionais.pop("classificar")</code>)
+      e <code class="inline">classificar → priorizar</code> vira aresta estática. Caminho
+      resultante: <code class="inline">extrair → classificar → priorizar → consultar → revisar → END</code>.
+      Ponto: nenhum outro nó foi tocado.</p>
+
+      <h3>Lab intermediário — ramos + junção</h3>
+      <p><code class="inline">lab_intermediario()</code>: <code class="inline">veiculo → historico → juntar</code>.
+      No motor mínimo os ramos são sequenciais porque o laço de execução segue <em>uma</em>
+      aresta por vez — não há fila de nós ativos. O LangGraph mantém um "super-step" com todos
+      os nós prontos e os roda em paralelo; a junção espera todos. Estender o roteador para
+      desviar quando faltam data+local: <code class="inline">if not c["data_fato"] and not c["local"]: return "encaminhar_humano"</code>
+      no começo de <code class="inline">rota_pos_revisar</code>.</p>
+
+      <h3>Desafio — Supervisor como grafo</h3>
+      <div class="codigo">
+        <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">esboço</span></div>
+<pre data-lang="python">g.no("supervisor", no_supervisor)     # chama llm.decidir(e), guarda a escolha em e
+for nome in ("extrair", "classificar", "consultar", "revisar"):
+    g.no(nome, REGISTRO[nome])
+    g.aresta(nome, "supervisor")       # cada especialista volta ao supervisor
+g.aresta(START, "supervisor")
+g.aresta_condicional("supervisor", lambda e: e.escolha)   # "extrair" | ... | END</pre>
+      </div>
+      <p>A trava de passos do <code class="inline">GrafoCompilado</code> substitui o
+      <code class="inline">max_rodadas</code> da Aula 5. O grafo tem 5 nós e ~9 arestas contra
+      um <code class="inline">while</code> de 8 linhas — mas o fluxo está no desenho, não na
+      cabeça de quem leu o código. <strong>Onde parar para o humano:</strong> um nó
+      <code class="inline">aprovar_humano</code> entre <code class="inline">revisar</code> e
+      <code class="inline">END</code>, que no LangGraph usa <code class="inline">interrupt()</code>
+      + checkpoint — a Aula 7.</p>
+
+      <h3>Avaliação — respostas-guia</h3>
+      <ol>
+        <li>Nó = uma função-etapa sobre o estado; aresta = uma transição possível entre nós.</li>
+        <li>DAG não tem como voltar → o número de transições é limitado. Ciclo pode revisitar um nó indefinidamente se a condição de saída nunca ficar falsa.</li>
+        <li>Estática = destino fixo; condicional = um roteador decide. O roteador roda depois do nó de origem, com o estado já atualizado.</li>
+        <li><code class="inline">tem_ciclo()</code> só olha arestas <em>estáticas</em>; o ciclo <code class="inline">revisar → consultar</code> é uma aresta <em>condicional</em> — depende do estado, então não é analisável só pela topologia.</li>
+        <li>Ex.: execução paralela de ramos; checkpointing / retomada; pausa para humano; merge por reducer; streaming.</li>
+      </ol>
+      <p><strong>Desafio (roteador):</strong> não é detectável estaticamente porque o roteador
+      é código arbitrário — pode devolver qualquer string. Mitigação: o
+      <code class="inline">GrafoCompilado.executar</code> valida o retorno do roteador em
+      runtime (<code class="inline">if prox not in self._g._nos and prox != END: raise</code>)
+      e falha com mensagem clara em vez de <code class="inline">KeyError</code>. É o que o
+      LangGraph faz ao exigir o dicionário <code class="inline">{rótulo: nó}</code>.</p>
+    </div>
+  </details>
+
+  <!-- ===================== FECHAMENTO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Próximos passos</p>
+    <h2>Evolução do SIGMA — Aula 6</h2>
+    <p>O fluxo do SIGMA agora é um grafo explícito: dá para desenhá-lo, validá-lo antes de rodar, e ver o caminho de cada ocorrência. Na Aula 7, os <strong>nós</strong> deste grafo viram <strong>agentes com papéis</strong> (Investigador, Jurídico, Analista) — cada um com o seu loop e a sua memória — e alguns nós passam a <strong>parar e esperar a aprovação de um humano</strong> antes de continuar. Para isso o grafo precisa <em>persistir o estado</em> (checkpoint) e saber retomar.</p>
+    <div class="mermaid">
+flowchart LR
+  O[("Boletim sintético")] --> G{{"grafo de execução do SIGMA"}}
+  G --> H["Revisão humana"]
+  G -. "caminho + passos" .-> AU["Auditor"]
+  G -. "Aula 7: nós que pausam para aprovação" .-> HITL["Human-in-the-loop"]
+    </div>
+    <p class="legenda">O que a Aula 6 acrescentou: o fluxo virou um grafo com nós, arestas condicionais e um ciclo controlado — e cada execução registra o caminho percorrido para o Auditor.</p>
+
+    <blockquote class="ancora">"Enquanto o fluxo está num <code>while</code>, só quem leu o código sabe o que o sistema faz. Quando o fluxo é um grafo, dá para desenhá-lo numa reunião — e discordar dele."</blockquote>
+
+    <div class="nav-aulas">
+      <a href="aula-05-orquestracao.html"><span>Anterior</span>← Aula 5 — Orquestração</a>
+      <a href="../index.html"><span>Em breve</span>Aula 7 — Especializados e HITL →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · Aula 6 de 10</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="../assets/aula.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# Só para o caminho "LangGraph de verdade" (langgraph_real/).
+langgraph>=0.2
