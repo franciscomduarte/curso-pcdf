@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>O problema: quatro especialistas, quem manda?</h2>
     <p>O SIGMA agora tem quatro papéis: <strong>Extrator</strong> (campos), <strong>Classificador</strong> (natureza e prioridade), <strong>Consultor</strong> (enriquece com consultas), <strong>Revisor</strong> (aponta o que falta). Coordená-los parece trivial — "é só chamar um depois do outro". Mas:</p>
     <ul>
@@ -84,17 +84,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 4; quatro especialistas, quem manda</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>os 5 padrões, dimensão a dimensão; a tabela comparativa</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>especialistas comuns, métricas, os 5 padrões, main_comparar</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>rodar cada padrão; acrescentar um especialista</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>escolher pela carga; supervisor com orçamento</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>projetar a orquestração do SIGMA</small></span></li>
-        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>ponto único de decisão × falha; debate e viés de grupo</small></span></li>
-        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>diagnóstico da Aula 4; quatro especialistas, quem manda</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>os 5 padrões, dimensão a dimensão; a tabela comparativa</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>especialistas comuns, métricas, os 5 padrões, main_comparar</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>rodar cada padrão; acrescentar um especialista</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>escolher pela carga; supervisor com orçamento</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>projetar a orquestração do SIGMA</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>ponto único de decisão × falha; debate e viés de grupo</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
     </div>
 
@@ -108,19 +109,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Antes de mostrar código, faça a turma votar: "para triar 10 mil ocorrências por dia,
-      qual padrão?". Depois "para uma investigação complexa de um caso só?". As respostas
-      quase sempre divergem — e é esse o ponto: o padrão certo depende da carga. Turmas
-      mistas: quem não programa preenche a tabela comparativa enquanto o resto roda o
-      <code class="inline">main_comparar.py</code>.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>Os cinco padrões</h2>
     <p style="font-size:14px;color:var(--tinta-suave)"><strong>Ao vivo, vá a fundo em Pipeline, Supervisor e Debate</strong> (os três aparecem primeiro no Bloco 3 e sustentam o resto da aula); Broker e Blackboard — mais próximos do Pipeline em custo, diferentes em quem decide a ordem — podem ser apresentados pela tabela "Lado a lado" e aprofundados no lab.</p>
 
@@ -236,7 +229,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>Os cinco, sobre os mesmos especialistas</h2>
 
     <div class="codigo">
@@ -369,7 +362,7 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>Acrescentar um especialista — quem precisa mudar?</h2>
     <div class="exercicio">
@@ -406,13 +399,6 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
       </table>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>O exercício 1 é curto — reserve os últimos 15 min do bloco para o exercício 2 e a
-      pergunta central: por que o Blackboard é o mais fácil de estender <em>e</em> o mais
-      difícil de prever. Peça à turma que não programa para desenhar o grafo de dependências
-      (precisa/produz) dos 5 especialistas — é o mesmo grafo que a Aula 6 vai formalizar.</p>
-    </div>
   </section>
 
   <!-- ===================== INTERVALO ===================== -->
@@ -424,7 +410,7 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>Escolher o padrão pela carga</h2>
     <p>O projeto traz o barramento em <code class="inline">app/barramento.py</code> e as referências
@@ -451,13 +437,6 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
         <li>Referência em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: hibrido()</code> e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">test_hibrido_so_chama_debate_no_conflito</code>.</li>
       </ol>
     </div>
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>O item 3 (custo agregado) é o que muda decisões na vida real: um padrão 55% mais caro
-      por ocorrência, multiplicado por 8 mil boletins/dia, é uma conta de infraestrutura. Traga
-      esse número para o quadro. O exercício 2 (híbrido) é o gancho para o projeto integrador
-      (Aula 10) — vale deixar a turma esboçar mesmo sem terminar de codificar.</p>
-    </div>
 
     <div class="checkpoint">
       <p class="rotulo">Checkpoint 2</p>
@@ -473,7 +452,7 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>A orquestração do SIGMA</h2>
     <div class="exercicio">
@@ -492,7 +471,7 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos</h2>
     <ul>
       <li><strong>Não existe padrão certo — existe padrão certo para a carga.</strong> Volume alto e casos parecidos → pipeline. Casos variados, volume baixo → supervisor. Conjunto de especialistas instável → blackboard. Decisão ambígua e cara → debate.</li>
@@ -527,7 +506,7 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -623,6 +602,20 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Antes de mostrar código, faça a turma votar: "para triar 10 mil ocorrências por dia,
+      qual padrão?". Depois "para uma investigação complexa de um caso só?". As respostas
+      quase sempre divergem — e é esse o ponto: o padrão certo depende da carga. Turmas
+      mistas: quem não programa preenche a tabela comparativa enquanto o resto roda o
+      <code class="inline">main_comparar.py</code>.</p>
+      <p>O exercício 1 é curto — reserve os últimos 15 min do bloco para o exercício 2 e a
+      pergunta central: por que o Blackboard é o mais fácil de estender <em>e</em> o mais
+      difícil de prever. Peça à turma que não programa para desenhar o grafo de dependências
+      (precisa/produz) dos 5 especialistas — é o mesmo grafo que a Aula 6 vai formalizar.</p>
+      <p>O item 3 (custo agregado) é o que muda decisões na vida real: um padrão 55% mais caro
+      por ocorrência, multiplicado por 8 mil boletins/dia, é uma conta de infraestrutura. Traga
+      esse número para o quadro. O exercício 2 (híbrido) é o gancho para o projeto integrador
+      (Aula 10) — vale deixar a turma esboçar mesmo sem terminar de codificar.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
       Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·

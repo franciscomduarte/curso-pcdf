@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>O problema: roteiro fixo não investiga</h2>
     <p>O agente da Aula 3 seguia sempre a mesma sequência de consultas. Mas investigar é <em>reagir</em>: se a placa consta alerta, você procura o auto de apreensão; se não consta, pula essa parte. Se uma consulta falha, você tenta de outro jeito. E, em algum momento, você decide que já tem o suficiente — ou que não vai achar mais nada e é hora de entregar o que tem.</p>
     <p>Do outro lado do problema: um agente <strong>sem trava</strong> roda para sempre. Ele consulta, consulta de novo, entra em loop, gasta orçamento de API até acabar. Esta aula constrói o <strong>loop</strong> que faz as duas coisas — reagir a cada observação <em>e</em> saber parar.</p>
@@ -80,17 +80,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 3; roteiro fixo não investiga; agente sem trava</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>ciclo P-P-D-A-O; ReAct; critérios de parada; autonomia; retry</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>orçamento, MockReAct reativo, o LoopReAct rodando</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>rodar o loop; mudar a autonomia; ver cada limite disparar</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>orçamento por tarefa; entrega parcial; evento no barramento</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>a política de autonomia do SIGMA; ferramenta com timeout</small></span></li>
-        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>ReAct × pipeline; loop infinito como risco; parsing frágil</small></span></li>
-        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>diagnóstico da Aula 3; roteiro fixo não investiga; agente sem trava</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>ciclo P-P-D-A-O; ReAct; critérios de parada; autonomia; retry</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>orçamento, MockReAct reativo, o LoopReAct rodando</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>rodar o loop; mudar a autonomia; ver cada limite disparar</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>orçamento por tarefa; entrega parcial; evento no barramento</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>a política de autonomia do SIGMA; ferramenta com timeout</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>ReAct × pipeline; loop infinito como risco; parsing frágil</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
     </div>
 
@@ -104,19 +105,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Abra pedindo à turma para descrever, em voz alta, como decidiriam "parar de
-      investigar" uma ocorrência simples. Vão citar: "já respondi a pergunta", "não tenho mais
-      onde procurar", "não tenho tempo". Esses são, literalmente, os critérios de parada que
-      vamos codificar. Turmas mistas: quem não programa desenha o fluxograma do loop enquanto
-      o resto implementa.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>O ciclo Percepção → Planejamento → Decisão → Ação → Observação</h2>
     <p>É o mesmo loop da Aula 1, agora nomeado fase a fase. Uma volta:</p>
     <div class="mermaid">
@@ -206,7 +199,7 @@ flowchart TD
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>Construindo o LoopReAct</h2>
 
     <div class="codigo">
@@ -355,7 +348,7 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>Ver cada limite disparar</h2>
     <div class="codigo">
@@ -424,14 +417,6 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
       </table>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Passe ~10 min mexendo em <code class="inline">main_limites.py</code> ao vivo: mude um limite,
-      rode, mostre o <code class="inline">motivo_parada</code> mudar. O exercício 2 (SEM_PROGRESSO)
-      é onde quem programa deve chegar sozinho — deixe a turma que não programa <em>projetar
-      o critério em português</em> primeiro ("parar quando as últimas N não trouxerem nada")
-      e só depois olhar o código.</p>
-    </div>
   </section>
 
   <!-- ===================== INTERVALO ===================== -->
@@ -443,7 +428,7 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>Orçamento por tarefa e entrega parcial</h2>
     <p>Nem toda tarefa merece o mesmo orçamento. Uma triagem rápida tem menos passos que uma investigação. E quando o orçamento acaba no meio, o agente <strong>entrega o parcial</strong> — não descarta o que já coletou.</p>
@@ -461,13 +446,6 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
         <li>Por que "entregar o parcial" quando o limite estoura é melhor que "não entregar nada"?</li>
       </ol>
     </div>
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>O passo 3 (contar paradas por motivo) é o gancho para a Aula 9: "métricas do loop" não
-      é opcional. Se sobra tempo, peça à turma para propor <em>três</em> categorias de orçamento
-      para a PCDF (triagem em massa / apoio a inquérito / reanálise) com números concretos, e
-      discuta quem decide esses números.</p>
-    </div>
 
     <div class="checkpoint">
       <p class="rotulo">Checkpoint 2</p>
@@ -483,7 +461,7 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>A política de autonomia do SIGMA</h2>
     <p>Autonomia não é um interruptor global — depende da ferramenta, do usuário e do contexto.</p>
@@ -503,7 +481,7 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos</h2>
 
     <h3>Loop, roteiro ou pipeline?</h3>
@@ -544,7 +522,7 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -640,6 +618,21 @@ Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de fur
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Abra pedindo à turma para descrever, em voz alta, como decidiriam "parar de
+      investigar" uma ocorrência simples. Vão citar: "já respondi a pergunta", "não tenho mais
+      onde procurar", "não tenho tempo". Esses são, literalmente, os critérios de parada que
+      vamos codificar. Turmas mistas: quem não programa desenha o fluxograma do loop enquanto
+      o resto implementa.</p>
+      <p>Passe ~10 min mexendo em <code class="inline">main_limites.py</code> ao vivo: mude um limite,
+      rode, mostre o <code class="inline">motivo_parada</code> mudar. O exercício 2 (SEM_PROGRESSO)
+      é onde quem programa deve chegar sozinho — deixe a turma que não programa <em>projetar
+      o critério em português</em> primeiro ("parar quando as últimas N não trouxerem nada")
+      e só depois olhar o código.</p>
+      <p>O passo 3 (contar paradas por motivo) é o gancho para a Aula 9: "métricas do loop" não
+      é opcional. Se sobra tempo, peça à turma para propor <em>três</em> categorias de orçamento
+      para a PCDF (triagem em massa / apoio a inquérito / reanálise) com números concretos, e
+      discuta quem decide esses números.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
       Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·

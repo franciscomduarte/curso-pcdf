@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>O problema: o fluxo está escondido no código</h2>
     <p>Pegue o Supervisor da Aula 5: um <code class="inline">while</code>, um <code class="inline">llm.decidir()</code>, um <code class="inline">if proximo == "concluir"</code>. Para responder "o que acontece depois de <em>classificar</em>?" você precisa <em>ler o loop</em>. Para testar um caminho específico, precisa montar o estado certo e torcer. Para mudar a ordem, mexe na lógica de controle.</p>
     <p>Um <strong>grafo de execução</strong> tira o fluxo de dentro do código de controle e o coloca num objeto: os <strong>nós</strong> (as etapas) e as <strong>arestas</strong> (as transições possíveis). Aí dá para <em>desenhar</em> o fluxo, <em>validar</em> antes de rodar, <em>instrumentar</em> cada caminho, e mudar a rota sem tocar nas etapas. É o que o <strong>LangGraph</strong> faz — e hoje construímos a versão mínima para entender o mecanismo.</p>
@@ -78,17 +78,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 5; o fluxo escondido no código de controle</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>nó, aresta, DAG, ciclo, condicional; os padrões como grafos; LangGraph</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>estado, o motor de grafo, o grafo do SIGMA rodando</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>rodar os 3 caminhos; inserir um nó</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>DAG × ciclo × ciclo sem saída; validação; ramos + junção</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>converter o Supervisor num grafo; LangGraph de verdade</small></span></li>
-        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>grafo × código; ciclo runaway; roteador e injeção</small></span></li>
-        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>diagnóstico da Aula 5; o fluxo escondido no código de controle</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>nó, aresta, DAG, ciclo, condicional; os padrões como grafos; LangGraph</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>estado, o motor de grafo, o grafo do SIGMA rodando</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>rodar os 3 caminhos; inserir um nó</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>DAG × ciclo × ciclo sem saída; validação; ramos + junção</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>converter o Supervisor num grafo; LangGraph de verdade</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>grafo × código; ciclo runaway; roteador e injeção</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
     </div>
 
@@ -102,19 +103,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Comece desenhando no quadro o fluxo do SIGMA como caixas e setas — a turma
-      naturalmente desenha um grafo. Depois mostre o <code class="inline">while</code> do
-      Supervisor da Aula 5 e pergunte: "onde está esse desenho, no código?". A resposta
-      ("espalhado") é a motivação. Turma mista: quem não programa desenha e valida grafos
-      no papel a aula toda.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>Grafo: nós e arestas</h2>
     <p>Um <strong>grafo dirigido</strong> é um conjunto de <strong>nós</strong> ligados por <strong>arestas</strong> com direção (setas). Aqui: cada nó é uma <em>etapa</em> — uma função <code class="inline">no(estado) → estado</code>; cada aresta é uma <em>transição possível</em>. Dois nós sentinela, <code class="inline">START</code> e <code class="inline">END</code>, marcam começo e fim.</p>
     <div class="mermaid">
@@ -185,7 +178,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>O motor de grafo mínimo</h2>
 
     <div class="codigo">
@@ -335,7 +328,7 @@ pendências: ['ENVIADO para triagem humana (relato confuso / dados faltando)']</
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>Inserir um nó no grafo</h2>
     <div class="exercicio">
@@ -370,7 +363,7 @@ pendências: ['ENVIADO para triagem humana (relato confuso / dados faltando)']</
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>DAG, ciclo e a trava</h2>
     <div class="codigo">
@@ -412,7 +405,7 @@ pendências: ['ENVIADO para triagem humana (relato confuso / dados faltando)']</
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>O Supervisor da Aula 5 como grafo explícito</h2>
     <div class="exercicio">
@@ -440,7 +433,7 @@ pendências: ['ENVIADO para triagem humana (relato confuso / dados faltando)']</
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos</h2>
     <ul>
       <li><strong>Grafo × código de controle.</strong> Fluxo simples e fixo (2–3 passos) → um <code class="inline">if</code> resolve. Fluxo com ramos, ciclos, e que muda com frequência → grafo: dá para desenhar, validar e instrumentar. O grafo tem mais cerimônia.</li>
@@ -476,7 +469,7 @@ pendências: ['ENVIADO para triagem humana (relato confuso / dados faltando)']</
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -574,6 +567,12 @@ pendências: ['ENVIADO para triagem humana (relato confuso / dados faltando)']</
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Comece desenhando no quadro o fluxo do SIGMA como caixas e setas — a turma
+      naturalmente desenha um grafo. Depois mostre o <code class="inline">while</code> do
+      Supervisor da Aula 5 e pergunte: "onde está esse desenho, no código?". A resposta
+      ("espalhado") é a motivação. Turma mista: quem não programa desenha e valida grafos
+      no papel a aula toda.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
       Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·

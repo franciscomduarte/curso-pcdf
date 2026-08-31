@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>O problema: o SIGMA cresceu</h2>
     <p>O extrator da Aula 1 funciona. Agora a triagem quer mais: <strong>classificar</strong> a prioridade, manter uma <strong>trilha de auditoria</strong> de tudo que foi processado e alimentar um <strong>painel</strong> com os números do dia. Se cada peça chamar a próxima diretamente (<code class="inline">classificador.classificar(extrator.extrair(texto))</code>), em pouco tempo:</p>
     <ul>
@@ -88,17 +88,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 1; o SIGMA cresceu; chamada direta vs mensagem</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>síncrono/assíncrono; Req/Resp; Pub/Sub; MQTT; gRPC; FIPA-ACL</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>EnvelopeA2A, BarramentoLocal, os 3 agentes</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>acrescentar um assinante; curingas de tópico</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>Request/Response, performativas, acoplamento; MQTT</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>arquitetura distribuída; escolher o transporte por enlace</small></span></li>
-        <li><span class="hora">04:20</span><span class="bloco-nome">Debriefing<small>custo/latência/complexidade; segurança do barramento</small></span></li>
-        <li><span class="hora">04:35</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício prático, desafio, checklist</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>diagnóstico da Aula 1; o SIGMA cresceu; chamada direta vs mensagem</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>síncrono/assíncrono; Req/Resp; Pub/Sub; MQTT; gRPC; FIPA-ACL</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>EnvelopeA2A, BarramentoLocal, os 3 agentes</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>acrescentar um assinante; curingas de tópico</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>Request/Response, performativas, acoplamento; MQTT</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>arquitetura distribuída; escolher o transporte por enlace</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>custo/latência/complexidade; segurança do barramento</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício prático, desafio, checklist</small></span></li>
       </ol>
     </div>
 
@@ -112,19 +113,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Abra desenhando no quadro o SIGMA da Aula 1 (1 seta) e vá acrescentando caixas
-      (classificador, auditor, painel) ligadas por chamadas diretas. Quando o desenho virar
-      um emaranhado, apague e desenhe um único barramento no meio. O "estalo" visual vale mais
-      que a explicação. Turmas mistas: quem programa implementa; quem não programa desenha os
-      contratos de mensagem.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>Síncrono × assíncrono</h2>
     <p>Na comunicação <strong>síncrona</strong> quem envia <em>para e espera</em> a resposta — como um telefonema. Na <strong>assíncrona</strong>, envia e segue a vida; a resposta (se houver) chega depois — como um e-mail. Não é "melhor" e "pior": é acoplamento no tempo. Síncrono é simples de raciocinar e ruim de escalar; assíncrono escala e é mais difícil de depurar.</p>
 
@@ -242,7 +235,7 @@ message Classificacao {
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>Construindo o barramento</h2>
 
     <div class="codigo">
@@ -409,7 +402,7 @@ Classificações:
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>Um consumidor a mais, zero mudança nos outros</h2>
     <div class="exercicio">
@@ -445,7 +438,7 @@ Classificações:
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>Request/Response, performativas e acoplamento</h2>
     <p>Quando a Triagem precisa da classificação <em>na hora</em> (para exibir na tela), pub/sub não serve — ela quer uma resposta. Aí entra o <code class="inline">ServicoLocal</code>.</p>
@@ -492,7 +485,7 @@ servico.chamar("classificador", ruim).performativa    # -> refuse</pre>
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 30 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>Distribuir o SIGMA</h2>
     <p>Cada agente vira um processo separado, possivelmente em outra máquina. Você escolhe o transporte de <em>cada enlace</em> pela necessidade: evento que muitos ouvem → MQTT; "responda agora" → gRPC.</p>
@@ -534,7 +527,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos</h2>
 
     <h3>Quando cada padrão</h3>
@@ -573,18 +566,11 @@ flowchart LR
       automatizado auditável.</p>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Peça à turma um exemplo real da PCDF em que um evento tem "muitos interessados que
-      mudam com o tempo" (candidato a pub/sub) e outro em que "preciso da resposta agora"
-      (candidato a request/response). Discuta por que misturar os dois no mesmo sistema é o
-      caso comum, não a exceção.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 25 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -691,6 +677,16 @@ flowchart LR
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Abra desenhando no quadro o SIGMA da Aula 1 (1 seta) e vá acrescentando caixas
+      (classificador, auditor, painel) ligadas por chamadas diretas. Quando o desenho virar
+      um emaranhado, apague e desenhe um único barramento no meio. O "estalo" visual vale mais
+      que a explicação. Turmas mistas: quem programa implementa; quem não programa desenha os
+      contratos de mensagem.</p>
+      <p>Peça à turma um exemplo real da PCDF em que um evento tem "muitos interessados que
+      mudam com o tempo" (candidato a pub/sub) e outro em que "preciso da resposta agora"
+      (candidato a request/response). Discuta por que misturar os dois no mesmo sistema é o
+      caso comum, não a exceção.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
       Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 30 · Debriefing 15 ·

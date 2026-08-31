@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>O problema: nem toda etapa pode ser automática</h2>
     <p>Na Aula 6, os nós eram funções genéricas. Uma investigação real tem <strong>papéis</strong>: quem reúne os fatos não é quem forma a hipótese, que não é quem propõe o enquadramento legal. Dividir assim deixa cada agente com um contexto menor, um prompt mais focado, e uma responsabilidade auditável.</p>
     <p>Mas há um limite duro: <strong>a tipificação de um crime é decisão de um servidor</strong>, não de um sistema. O agente pode <em>propor</em> "isto parece Art. 157"; quem decide é a pessoa. A pergunta técnica desta aula: como fazer o fluxo <strong>parar</strong> exatamente nesse ponto, esperar a decisão (que pode vir horas depois, de outra máquina), e então continuar?</p>
@@ -79,17 +79,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 6; papéis; o que não pode ser automático</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>separação de responsabilidades; memória; persistência; HITL × HOTL</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>os 4 agentes, o breakpoint, o checkpoint, o fluxo rodando</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>aprovar × rejeitar; inserir um agente</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>retomar de outro processo; painel de decisão</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>onde colocar um 2º breakpoint; fadiga de aprovação</small></span></li>
-        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>HITL × HOTL; checkpoint com PII; quem aprova</small></span></li>
-        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>diagnóstico da Aula 6; papéis; o que não pode ser automático</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>separação de responsabilidades; memória; persistência; HITL × HOTL</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>os 4 agentes, o breakpoint, o checkpoint, o fluxo rodando</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>aprovar × rejeitar; inserir um agente</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>retomar de outro processo; painel de decisão</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>onde colocar um 2º breakpoint; fadiga de aprovação</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>HITL × HOTL; checkpoint com PII; quem aprova</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
     </div>
 
@@ -103,20 +104,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Abra perguntando: "que etapas de uma investigação <em>nunca</em> deveriam acontecer
-      sem um humano assinar embaixo?". A lista da turma (tipificação, indiciamento, medida
-      cautelar, difusão de dados) é a lista de onde ficam os breakpoints. Depois mostre que
-      "esperar o humano" é um problema técnico real: o processo não pode ficar preso na
-      memória por 3 horas. Turma mista: quem não programa desenha o fluxo com os pontos de
-      parada e simula ser o operador que aprova.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>Separação de responsabilidades</h2>
     <p>Um agente que faz tudo tem um prompt gigante, um contexto poluído e uma falha difícil de localizar. Quatro agentes com um papel cada:</p>
     <div class="tabela-wrap">
@@ -185,7 +177,7 @@ flowchart TB
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>Construindo o fluxo com breakpoint</h2>
 
     <div class="codigo">
@@ -317,7 +309,7 @@ memória do Jurídico: ['[23:43:06] proposta: Art. 157 do CP (roubo)']</pre>
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>Aprovar, rejeitar, e um agente a mais</h2>
     <div class="exercicio">
@@ -352,7 +344,7 @@ memória do Jurídico: ['[23:43:06] proposta: Art. 157 do CP (roubo)']</pre>
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>Retomar de outro processo · o painel de decisão</h2>
     <div class="codigo">
@@ -405,7 +397,7 @@ decisões humanas registradas: 1</pre>
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>Onde colocam-se os pontos de parada</h2>
     <div class="exercicio">
@@ -434,7 +426,7 @@ decisões humanas registradas: 1</pre>
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos</h2>
     <ul>
       <li><strong>HITL × HOTL.</strong> In-the-loop para decisões sensíveis, de baixo volume, onde alguém precisa assinar. On-the-loop para volume alto e baixo risco. Não são exclusivos: o SIGMA pode ser on-the-loop no geral e in-the-loop na tipificação.</li>
@@ -470,7 +462,7 @@ decisões humanas registradas: 1</pre>
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -564,6 +556,13 @@ decisões humanas registradas: 1</pre>
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Abra perguntando: "que etapas de uma investigação <em>nunca</em> deveriam acontecer
+      sem um humano assinar embaixo?". A lista da turma (tipificação, indiciamento, medida
+      cautelar, difusão de dados) é a lista de onde ficam os breakpoints. Depois mostre que
+      "esperar o humano" é um problema técnico real: o processo não pode ficar preso na
+      memória por 3 horas. Turma mista: quem não programa desenha o fluxo com os pontos de
+      parada e simula ser o operador que aprova.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
       Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·

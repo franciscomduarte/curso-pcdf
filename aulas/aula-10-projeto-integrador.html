@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>Estudo de caso: Operação Vetor</h2>
     <div class="painel">
       <h4 style="margin-top:0">Cenário (fictício)</h4>
@@ -81,17 +81,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>estudo de caso Operação Vetor; diagnóstico relâmpago das Aulas 7-9</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>arquitetura completa do SIGMA; a aresta condicional dentro do cluster</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>o SIGMA completo rodando: roteamento + guardrail + HPA + painel</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>mapear cada etapa do traço à aula que a introduziu</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>estender a aresta condicional; diagnosticar degradação parcial</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>relatório operacional + projetar uma extensão institucional</small></span></li>
-        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>quando não usar um sistema como o SIGMA; segurança de ponta a ponta</small></span></li>
-        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist, encerramento</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>estudo de caso Operação Vetor; diagnóstico relâmpago das Aulas 7-9</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>arquitetura completa do SIGMA; a aresta condicional dentro do cluster</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>o SIGMA completo rodando: roteamento + guardrail + HPA + painel</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>mapear cada etapa do traço à aula que a introduziu</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>estender a aresta condicional; diagnosticar degradação parcial</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>relatório operacional + projetar uma extensão institucional</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>quando não usar um sistema como o SIGMA; segurança de ponta a ponta</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist, encerramento</small></span></li>
       </ol>
     </div>
 
@@ -105,22 +106,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Esta é a última aula — não introduza nada de novo tecnicamente sem
-      necessidade. Abra com o cenário da Operação Vetor e deixe a turma
-      apontar a lacuna sozinha: "o roubo passou pelas mesmas 3 etapas que o
-      furto — isso está certo?". Se a turma tiver esquecido algum conceito
-      das Aulas 1-6 (A2A, MCP, orçamento, orquestração, grafo), use o
-      diagrama do Bloco 2 como mapa de recuperação, não repita a
-      demonstração original de cada uma — o tempo desta aula é para
-      integrar, não para reensinar.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>A arquitetura completa do SIGMA</h2>
     <p>Cada aula deste curso acrescentou exatamente uma capacidade ao SIGMA. Nenhuma delas foi descartada — todas continuam presentes, mesmo quando não aparecem no código desta pasta especificamente (comunicação A2A, MCP e os padrões de orquestração têm suas próprias demonstrações completas, nas Aulas 2, 3 e 5). O mapa abaixo é o "onde está cada coisa" do curso inteiro.</p>
 
@@ -188,7 +178,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>O SIGMA completo, rodando</h2>
 
     <div class="codigo">
@@ -296,7 +286,7 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>De onde vem cada peça</h2>
     <div class="exercicio">
@@ -305,7 +295,7 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
       <ol>
         <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py basico</code> — ele processa PCDF-SIM-0002 e imprime, para cada etapa do traço, a aula que a introduziu.</li>
         <li>Sem consultar o gabarito, refaça o mesmo exercício à mão para PCDF-SIM-0009 (furto) — quantas etapas tem o traço dela, e por quê?</li>
-        <li>No cluster montado em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">main.py</code>, aponte, em voz alta, qual linha de código corresponde a cada uma destas capacidades: self-healing (Aula 8), limite de taxa por origem (Aula 9), papel único de cada agente (Aula 7).</li>
+        <li>No cluster montado em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">main.py</code>, identifique qual linha de código corresponde a cada uma destas capacidades: self-healing (Aula 8), limite de taxa por origem (Aula 9), papel único de cada agente (Aula 7).</li>
         <li>Qual aula NÃO tem nenhuma linha de código diretamente visível neste projeto, mas ainda assim está "presente" conceitualmente? Por quê isso é uma escolha correta, não uma omissão?</li>
       </ol>
       <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: lab_basico()</code>.</p>
@@ -330,7 +320,7 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>Estender a aresta, diagnosticar a falha parcial</h2>
     <div class="codigo">
@@ -371,7 +361,7 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>Relatório operacional + projetar uma extensão</h2>
 
@@ -415,7 +405,7 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos — a visão de ponta a ponta</h2>
 
     <h3>Quando NÃO usar um sistema como o SIGMA</h3>
@@ -447,7 +437,7 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -553,6 +543,15 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Esta é a última aula — não introduza nada de novo tecnicamente sem
+      necessidade. Abra com o cenário da Operação Vetor e deixe a turma
+      apontar a lacuna sozinha: "o roubo passou pelas mesmas 3 etapas que o
+      furto — isso está certo?". Se a turma tiver esquecido algum conceito
+      das Aulas 1-6 (A2A, MCP, orçamento, orquestração, grafo), use o
+      diagrama do Bloco 2 como mapa de recuperação, não repita a
+      demonstração original de cada uma — o tempo desta aula é para
+      integrar, não para reensinar.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico relâmpago de 3 min) · Fundamentos 50 ·
       Demonstração 50 · Lab básico 45 · Intervalo 15 · Lab intermediário 45 ·

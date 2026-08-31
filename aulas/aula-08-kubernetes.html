@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>O problema: um processo só não aguenta a PCDF inteira</h2>
     <p>O SIGMA da Aula 7 roda muito bem — para <strong>uma</strong> investigação de cada vez, num <strong>único</strong> processo, numa <strong>única</strong> máquina. Isso quebra em três situações concretas: (1) o processo cai — deploy, falha, reinício — e leva junto tudo que estava rodando; (2) o volume cresce — 500 ocorrências por hora não cabem num processo só; (3) o breakpoint HITL fica aberto por horas, e o operador que aprova pode estar noutra máquina, minutos ou dias depois.</p>
     <p>A resposta não é reescrever os agentes. É mudar <strong>onde e como</strong> eles rodam: várias cópias de cada agente, atrás de um nome estável, com o estado guardado fora de qualquer uma delas. É exatamente o que o <strong>Kubernetes</strong> orquestra — hoje construímos a versão mínima do mecanismo, e vemos o real ao lado.</p>
@@ -79,17 +79,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 7; um processo só não aguenta a PCDF inteira</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>Pod, Deployment, Service, ConfigMap; self-healing; motor mínimo × Kubernetes real</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>o cluster mínimo, o SIGMA rodando nele, kubectl get pods (simulado)</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>escalar réplicas; observar o round-robin</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>self-healing; store compartilhado; ConfigMap sem redeploy</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>rolling update de um Deployment sem downtime</small></span></li>
-        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>quando não usar Kubernetes; secrets, rede, limites de recurso</small></span></li>
-        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>diagnóstico da Aula 7; um processo só não aguenta a PCDF inteira</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>Pod, Deployment, Service, ConfigMap; self-healing; motor mínimo × Kubernetes real</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>o cluster mínimo, o SIGMA rodando nele, kubectl get pods (simulado)</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>escalar réplicas; observar o round-robin</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>self-healing; store compartilhado; ConfigMap sem redeploy</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>rolling update de um Deployment sem downtime</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>quando não usar Kubernetes; secrets, rede, limites de recurso</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
     </div>
 
@@ -103,20 +104,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Abra perguntando: "se a triagem da PCDF precisasse processar 2 mil boletins por
-      hora, o que quebraria primeiro no SIGMA da Aula 7?". Deixe a turma chegar em "um
-      processo só" e "um disco só" sozinha — são exatamente os dois problemas que
-      Deployment (réplicas) e o store compartilhado resolvem. Turmas mistas: quem não
-      programa desenha "várias cópias de cada agente, atrás de um nome" no quadro antes
-      de ver qualquer código.</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>Pod, Deployment, Service, ConfigMap</h2>
     <p>Um <strong>container</strong> empacota um processo com tudo que ele precisa para rodar igual em qualquer máquina (a Aula 1 já citava Docker como "o caminho de produção"). Um <strong>Pod</strong> é a menor unidade que o Kubernetes agenda — um ou mais containers que sempre rodam juntos, na mesma máquina virtual. Pods são <em>efêmeros</em>: podem morrer, e não é para reiniciar o mesmo — é para nascer outro igual.</p>
 
@@ -172,7 +164,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>O cluster mínimo rodando o SIGMA</h2>
 
     <div class="codigo">
@@ -305,7 +297,7 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>Escalar e ver o round-robin de perto</h2>
     <div class="exercicio">
@@ -340,7 +332,7 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>Self-healing, store compartilhado, ConfigMap ao vivo</h2>
     <div class="codigo">
@@ -391,7 +383,7 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>Rolling update: trocar sem desligar</h2>
     <p>O Jurídico precisa passar de <code class="inline">detalhe=padrao</code> para <code class="inline">detalhe=verboso</code> em produção. Desligar tudo, trocar, religar significa um intervalo sem ninguém atendendo <code class="inline">juridico-svc</code> — inaceitável para um serviço em uso. A resposta é um <strong>rolling update</strong>: subir o novo ao lado do antigo, deslizar réplicas gradualmente, só então desligar o antigo.</p>
@@ -421,7 +413,7 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos</h2>
 
     <h3>Quando NÃO usar Kubernetes</h3>
@@ -455,7 +447,7 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -502,7 +494,7 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
   <section class="reveal">
     <p class="rotulo">Se sobrar tempo</p>
     <h2>Exercícios extras</h2>
-    <p>Opcionais — para turmas que terminarem os laboratórios antes do previsto. Cada um roda pela mesma referência: <code class="inline">python solucao_exercicios.py extras</code>.</p>
+    <p>Opcionais — se você terminar os laboratórios antes do previsto. Cada um roda pela mesma referência: <code class="inline">python solucao_exercicios.py extras</code>.</p>
 
     <div class="exercicio">
       <span class="nivel intermediario">Nível intermediário</span>
@@ -578,6 +570,13 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Abra perguntando: "se a triagem da PCDF precisasse processar 2 mil boletins por
+      hora, o que quebraria primeiro no SIGMA da Aula 7?". Deixe a turma chegar em "um
+      processo só" e "um disco só" sozinha — são exatamente os dois problemas que
+      Deployment (réplicas) e o store compartilhado resolvem. Turmas mistas: quem não
+      programa desenha "várias cópias de cada agente, atrás de um nome" no quadro antes
+      de ver qualquer código.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
       Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·

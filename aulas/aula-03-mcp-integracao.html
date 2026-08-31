@@ -42,7 +42,7 @@
 
   <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <p class="rotulo">Bloco 1 · Abertura e contextualização</p>
     <h2>O problema: o agente é míope</h2>
     <p>O extrator (Aula 1) e o classificador (Aula 2) trabalham só com o texto do boletim. Mas a triagem humana quase sempre <strong>consulta outras fontes</strong>: a placa citada consta em alguma base? há um padrão de furtos na mesma quadra essa semana? existe um documento relacionado? Sem isso, o agente entrega um rascunho pobre.</p>
     <p>Vamos dar essas consultas ao agente. O jeito ingênuo é o agente abrir conexões com cada banco. O jeito certo — e o tema da aula — é o agente pedir a um <strong>servidor MCP</strong>, que expõe um conjunto fixo de <em>ferramentas</em>, decide <em>quem</em> pode usar <em>o quê</em> (escopo), e <strong>registra cada acesso</strong>. É a diferença entre dar a chave do arquivo a alguém e atender no balcão anotando cada pedido.</p>
@@ -80,17 +80,18 @@
       </div>
     </div>
 
+    <p class="rotulo">Roteiro da aula</p>
     <div class="agenda">
       <ol>
-        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 2; o agente míope; balcão vs chave do arquivo</small></span></li>
-        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>3 níveis; tool/function calling; arquitetura MCP; Tools × Resources; acesso</small></span></li>
-        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>servidor MCP SIGMA, cliente, agente consultor</small></span></li>
-        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>nova ferramenta no servidor; o cliente descobre sozinho</small></span></li>
-        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
-        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>escopo, confirmação humana, auditoria no barramento</small></span></li>
-        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>3 servidores por setor; o que exige confirmação</small></span></li>
-        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>function calling × MCP; tool poisoning; confused deputy</small></span></li>
-        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
+        <li><span class="bloco-nome">Abertura<small>diagnóstico da Aula 2; o agente míope; balcão vs chave do arquivo</small></span></li>
+        <li><span class="bloco-nome">Fundamentos<small>3 níveis; tool/function calling; arquitetura MCP; Tools × Resources; acesso</small></span></li>
+        <li><span class="bloco-nome">Demonstração<small>servidor MCP SIGMA, cliente, agente consultor</small></span></li>
+        <li><span class="bloco-nome">Laboratório básico<small>nova ferramenta no servidor; o cliente descobre sozinho</small></span></li>
+        <li><span class="bloco-nome">Intervalo</span></li>
+        <li><span class="bloco-nome">Laboratório intermediário<small>escopo, confirmação humana, auditoria no barramento</small></span></li>
+        <li><span class="bloco-nome">Desafio avançado<small>3 servidores por setor; o que exige confirmação</small></span></li>
+        <li><span class="bloco-nome">Debriefing<small>function calling × MCP; tool poisoning; confused deputy</small></span></li>
+        <li><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
       </ol>
     </div>
 
@@ -104,19 +105,11 @@
       </ul>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Comece perguntando à turma quais consultas eles fazem "por fora" ao triar uma
-      ocorrência. Liste no quadro. Depois pergunte: <em>o que dá errado se um sistema
-      automático puder fazer essas consultas sem limite e sem registro?</em> — é o fio da
-      aula. Turmas mistas: quem não programa desenha o "balcão" (quem pede, o que pode
-      pedir, o que fica registrado).</p>
-    </div>
   </section>
 
   <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos</p>
     <h2>Três níveis de "usar uma ferramenta"</h2>
     <p>É fácil confundir. Os três são coisas diferentes:</p>
     <div class="mermaid">
@@ -197,7 +190,7 @@ flowchart LR
 
   <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <p class="rotulo">Bloco 3 · Demonstração prática</p>
     <h2>O servidor MCP do SIGMA</h2>
 
     <div class="codigo">
@@ -345,7 +338,7 @@ Enriquecimento para a triagem humana: consultar_veiculo({'placa': 'ABC1D23'}) ->
 
   <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 4 · Laboratório</p>
     <span class="nivel basico">Nível básico</span>
     <h2>Uma ferramenta nova — sem tocar no agente</h2>
     <div class="exercicio">
@@ -392,7 +385,7 @@ Enriquecimento para a triagem humana: consultar_veiculo({'placa': 'ABC1D23'}) ->
 
   <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <p class="rotulo">Bloco 5 · Laboratório</p>
     <span class="nivel intermediario">Nível intermediário</span>
     <h2>Escopo, confirmação e auditoria no barramento</h2>
     <p>O <code class="inline">main_escopo.py</code> sobe o servidor com um escopo restrito e mostra as duas camadas de defesa:</p>
@@ -434,14 +427,6 @@ Camada 2 — tentativa direta de chamar a ferramenta fora do escopo:
       </ol>
     </div>
 
-    <div class="aviso instrutor">
-      <div class="titulo">🎓 Nota do instrutor</div>
-      <p>Este é o bloco onde a turma mista mais se separa. Deixe quem programa fazer a fiação
-      do barramento (~15 min) e peça a quem não programa que desenhe, no papel, o que a trilha
-      de auditoria precisa conter para servir de prova depois — depois compare com o
-      <code class="inline">RegistroAuditoria</code> real. Reserve 5 min no fim para a pergunta
-      do item 2: por que o negado importa tanto quanto o permitido.</p>
-    </div>
 
     <div class="checkpoint">
       <p class="rotulo">Checkpoint 2</p>
@@ -457,7 +442,7 @@ Camada 2 — tentativa direta de chamar a ferramenta fora do escopo:
 
   <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <p class="rotulo">Bloco 6 · Desafio</p>
     <span class="nivel avancado">Nível avançado</span>
     <h2>Três servidores, três donos</h2>
     <p>Na PCDF real, as bases pertencem a setores diferentes, com regras de acesso próprias. O SIGMA teria <strong>vários servidores MCP</strong>, e o agente escolheria a ferramenta certa em cada um.</p>
@@ -493,7 +478,7 @@ flowchart TB
 
   <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <p class="rotulo">Bloco 7 · Debriefing</p>
     <h2>Trade-offs e riscos</h2>
 
     <h3>Quando MCP, quando não</h3>
@@ -531,7 +516,7 @@ flowchart TB
 
   <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
   <section class="reveal">
-    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <p class="rotulo">Bloco 8 · Avaliação e transferência</p>
     <h2>Fechamento da aula</h2>
 
     <h3>Perguntas conceituais</h3>
@@ -633,6 +618,17 @@ flowchart TB
   <details class="gabarito reveal">
     <summary>Gabarito / Orientação ao Instrutor</summary>
     <div class="conteudo">
+      <h3>Notas do instrutor</h3>
+      <p>Comece perguntando à turma quais consultas eles fazem "por fora" ao triar uma
+      ocorrência. Liste no quadro. Depois pergunte: <em>o que dá errado se um sistema
+      automático puder fazer essas consultas sem limite e sem registro?</em> — é o fio da
+      aula. Turmas mistas: quem não programa desenha o "balcão" (quem pede, o que pode
+      pedir, o que fica registrado).</p>
+      <p>Este é o bloco onde a turma mista mais se separa. Deixe quem programa fazer a fiação
+      do barramento (~15 min) e peça a quem não programa que desenhe, no papel, o que a trilha
+      de auditoria precisa conter para servir de prova depois — depois compare com o
+      <code class="inline">RegistroAuditoria</code> real. Reserve 5 min no fim para a pergunta
+      do item 2: por que o negado importa tanto quanto o permitido.</p>
       <h3>Tempos (5h = 300 min)</h3>
       <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
       Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·
