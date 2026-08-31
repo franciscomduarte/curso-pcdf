@@ -354,15 +354,29 @@ memória do Jurídico: ['[23:43:06] proposta: Art. 157 do CP (roubo)']</pre>
     <h2>Retomar de outro processo · o painel de decisão</h2>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_retomar.py iniciar   →   (processo encerra)   →   python main_retomar.py aprovar &lt;cid&gt;</span></div>
-<pre>fluxo pausou. checkpoint = PCDF-SIM-0002--5220b284
-proposta aguardando aprovação: Art. 157 do CP (roubo)
-(este processo vai encerrar agora — o estado está no disco em saida/)
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
 
---- processo NOVO ---
-carregou o checkpoint PCDF-SIM-0002--5220b284
+fluxo pausou. checkpoint = PCDF-SIM-0002--d2e39a09
+proposta aguardando aprovação: Art. 157 do CP (roubo)
+
+(este processo vai encerrar agora — o estado está no disco em saida/)
+para concluir:  python main_retomar.py aprovar PCDF-SIM-0002--d2e39a09
+
+--- (processo encerra aqui; o próximo bloco é OUTRO processo, minutos/horas depois) ---
+
+* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+processo NOVO. carregou o checkpoint PCDF-SIM-0002--d2e39a09
   ocorrência: PCDF-SIM-0002  etapa: aguardando_aprovacao
-  memória do Investigador (persistida): ['[..] campos extraídos: [...]', '[..] consulta de veículo ABC1D23: consta alerta ...']
-concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
+  memória do Investigador (persistida): ["[01:02:54] campos extraídos: ['data_fato',
+  'grave_ameaca', 'local', 'placa_citada']", '[01:02:54] consulta de veículo ABC1D23:
+  consta alerta de furto (simulado)']
+
+concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo',
+  'fundamento': 'presença de grave ameaça', 'requer_decisao_humana': True,
+  'considerou_nota_do_operador': None}
+decisões humanas registradas: 1</pre>
+    <p style="font-size:14px;color:var(--tinta-suave)">O sufixo do checkpoint e o carimbo <code class="inline">[01:02:54]</code> na memória variam a cada execução (mesma observação do bloco "Rodando" do Bloco 3) — o resto é determinístico. O separador entre os dois blocos acima é só para deixar claro, no material, onde um processo termina e o outro começa; o programa real não imprime nenhuma linha de separador.</p>
     </div>
     <div class="exercicio">
       <p class="rotulo">Exercício</p>
@@ -526,7 +540,7 @@ concluído. tipificação final: {'artigo': 'Art. 157 do CP (roubo)', ...}</pre>
     <p class="rotulo">Fontes</p>
     <h2>Referências</h2>
     <ol class="refs">
-      <li><span class="fonte">LangGraph — <em>Human-in-the-loop</em> e <em>Persistence</em> (documentação)</span>. LangChain. <a href="https://langchain-ai.github.io/langgraph/">langchain-ai.github.io/langgraph</a>.
+      <li><span class="fonte">LangGraph — <em>Human-in-the-loop</em> e <em>Persistence</em> (documentação)</span>. LangChain. <a href="https://docs.langchain.com/oss/python/langgraph/overview">docs.langchain.com/oss/python/langgraph/overview</a>.
         <span class="assoc"><code class="inline">interrupt()</code>, <code class="inline">Command(resume=...)</code>, checkpointer.</span></li>
       <li><span class="fonte">Anthropic — <em>Building Effective Agents</em> (2024)</span>. <a href="https://www.anthropic.com/research/building-effective-agents">anthropic.com/research/building-effective-agents</a>.
         <span class="assoc">Orchestrator-workers; agentes com papéis; quando parar para o humano.</span></li>
