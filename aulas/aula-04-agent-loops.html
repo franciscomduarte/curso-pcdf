@@ -61,7 +61,7 @@
         <div>
           <h4>Pré-requisitos</h4>
           <ul>
-            <li>Aula 1 (loop simples, <code class="inline">max_passos</code>), Aula 3 (ferramentas)</li>
+            <li>Aula 1 (retry com backoff, <code class="inline">tentativas</code>), Aula 3 (ferramentas)</li>
             <li>Python: <code class="inline">Enum</code>, dataclasses, <code class="inline">time.monotonic</code></li>
             <li>Noção de custo de chamada de API</li>
           </ul>
@@ -300,11 +300,11 @@ class Orcamento:
 
     <h3>Rodando</h3>
     <div class="codigo">
-      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py  (saída resumida; observações truncadas em 160)</span></div>
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py  (saída real; observações truncadas em 160 chars pelo próprio <code class="inline">texto_react()</code>)</span></div>
 <pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
 
-Tarefa: Monte uma linha do tempo para a ocorrência de 03/08/2026 em Taguatinga:
-        furto de motocicleta Honda CG, placa ABC1D23.
+Tarefa: Monte uma linha do tempo para a ocorrência de 03/08/2026 em Taguatinga: furto de
+motocicleta Honda CG, placa ABC1D23.
 
 Pensamento 1: A tarefa cita a placa ABC1D23. Vou consultá-la.
 Ação 1: consultar_veiculo[{'placa': 'ABC1D23'}]
@@ -313,21 +313,30 @@ Observação 1: {'placa': 'ABC1D23', 'encontrado': True, 'marca_modelo': 'Honda 
 
 Pensamento 2: O veículo consta alerta. Pode haver auto de apreensão.
 Ação 2: buscar_documento[{'assunto': 'apreensão'}]
-Observação 2: [{'id': 'DOC-SIM-01', 'assunto': 'apreensão', 'trecho': 'Auto de apreensão...'}]
+Observação 2: [{'id': 'DOC-SIM-01', 'assunto': 'apreensão', 'trecho': 'Auto de apreensão de
+              motocicleta Honda CG sem placa, em 04/08/2026.'}]
 
 Pensamento 3: Vou ver se há furtos parecidos na região.
 Ação 3: consultar_ocorrencias_similares[{'regiao': 'Taguatinga', 'natureza': 'Furto'}]
-Observação 3: [2 ocorrências]
+Observação 3: [{'protocolo': 'PCDF-SIM-2001', 'natureza': 'Furto', 'regiao': 'Taguatinga',
+              'dias_atras': 2, 'resumo': 'Furto de motocicleta em via pública.'},
+              {'protocolo': …
 
 Pensamento 4: Tenho o suficiente. Vou montar a linha do tempo.
-Ação 4: montar_linha_tempo[...]
-Observação 4: {'linha_do_tempo': [...], 'total_eventos': 3}
+Ação 4: montar_linha_tempo[{'eventos': '- veículo Honda CG 160: consta alerta de furto
+              (simulado)\n- documento: Auto de apreensão de motocicleta Honda CG sem
+              placa, em 04/08/2026.\n- 2 o…]
+Observação 4: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de furto (simulado)',
+              'documento: Auto de apreensão de motocicleta Honda CG sem placa, em
+              04/08/2026.'…
 
 Pensamento 5: Linha do tempo pronta.
-Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
+Resposta final: {'linha_do_tempo': ['veículo Honda CG 160: consta alerta de furto (simulado)',
+              'documento: Auto de apreensão de motocicleta Honda CG sem placa, em
+              04/08/2026.'…
 (parada: resposta_final — passos=5/6 chamadas=4/8 custo=8/20)</pre>
     </div>
-    <p>O passo 2 <strong>só existe porque</strong> a observação 1 disse "consta alerta". Com a placa <code class="inline">XYZ9Z87</code> (sem apontamentos), o loop pula direto para as ocorrências similares.</p>
+    <p>Cada linha acima é saída real de <code class="inline">python main.py</code> (só quebrada para caber na largura da página) — as Observações 3 e 4 e a Resposta final terminam em "…" porque <code class="inline">texto_react()</code> corta qualquer valor em 160 caracteres; não é um resumo do autor. O passo 2 <strong>só existe porque</strong> a observação 1 disse "consta alerta". Com a placa <code class="inline">XYZ9Z87</code> (sem apontamentos), o loop pula direto para as ocorrências similares.</p>
 
     <div class="checkpoint">
       <p class="rotulo">Checkpoint 1</p>
@@ -336,7 +345,7 @@ Resposta final: {'linha_do_tempo': [...], 'total_eventos': 3}
         <li>Você troca a placa por <code class="inline">XYZ9Z87</code> e o passo <code class="inline">buscar_documento</code> some</li>
         <li>Aponta no código: onde ficam Percepção, Planejamento, Decisão, Ação, Observação</li>
         <li>Entende por que o <code class="inline">Orcamento</code> é checado pelo loop, não pelo LLM</li>
-        <li><code class="inline">pytest -q</code> passa (10 testes)</li>
+        <li><code class="inline">pytest -q</code> passa (11 testes)</li>
       </ul>
     </div>
   </section>
@@ -721,7 +730,7 @@ flowchart LR
   E --> BUS[["barramento A2A"]]
   BUS --> C["Classificador"]
   C -- "precisa de contexto?" --> LOOP["AgenteConsultor — loop ReAct + orçamento"]
-  LOOP -- "P→P→D→A→O" --> MCP["Servidor MCP"]
+  LOOP -- "P-P-D-A-O" --> MCP["Servidor MCP"]
   MCP --> BASES[("bases fictícias")]
   LOOP --> H["Revisão humana (traço + motivo da parada)"]
   LOOP -. "agente.encerrou" .-> BUS

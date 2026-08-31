@@ -113,3 +113,16 @@ def test_evento_de_encerramento_chega_ao_auditor():
     assert len(aud.trilha) == 1
     assert aud.trilha[0].topico == "agente.encerrou"
     assert "motivo_parada" in aud.trilha[0].dados
+
+
+def test_sem_progresso_encerra_apos_3_observacoes_vazias():
+    # gabarito do Exercício 2 (Bloco 4) — critério de parada extra, não presente
+    # no MotivoParada/LoopReAct padrão: 3 observações "vazias" seguidas encerram
+    # o loop com motivo_parada = SEM_PROGRESSO, mesmo com orçamento de sobra.
+    from solucao_exercicios import LoopComSemProgresso, SoConsultaVazio
+
+    t = LoopComSemProgresso(llm=SoConsultaVazio(), autonomia=Autonomia.AUTONOMO,
+                            orcamento=Orcamento(max_passos=5)).executar("investigação sem pistas")
+    assert t.motivo_parada is MotivoParada.SEM_PROGRESSO
+    assert t.orcamento.passos == 3   # parou na 3ª, não chegou ao limite de 5
+    assert "Sem progresso" in t.resposta_final

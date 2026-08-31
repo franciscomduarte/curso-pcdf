@@ -16,7 +16,7 @@ pip install -r requirements.txt
 python main.py                     # o loop monta uma linha do tempo, reagindo às observações
 python main_limites.py             # cada critério de parada, disparado de propósito
 python solucao_exercicios.py       # todos os labs (ou: basico | sem-progresso | intermediario | desafio)
-pytest -q                          # 10 testes, offline
+pytest -q                          # 11 testes, offline
 ```
 
 Sem `OPENAI_API_KEY`, usa o `MockReAct` (roteiro reativo, determinístico).

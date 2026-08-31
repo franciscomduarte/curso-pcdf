@@ -25,6 +25,7 @@ class MotivoParada(str, Enum):
     LIMITE_TEMPO = "limite_tempo"
     ACAO_REPETIDA = "acao_repetida"
     NAO_CONFIRMADO = "acao_nao_confirmada"
+    SEM_PROGRESSO = "sem_progresso"   # oitavo critério — gabarito do Exercício 2 (Bloco 4)
 
 
 @dataclass
