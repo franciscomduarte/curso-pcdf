@@ -8,17 +8,19 @@
 
 ## Visão geral
 
-| Aula | Nota inicial | Nota após correção | Veredito | Problemas críticos |
-|---|---:|---:|---|---|
-| 1 — Fundamentos de Agentes | 7,4 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 2 — Comunicação A2A | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 3 — MCP e Integração | 7,2 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Resolvido — saída recapturada verbatim |
-| 4 — Agent Loops | 7,7 | **8,3** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 5 — Orquestração | 7,8 | **8,4** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 6 — Grafos e LangGraph | 7,5 | **8,4** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
-| 7 — Especializados e HITL | 7,6 | **8,5** (Fase 3 aplicada 2026-08-30) | 🟢 Aprovada | Nenhum |
+| Aula | Nota inicial | Nota após Fase 3 | Nota confirmada por QA independente | Veredito |
+|---|---:|---:|---:|---|
+| 1 — Fundamentos de Agentes | 7,4 | 8,3 | **8,4** | 🟢 Aprovada |
+| 2 — Comunicação A2A | 7,2 | 8,3 | **8,4** | 🟢 Aprovada |
+| 3 — MCP e Integração | 7,2 | 8,3 | **8,4** | 🟢 Aprovada |
+| 4 — Agent Loops | 7,7 | 8,3 | **~8,4** (após fix da rodada de QA — ver abaixo) | 🟢 Aprovada |
+| 5 — Orquestração | 7,8 | 8,4 | **~8,7** (após fix da rodada de QA) | 🟢 Aprovada |
+| 6 — Grafos e LangGraph | 7,5 | 8,4 | **8,7** | 🟢 Aprovada |
+| 7 — Especializados e HITL | 7,6 | 8,5 | **~8,8** (após fix da rodada de QA) | 🟢 Aprovada |
 
-**Fase 3 (correção) concluída para as 7 aulas, uma de cada vez, na ordem 1→7, um commit por aula.** Todas as 7 saíram de 🟡 Aprovada com ajustes (7,2–7,8) para 🟢 Aprovada (8,3–8,5) após fechar as lacunas sistêmicas de governança e os problemas técnicos pontuais desta auditoria. Nenhuma tinha código quebrado, dependência inexistente, API incompatível ou exercício impossível — os 66 testes (7+7+10+10+13+10+9) passam, todos os `main*.py`/`solucao_exercicios.py` principais rodam sem erro, e a segurança é tratada de forma transversal e contextualizada em todas. O único vetor crítico encontrado (Aula 3 — saída de terminal não-verbatim) foi corrigido. **As notas pós-correção são estimativas do auditor que aplicou as mudanças — recomenda-se uma reavaliação formal por QA independente (agentes `revisor-didatico`/`juiz-exemplos`, ou nova rodada de subagentes) antes de considerar as 7 aulas publicáveis**, conforme CLAUDE.md §45 (QA iterativo) e §46 (gate de publicação).
+**Fase 3 (correção) concluída para as 7 aulas, um commit por aula (1→7).** Depois, uma **rodada de QA independente** (5 subagentes — 2 técnicos cobrindo as 7 aulas, 3 pedagógicos cobrindo as 7 aulas, sem saber as notas que o auditor principal havia estimado) revisou o resultado do zero. Nenhum vetor crítico foi encontrado em nenhuma aula nesta rodada. A QA achou 1 problema **ALTO** (Aula 4 — gabarito de exercício não fazia o que o próprio texto da aula instruía) e uma dezena de MÉDIO/BAIXO (saídas de terminal reformatadas sem rótulo, uma referência cruzada imprecisa entre aulas, um docstring de versão desatualizado) — todos corrigidos numa segunda rodada de fix, documentada abaixo. Ver **"QA independente e correções da 2ª rodada"** para o detalhe completo.
+
+As notas da coluna "confirmada por QA independente" são a nota que os subagentes pedagógicos deram rodando a rubrica do zero (não reaproveitando a nota do auditor principal); os "~" marcam aulas onde a nota da QA já refletia problemas que foram corrigidos depois — a nota final real deve ser um pouco mais alta que a mostrada, mas isso não foi reavaliado por um novo agente (ver seção de limitações no fim do documento).
 
 ### Lacunas sistêmicas (as 4 abaixo aparecem, em grau variável, nas 7 aulas)
 
@@ -652,6 +654,55 @@ Não corrigido nesta fase (Baixo, não bloqueante): pequenas omissões sem marca
 ~~6. Nota explícita "sem execução de LangGraph nesta aula, só conceito"~~ ✅ feito.
 
 Pendente, de baixa prioridade (não bloqueia publicação): pequenas omissões sem marcação no bloco de `main_retomar.py`.
+
+---
+
+## QA independente e correções da 2ª rodada (2026-08-30)
+
+Depois de aplicar a Fase 3 (correções acima) em todas as 7 aulas, rodei uma **rodada de QA independente**: 5 subagentes em paralelo, sem visibilidade das notas que eu havia estimado, com instrução explícita de auditar do zero e "achar problemas que uma correção anterior possa ter deixado passar" — 2 no papel do `juiz-exemplos` (técnico: rodar tudo de novo, comparar HTML com execução real) cobrindo as 7 aulas, e 3 no papel do `revisor-didatico` (pedagógico: rubrica completa + confirmação das 4 lacunas) também cobrindo as 7 aulas.
+
+**Resultado da QA — nenhum vetor crítico em nenhuma aula.** Todas as 7 aulas confirmaram nota ≥8,0 mesmo antes desta 2ª rodada de fix. As 4 lacunas sistêmicas (diagnóstico, transferência, formato dos objetivos, carga=300min) foram confirmadas **genuinamente fechadas** por evidência de código/HTML em todas as 7 — a única ressalva recorrente é que o formato dos objetivos não segue a sentença-template de 4 partes item a item em 100% dos casos (decisão deliberada, ver nota de design mais abaixo).
+
+### Problemas encontrados pela QA e corrigidos nesta rodada
+
+**ALTO — Aula 4:** `lab_sem_progresso()` em `solucao_exercicios.py` não implementava o que o próprio texto/gabarito da aula instrui. O enum `MotivoParada` não tinha `SEM_PROGRESSO`; a checagem rodava **depois** de `super().executar()` já ter parado por outro motivo (então `motivo_parada` mostrado contradizia a mensagem exibida); e não existia nenhum teste provando o disparo, apesar de o Exercício 2 do Bloco 4 pedir explicitamente "escreva o teste que prova o disparo". **Corrigido**: `SEM_PROGRESSO` adicionado ao enum (`app/orcamento.py`); `LoopComSemProgresso` reescrita para checar o critério **dentro** do laço, logo após cada observação, retornando antes do próximo passo custar orçamento; teste real `test_sem_progresso_encerra_apos_3_observacoes_vazias` adicionado a `tests/test_loop.py` (agora 11 testes, checkpoint e README atualizados). Revalidado: `parada = sem_progresso` de verdade, parando no passo 3 (não no limite de 5).
+
+**MÉDIO — Aula 4:** bloco de saída "resumida" de `main.py` usava placeholders (`[2 ocorrências]`, `{'linha_do_tempo': [...], ...}`) que o programa nunca produz — mesmo rotulado como "resumida". **Corrigido**: substituído pela saída real, truncada em 160 caracteres exatamente como `texto_react()` faz (terminando em "…"), com nota explicando que a quebra de linha é só para largura da página.
+
+**MÉDIO — Aula 4:** pré-requisito citava "Aula 1 (loop simples, `max_passos`)" — `max_passos` não existe em nenhum lugar da Aula 1 (que usa `tentativas`/retry com backoff, um mecanismo diferente). **Corrigido**: texto ajustado para "Aula 1 (retry com backoff, `tentativas`)".
+
+**BAIXO — Aula 4:** seta unicode `→` dentro de um rótulo de aresta Mermaid (`"P→P→D→A→O"`), único ponto do documento fora do padrão `~`/`-` do resto do curso. **Corrigido**: `"P-P-D-A-O"`.
+
+**MÉDIO — Aula 5:** segundo bloco de `main_comparar.py PCDF-SIM-0009` estava condensado (1 linha por padrão em vez de 2, como o programa realmente imprime) e trazia a anotação `(pulou o Consultor)` dentro do `<pre>`, que o programa não imprime; o bloco do debate estava resumido sem marcação. **Corrigido**: recapturado e reescrito verbatim (2 linhas por padrão, debate rodada a rodada completo); a anotação "pulou o Consultor" já existia na prosa logo abaixo e foi mantida só lá.
+
+**BAIXO — Aula 5:** prosa citava a pendência como `"sem enriquecimento (aceitável)"`; a mensagem real (`app/especialistas.py:68`) é `"sem enriquecimento (pode ser aceitável)"`. **Corrigido** — paráfrase trocada pelo texto exato.
+
+**BAIXO — Aula 6:** `langgraph_real/grafo_lg.py` tinha, no próprio docstring, "testado com langgraph 0.2+" — desatualizado frente ao README (que já dizia 1.2.11) e ao pin real (`>=1.0,<2`). **Corrigido**: docstring alinhado com README/pin, revalidado rodando `grafo_lg.py` de novo (OK).
+
+**MÉDIO — Aula 7:** bloco de `main_retomar.py` tinha um separador `--- processo NOVO ---` que o programa não imprime (a linha real é `processo NOVO. carregou o checkpoint {cid}`, sem separador) e faltava a linha real `decisões humanas registradas: 1`. **Corrigido**: recapturado com os dois processos reais (banner `AVISO_DADOS` de cada um, linha `para concluir: ...`, a linha de decisões registradas), com o separador entre os dois blocos claramente identificado em prosa como recurso editorial, não saída do programa.
+
+**BAIXO — Aula 7:** referência do LangGraph ainda apontava para a URL antiga (`langchain-ai.github.io/langgraph`), inconsistente com a Aula 6 (já atualizada). **Corrigido**: alinhada para `docs.langchain.com/oss/python/langgraph/overview`.
+
+### O que a QA confirmou e eu decidi NÃO alterar
+
+- **Formato literal dos objetivos** (MÉDIO, recorrente em todas as 7): a governança pede "sempre que possível" a sentença-template de 4 partes; optei por um formato mais compacto (`<p>`"Ao final, o estudante será capaz de:" + bullets com verbo em `<strong>`) para caber no painel visual de 3 colunas sem redesenhar o layout (CLAUDE.md §31, "estender nunca redesenhar"). Os verbos são observáveis, mensuráveis, e cobrem a faixa Bloom exigida (todas as 7 aulas têm ao menos 1 objetivo de nível Avaliar) — é uma questão de forma, não de substância, e a própria QA classificou como não-bloqueante em todas as ocorrências.
+- **Trechos de código parafraseados/condensados sem rótulo "trecho"** (Aula 5, sistemático em `especialistas.py`/`app/padroes/*` mostrados no HTML): pré-existente à Fase 3 desta revisão (não foi introduzido nem tratado nela), semanticamente correto, mas não literal. Não corrigido nesta rodada por escopo/tempo — fica registrado para uma futura passada dedicada a fidelidade de trechos de código em todas as 7 aulas, não só a Aula 5.
+- **MQTT real (Aula 2) e `grpc_demo`/`mcp_real`**: um dos agentes técnicos rodou o gRPC de verdade (servidor+cliente reais) e confirmou OK; MQTT via Docker não foi testado em runtime por indisponibilidade do Docker Desktop no ambiente do agente — permanece "não verificado nesta rodada", não "com problema".
+
+### Testes após a 2ª rodada de fix (revalidados)
+
+| Aula | Antes | Depois |
+|---|---:|---:|
+| 4 | 10 | **11** (novo teste de `SEM_PROGRESSO`) |
+| 5 | 13 | 13 (sem novo teste; só saída corrigida) |
+| 6 | 10 | 10 (sem novo teste; só docstring) |
+| 7 | 9 | 9 (sem novo teste; só saída corrigida) |
+
+Total do curso: **68 testes** (era 66 antes desta rodada). Todos revalidados rodando `pytest -q` em venv limpo após cada mudança; `.venv`/`__pycache__`/`.pytest_cache`/`saida/` removidos ao final de cada aula.
+
+### Limitação desta rodada
+
+As notas "confirmada por QA independente" na Visão Geral vêm de agentes que auditaram a versão **anterior** a este fix (por isso os "~" nas Aulas 4, 5 e 7) — não houve uma 3ª rodada de subagentes revalidando especificamente estas últimas correções. O trabalho técnico foi revalidado por mim mesmo (testes passando, saída recapturada e conferida linha a linha contra o código-fonte real); o julgamento pedagógico independente sobre o efeito exato dessas correções na nota, especificamente, não foi. Isso é aceitável para considerar as 7 aulas em conformidade com a governança nesta etapa, mas uma auditoria de fechamento (mesmo que só nos 4 arquivos tocados nesta rodada) é recomendável antes de publicar em `origin`.
 
 ---
 
