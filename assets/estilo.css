@@ -397,3 +397,10 @@ ul.lista-check li::after {
   .agenda li { flex-direction: column; gap: 2px; }
   .agenda .hora { flex-basis: auto; }
 }
+
+/* ---- Logo institucional secundário (Ibmec) no topo ------------- */
+.topbar .lado-direito { display: flex; align-items: center; gap: 16px; }
+.topbar .marca-sec { height: 34px; width: auto; display: block; }
+@media (max-width: 720px) {
+  .topbar .marca-sec { height: 26px; }
+}
