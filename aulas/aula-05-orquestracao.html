@@ -332,14 +332,25 @@ debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
     <p>Mesmo resultado de natureza nos quatro padrões de fluxo. O <strong>Supervisor pagou 5 chamadas de LLM a mais</strong> por uma adaptação que, neste caso, não era necessária. No Debate, repare que os debatedores <strong>discordam na rodada 1</strong> (Roubo 0.80 × Furto 0.55) e só <strong>convergem na rodada 2</strong>, depois de lerem o argumento um do outro — é isso que o padrão compra, ao custo de 5 chamadas de LLM.</p>
     <div class="codigo">
       <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_comparar.py PCDF-SIM-0009   (furto simples, sem placa)</span></div>
-<pre>pipeline     esp=4  llm=4  tools=1  custo=7   rodadas=4  latencia~1450ms   -> Furto, completo=True, pendências=0
-supervisor   esp=3  llm=7  tools=0  custo=8   rodadas=4  latencia~1600ms   -> Furto, completo=True, pendências=1  (pulou o Consultor)
-broker       esp=4  llm=4  tools=1  custo=7   rodadas=4  latencia~1450ms   -> Furto, completo=True, pendências=0
-blackboard   esp=4  llm=4  tools=1  custo=7   rodadas=3  latencia~1450ms   -> Furto, completo=True, pendências=0
+<pre>pipeline     esp=4  llm=4  tools=1  custo=7   rodadas=4  latencia~1450ms
+             -> natureza=Furto, completo=True, pendências=0
+supervisor   esp=3  llm=7  tools=0  custo=8   rodadas=4  latencia~1600ms
+             -> natureza=Furto, completo=True, pendências=1
+broker       esp=4  llm=4  tools=1  custo=7   rodadas=4  latencia~1450ms
+             -> natureza=Furto, completo=True, pendências=0
+blackboard   esp=4  llm=4  tools=1  custo=7   rodadas=3  latencia~1450ms
+             -> natureza=Furto, completo=True, pendências=0
 
-debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  ...  -> VEREDITO: Furto (2/2; os dois já concordam na rodada 1)</pre>
+debate       esp=0  llm=5  tools=0  custo=9   rodadas=2  latencia~1400ms
+  rodada 1:
+    promotor: Furto (conf 0.70) — subtração sem violência ou ameaça descrita.
+    defensor: Furto (conf 0.80) — nada no relato indica emprego de violência ou ameaça.
+  rodada 2:
+    promotor: Furto (conf 0.75) — mantenho: subtração sem violência ou ameaça descrita.
+    defensor: Furto (conf 0.85) — mantenho: nada no relato indica emprego de violência ou ameaça.
+  VEREDITO: Furto  (2/2 opiniões convergiram para 'Furto'.)</pre>
     </div>
-    <p>Aqui o Supervisor <strong>pulou o Consultor</strong> (<code class="inline">esp=3</code>, <code class="inline">tools=0</code>) — ao preço de uma pendência "sem enriquecimento (aceitável)" e de 3 decisões de LLM a mais. Custo 8 vs 7: empate técnico. Mas se a consulta pulada fosse <em>paga</em>, a adaptação venceria. E no Debate, sem ambiguidade, não há discordância para resolver — as 5 chamadas foram desperdício.</p>
+    <p>Aqui o Supervisor <strong>pulou o Consultor</strong> (<code class="inline">esp=3</code>, <code class="inline">tools=0</code>) — ao preço de uma pendência "sem enriquecimento (pode ser aceitável)" e de 3 decisões de LLM a mais. Custo 8 vs 7: empate técnico. Mas se a consulta pulada fosse <em>paga</em>, a adaptação venceria. E no Debate, sem ambiguidade real (os dois já concordam desde a rodada 1), não há discordância para resolver — as 5 chamadas foram desperdício.</p>
 
     <div class="checkpoint">
       <p class="rotulo">Checkpoint 1</p>
