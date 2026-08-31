@@ -1,0 +1,2 @@
+# Todo o projeto integrador roda só com a biblioteca padrão.
+pytest>=8.0

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 10 — Projeto Integrador · Unidade 8 · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="../assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 10 de 10 · 5h</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Aula 10 · Projeto Integrador e Estudo de Caso</p>
+    <h1>Dez aulas, <span class="destaque">um</span> sistema</h1>
+    <p class="sub">Nas últimas nove aulas o SIGMA ganhou papéis especializados, protocolos de comunicação, ferramentas via MCP, um loop com orçamento, padrões de orquestração, um motor de grafo, aprovação humana, um cluster distribuído e auto-scaling com guardrail. Hoje nenhuma tecnologia é nova. O trabalho é integrar: um <strong>estudo de caso operacional</strong> (a Operação Vetor) exige uma peça que ainda faltava — uma <strong>aresta condicional do grafo da Aula 6</strong> decidindo, dentro do próprio cluster distribuído, quando um caso precisa de mais que os olhos de um único servidor antes do breakpoint humano.</p>
+    <div class="meta">
+      <span class="tag">5h · projeto integrador</span>
+      <span class="tag">Python · síntese do curso</span>
+      <span class="tag">pré: Aulas 1–9</span>
+      <span class="tag">dados sintéticos</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <h2>Estudo de caso: Operação Vetor</h2>
+    <div class="painel">
+      <h4 style="margin-top:0">Cenário (fictício)</h4>
+      <p style="margin-bottom:0">Um feriado prolongado concentra um volume de ocorrências bem acima do normal numa mesma janela de poucas horas, vindas de delegacias diferentes — furtos simples, um roubo com grave ameaça, e pelo menos uma tentativa de manipular o sistema de triagem com um texto malicioso disfarçado de boletim. O SIGMA da Aula 9 aguentaria o volume (HPA) e barraria a manipulação (guardrail) — mas trataria o roubo grave exatamente como trataria o furto simples: as mesmas três etapas, sempre, sem distinção de gravidade. Uma corregedoria que auditasse essa operação perguntaria: por que um caso grave não recebeu nenhuma camada extra de verificação antes de chegar ao servidor responsável?</p>
+    </div>
+    <p>É esse o problema de hoje — não uma tecnologia nova, uma <strong>lacuna de arquitetura</strong>. A resposta não pede outro serviço, outro cluster ou outro protocolo: pede uma <strong>decisão condicional</strong> dentro do fluxo que já existe. É exatamente o conceito de <em>aresta condicional</em> da Aula 6 — só que até aqui ele nunca tinha sido conectado ao cluster distribuído da Aula 8/9. Essa conexão é o projeto de hoje.</p>
+
+    <div class="painel">
+      <div class="grade-painel">
+        <div>
+          <h4>Objetivos</h4>
+          <p style="margin:0 0 8px;font-size:13px;color:var(--tinta-suave)">Ao final, o estudante será capaz de:</p>
+          <ul>
+            <li><strong>Explicar</strong> a arquitetura completa do SIGMA, relacionando cada componente à aula que o introduziu</li>
+            <li><strong>Analisar</strong> um estudo de caso operacional e identificar quais capacidades do sistema cada exigência ativa</li>
+            <li><strong>Implementar</strong> uma aresta condicional que decide, dentro do cluster distribuído, a rota de uma ocorrência conforme sua gravidade</li>
+            <li><strong>Diagnosticar</strong> o sistema integrado sob carga e sob entrada maliciosa, usando só métricas e traço</li>
+            <li><strong>Projetar</strong> uma extensão do SIGMA para uma exigência institucional nova, justificando as decisões arquiteturais</li>
+            <li><strong>Avaliar e justificar</strong> quando um sistema multiagente distribuído como o SIGMA é a solução certa — e quando não é</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Pré-requisitos</h4>
+          <ul>
+            <li>Aulas 1–9 completas — esta aula não ensina nenhuma tecnologia nova</li>
+            <li>Ambiente Python configurado (qualquer uma das aulas anteriores)</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Stack</h4>
+          <ul>
+            <li>Python 3.11+ (funciona em 3.10) — só a biblioteca padrão</li>
+            <li>Nenhuma dependência nova nesta aula</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <ol>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>estudo de caso Operação Vetor; diagnóstico relâmpago das Aulas 7-9</small></span></li>
+        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>arquitetura completa do SIGMA; a aresta condicional dentro do cluster</small></span></li>
+        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>o SIGMA completo rodando: roteamento + guardrail + HPA + painel</small></span></li>
+        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>mapear cada etapa do traço à aula que a introduziu</small></span></li>
+        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>estender a aresta condicional; diagnosticar degradação parcial</small></span></li>
+        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>relatório operacional + projetar uma extensão institucional</small></span></li>
+        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>quando não usar um sistema como o SIGMA; segurança de ponta a ponta</small></span></li>
+        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist, encerramento</small></span></li>
+      </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Diagnóstico relâmpago — recuperando as Aulas 7, 8 e 9</p>
+      <p style="margin-bottom:10px">3 minutos, em voz alta, um item de cada aula:</p>
+      <ul class="lista-check">
+        <li>Aula 7: por que o Jurídico <em>sempre</em> pausa no breakpoint, não importa quem seja o operador?</li>
+        <li>Aula 8: por que o checkpoint não pode morar na memória de um pod específico?</li>
+        <li>Aula 9: o que o guardrail faz <em>antes</em> de qualquer Service ser chamado?</li>
+      </ul>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Esta é a última aula — não introduza nada de novo tecnicamente sem
+      necessidade. Abra com o cenário da Operação Vetor e deixe a turma
+      apontar a lacuna sozinha: "o roubo passou pelas mesmas 3 etapas que o
+      furto — isso está certo?". Se a turma tiver esquecido algum conceito
+      das Aulas 1-6 (A2A, MCP, orçamento, orquestração, grafo), use o
+      diagrama do Bloco 2 como mapa de recuperação, não repita a
+      demonstração original de cada uma — o tempo desta aula é para
+      integrar, não para reensinar.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <h2>A arquitetura completa do SIGMA</h2>
+    <p>Cada aula deste curso acrescentou exatamente uma capacidade ao SIGMA. Nenhuma delas foi descartada — todas continuam presentes, mesmo quando não aparecem no código desta pasta especificamente (comunicação A2A, MCP e os padrões de orquestração têm suas próprias demonstrações completas, nas Aulas 2, 3 e 5). O mapa abaixo é o "onde está cada coisa" do curso inteiro.</p>
+
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Aula</th><th>Capacidade</th><th>Onde vive hoje</th></tr>
+        <tr><td>1</td><td>Agente extrator, injeção de prompt como risco</td><td>base de <code class="inline">investigador()</code>; guardrail barra injeção na entrada</td></tr>
+        <tr><td>2</td><td>Comunicação Agente-a-Agente (A2A)</td><td>conceito coberto por <code class="inline">Cluster.chamar()</code> — Service é o barramento</td></tr>
+        <tr><td>3</td><td>MCP — ferramentas com escopo</td><td><code class="inline">consultar_veiculo()</code> — uma "tool" com resultado determinístico</td></tr>
+        <tr><td>4</td><td>Agent loop, orçamento, critérios de parada</td><td><code class="inline">max_ciclos_hitl</code> em <code class="inline">fluxo.py</code> — a mesma ideia de teto</td></tr>
+        <tr><td>5</td><td>Padrões de orquestração (pipeline, supervisor...)</td><td>o SIGMA é um <em>pipeline com desvio condicional</em> — visto hoje</td></tr>
+        <tr><td>6</td><td>Grafo: nós, arestas estáticas e condicionais</td><td><code class="inline">app/roteador.py</code> — NOVO nesta aula, ver abaixo</td></tr>
+        <tr><td>7</td><td>Papéis especializados, memória, breakpoint HITL</td><td><code class="inline">app/agentes.py</code>, <code class="inline">requer_decisao_humana=True</code></td></tr>
+        <tr><td>8</td><td>Deployment, Service, ConfigMap, self-healing</td><td><code class="inline">app/cluster.py</code>, <code class="inline">app/store.py</code></td></tr>
+        <tr><td>9</td><td>HPA, métricas + traço, guardrail/Gateway</td><td><code class="inline">app/autoscaler.py</code>, <code class="inline">app/observabilidade.py</code>, <code class="inline">app/gateway.py</code></td></tr>
+      </table>
+    </div>
+
+    <h3>A peça que faltava: grafo condicional dentro do cluster distribuído</h3>
+    <p>Da Aula 6: uma <strong>aresta condicional</strong> é um roteador — uma função <code class="inline">estado -> nome_do_próximo_nó</code> — que decide o caminho em tempo de execução, em vez de um caminho fixo. Da Aula 8/9: cada etapa do SIGMA virou uma chamada de Service num cluster distribuído, mas a <em>ordem</em> das etapas continuava um dicionário fixo (<code class="inline">PROXIMA_ETAPA</code>). As duas coisas nunca tinham se encontrado: nenhuma aula anterior tinha uma decisão condicional escolhendo qual Service chamar a seguir.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/roteador.py</span></div>
+<pre data-lang="python">def decidir_apos_juridico(e: Estado) -> str:
+    """A aresta condicional (Aula 6) que decide o que acontece depois de
+    `juridico`. Critério: tipificação de ROUBO exige uma segunda leitura
+    antes do breakpoint humano."""
+    proposta = e.tipificacao_proposta or {}
+    if proposta.get("natureza") == "Roubo":
+        return ETAPA_REVISAO
+    return ETAPA_APROVACAO
+
+ROTEADORES_CONDICIONAIS = {"juridico": decidir_apos_juridico}</pre>
+    </div>
+    <p class="legenda">O roteador só lê o que o Jurídico já concluiu — nunca decide sozinho se um caso é grave. É uma decisão de <em>quantos agentes revisam antes do humano</em>, nunca uma decisão sobre a pessoa investigada.</p>
+
+    <div class="mermaid">
+flowchart LR
+  ORIGEM[("boletim + origem")] --> GW{{"Gateway: guardrail"}}
+  GW --> INV{{"investigador-svc"}}
+  INV --> ANA{{"analista-svc"}} --> JUR{{"juridico-svc"}}
+  JUR -- "Roubo" --> REV{{"revisor-svc (NOVO)"}}
+  JUR -- "Furto" --> BP{{"breakpoint humano"}}
+  REV --> BP
+  BP --> CON{{"consolidador-svc"}} --> DOS[("Dossiê")]
+  HPA{{"HPA"}} -. "carga" .-> INV
+  MET[("Metricas + traço")] -. "cada chamada" .-> JUR
+    </div>
+    <p class="legenda">A única mudança estrutural sobre a Aula 9: depois de <code class="inline">juridico-svc</code>, o caminho se bifurca. Furto segue exatamente como sempre seguiu; Roubo ganha uma parada a mais — <code class="inline">revisor-svc</code> — antes do mesmo breakpoint humano de sempre.</p>
+
+    <h3>Uma etapa a mais no fluxo, uma linha a mais no código</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/fluxo.py — o diff conceitual sobre a Aula 9</span></div>
+<pre data-lang="python">while e.etapa not in ("fim", "aguardando_aprovacao"):
+    servico = SERVICO_DA_ETAPA[e.etapa]
+    etapa_atual = e.etapa
+    e, pod, duracao_ms = self.cluster.chamar(servico, e)
+    e.atendido_por.append({"etapa": etapa_atual, "pod": pod, "duracao_ms": duracao_ms})
+
+    roteador = ROTEADORES_CONDICIONAIS.get(etapa_atual)   # <- só isto é novo
+    e.etapa = roteador(e) if roteador else PROXIMA_ETAPA[etapa_atual]</pre>
+    </div>
+    <p>O resto do <code class="inline">Fluxo</code> — o breakpoint, o <code class="inline">StoreCompartilhado</code>, o ciclo de aprovar/corrigir/rejeitar — não muda uma linha. É a prova de que a integração encaixou sem exigir reescrever nada que já funcionava.</p>
+    <p style="font-size:14px;color:var(--tinta-suave)">Grafos e roteamento condicional em processos de negócio: van der Aalst, <em>Workflow Patterns</em> (o padrão "Exclusive Choice" é exatamente isto). Kubernetes: documentação oficial, revisitada. Ver Referências.</p>
+  </section>
+
+  <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <h2>O SIGMA completo, rodando</h2>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
+<pre>cd codigo/aula-10-projeto-integrador
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt    # só pytest
+python -c "print('ambiente ok')"</pre>
+    </div>
+
+    <h3>Peça nova — o quinto agente: revisor_dupla</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/agentes.py — trecho</span></div>
+<pre data-lang="python">def revisor_dupla(e: Estado, config: dict | None = None) -> Estado:
+    """Só roda quando o roteador escala o caso. Confere se os elementos de
+    gravidade que justificaram a tipificação do Jurídico aparecem nos fatos
+    do Investigador — uma segunda leitura independente."""
+    campos = (e.fatos or {}).get("campos", {})
+    proposta = e.tipificacao_proposta or {}
+    concorda = bool(campos.get("grave_ameaca")) and proposta.get("natureza") == "Roubo"
+    e.revisao = {"concorda": concorda, "observacao": "..."}
+    # ... anota na própria memória (mesmo padrão dos outros 4 agentes) ...
+    return e</pre>
+    </div>
+    <p>Mesmo padrão de agente desde a Aula 7 — uma função <code class="inline">(Estado, config) -&gt; Estado</code>, hospedada como Deployment+Service como qualquer outra (Aula 8). Nada na infraestrutura precisou mudar para acomodar um quinto agente.</p>
+
+    <h3>Rodando</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py</span></div>
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+=== 1. Dois boletins pelo Gateway — rotas diferentes ===
+  PCDF-SIM-0002: Art. 157 do CP (roubo) — rota: investigar -> analisar -> juridico -> revisar -> consolidar
+    revisão dupla: confirma: os fatos levantados pelo Investigador sustentam grave ameaça
+  PCDF-SIM-0009: Art. 155 do CP (furto) — rota: investigar -> analisar -> juridico -> consolidar
+
+=== 2. Um boletim com injeção — o guardrail barra antes do fluxo ===
+  REJEITADO: texto de 'delegacia-02' contém padrão suspeito: 'ignore as instruções'
+
+=== 3. Uma origem estourando o limite de taxa (3 chamadas / 60s) ===
+  chamada 1: permitida
+  chamada 2: permitida
+  chamada 3: permitida
+  chamada 4: BARRADA — 'delegacia-03' excedeu 3 chamadas em 60s
+
+=== 4. HPA do investigador reagindo à carga ===
+  carga normal           ( 2.0) -> 1 -> 1 réplicas
+  carga pico             ( 9.0) -> 1 -> 3 réplicas
+  carga pico sustentado  (11.0) -> 3 -> 4 réplicas
+  carga ocioso           ( 0.0) -> 4 -> 1 réplicas
+
+=== 5. Painel de métricas ===
+SERVICE                 CHAMADAS  FALHAS   ERRO%  LAT.MÉDIA   LAT.P95
+analista-svc                   5       0    0.0%      0.0ms     0.0ms
+consolidador-svc               2       0    0.0%      0.0ms     0.0ms
+investigador-svc               5       0    0.0%      0.1ms     0.2ms
+juridico-svc                   5       0    0.0%      0.0ms     0.0ms
+revisor-svc                    1       0    0.0%      0.0ms     0.0ms</pre>
+    </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">Repare na rota: PCDF-SIM-0002 (roubo, grave ameaça) passa por <code class="inline">revisar</code>; PCDF-SIM-0009 (furto) não passa — a mesma aresta condicional do Bloco 2, agora com saída real. As latências (ms) medem tempo de CPU real e variam ligeiramente a cada execução (Aula 9) — o que é estável é a rota e a ausência de erro.</p>
+
+    <h3>A Operação Vetor, fim a fim</h3>
+    <p>O <code class="inline">main.py</code> demonstra cada peça isolada. O <code class="inline">main_estudo_caso.py</code> roda o cenário que abre a aula — um lote misto de quatro boletins de delegacias diferentes, mais uma tentativa de injeção — pelo SIGMA completo, do jeito que a Operação Vetor exigiria.</p>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_estudo_caso.py</span></div>
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+=== Operação Vetor: lote de 4 boletins + 1 tentativa de injeção ===
+  PCDF-SIM-0002 (delegacia-01): Art. 157 do CP (roubo) [investigar -> analisar -> juridico -> revisar -> consolidar]
+  PCDF-SIM-0009 (delegacia-02): Art. 155 do CP (furto) [investigar -> analisar -> juridico -> consolidar]
+  PCDF-SIM-0015 (delegacia-03): Art. 155 do CP (furto) [investigar -> analisar -> juridico -> consolidar]
+  PCDF-SIM-0021 (delegacia-04): Art. 157 do CP (roubo) [investigar -> analisar -> juridico -> revisar -> consolidar]
+
+=== Uma origem tenta se passar por delegacia legítima, com injeção ===
+  BARRADO na entrada: texto de 'delegacia-05' contém padrão suspeito: 'ignore as instruções'
+
+=== HPA reage ao volume do lote (4 boletins numa janela curta) ===
+  carga=4.0 -> 1 -> 2 réplicas
+
+=== Resumo da operação ===
+  processados: 4 · com revisão dupla: 2 · diretos: 2 · barrados na entrada: 1
+
+=== Painel de métricas ===
+SERVICE                 CHAMADAS  FALHAS   ERRO%  LAT.MÉDIA   LAT.P95
+analista-svc                   4       0    0.0%      0.0ms     0.0ms
+consolidador-svc               4       0    0.0%      0.0ms     0.1ms
+investigador-svc               4       0    0.0%      0.1ms     0.2ms
+juridico-svc                   4       0    0.0%      0.0ms     0.1ms
+revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
+    </div>
+    <p class="legenda">Dois dos quatro boletins (os roubos) foram roteados por <code class="inline">revisar</code>, dois seguiram direto, e a quinta entrada — a injeção — nem chegou ao fluxo. É a mesma síntese que o desafio do Bloco 6 vai transformar num relatório operacional único. As colunas de latência variam a cada execução (Aula 9).</p>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 1</p>
+      <ul class="lista-check">
+        <li><code class="inline">python main.py</code> mostra as duas rotas diferentes — com e sem <code class="inline">revisar</code></li>
+        <li><code class="inline">python main_estudo_caso.py</code> processa a Operação Vetor inteira e fecha com o resumo <code class="inline">4 processadas · 2 revisão dupla · 1 barrada</code></li>
+        <li>Você aponta, em <code class="inline">roteador.py</code>, onde a decisão acontece — e em <code class="inline">fluxo.py</code>, onde ela é consultada</li>
+        <li>Explica por que a mesma <code class="inline">Estado.atendido_por</code> pode ter 3 ou 4 elementos, dependendo da ocorrência</li>
+        <li><code class="inline">pytest -q</code> passa (43 testes)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <span class="nivel basico">Nível básico</span>
+    <h2>De onde vem cada peça</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício guiado</p>
+      <h3>Ler o traço como um mapa do curso</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py basico</code> — ele processa PCDF-SIM-0002 e imprime, para cada etapa do traço, a aula que a introduziu.</li>
+        <li>Sem consultar o gabarito, refaça o mesmo exercício à mão para PCDF-SIM-0009 (furto) — quantas etapas tem o traço dela, e por quê?</li>
+        <li>No cluster montado em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">main.py</code>, aponte, em voz alta, qual linha de código corresponde a cada uma destas capacidades: self-healing (Aula 8), limite de taxa por origem (Aula 9), papel único de cada agente (Aula 7).</li>
+        <li>Qual aula NÃO tem nenhuma linha de código diretamente visível neste projeto, mas ainda assim está "presente" conceitualmente? Por quê isso é uma escolha correta, não uma omissão?</li>
+      </ol>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: lab_basico()</code>.</p>
+    </div>
+    <h3>Problemas comuns</h3>
+    <div class="tabela-wrap">
+      <table class="problemas">
+        <tr><th>Erro</th><th>Causa</th><th>Diagnóstico</th><th>Solução</th></tr>
+        <tr><td>traço não tem <code class="inline">revisar</code> para um caso grave</td><td>o ConfigMap/dados de teste não marcam <code class="inline">grave_ameaca</code></td><td>confira <code class="inline">app/bases_sinteticas.py::extrair_campos</code></td><td>use PCDF-SIM-0002 ou 0021 — os dois têm grave ameaça nos dados</td></tr>
+        <tr><td><code class="inline">KeyError</code> em <code class="inline">SERVICO_DA_ETAPA</code></td><td>esqueceu de criar <code class="inline">revisor-svc</code> ao montar o cluster</td><td><code class="inline">cluster.services.keys()</code></td><td>todo cluster desta aula precisa dos 5 pares Deployment/Service</td></tr>
+        <tr><td>ModuleNotFoundError: app</td><td>rodando de dentro de <code class="inline">app/</code></td><td>confira o diretório atual</td><td>rodar da raiz do projeto da aula</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== INTERVALO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Intervalo</p>
+    <h2>15 minutos</h2>
+    <p>Ao voltar: <em>se você precisasse escalar um caso não pela tipificação, mas por outro sinal — por exemplo, um veículo com alerta ativo, mesmo num furto simples — o que precisaria mudar? Uma linha, cinco arquivos, ou o cluster inteiro?</em> Segure a resposta para o lab intermediário.</p>
+  </section>
+
+  <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <span class="nivel intermediario">Nível intermediário</span>
+    <h2>Estender a aresta, diagnosticar a falha parcial</h2>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python solucao_exercicios.py intermediario</span></div>
+<pre>== LAB INTERMEDIÁRIO (1): nova aresta — veículo alertado também escala ==
+  ANTES (aresta original):  investigar -> analisar -> juridico
+  DEPOIS (aresta estendida): investigar -> analisar -> juridico -> revisar
+
+== LAB INTERMEDIÁRIO (2): o Revisor cai — só os casos graves sentem ==
+  PCDF-SIM-0002: FALHOU (precisava do Revisor, que está fora do ar)
+  PCDF-SIM-0009: OK
+  painel: revisor-svc erro=100%, juridico-svc erro=0% — o Furto nem chega a notar o incidente</pre>
+    </div>
+    <p>A parte 1 troca <code class="inline">ROTEADORES_CONDICIONAIS["juridico"]</code> por uma função nova, em tempo de execução — a mesma ocorrência (furto, mas com um veículo alertado) muda de rota sem tocar em <code class="inline">agentes.py</code> nem em <code class="inline">fluxo.py</code>. A parte 2 mostra algo que a Aula 9 não tinha como mostrar: quando só um serviço específico cai, o <strong>impacto agora depende da rota</strong> — um furto simples nem percebe o incidente, porque nunca chamaria <code class="inline">revisor-svc</code> de qualquer forma.</p>
+
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>Modificar, não repetir</h3>
+      <ol>
+        <li>Leia a função <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">decidir_estendido</code> dentro de <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">lab_intermediario()</code>. Por que ela precisa restaurar <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ROTEADORES_CONDICIONAIS["juridico"]</code> num bloco <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">finally</code>?</li>
+        <li>Escreva uma terceira versão do roteador que escala para revisão qualquer ocorrência sem <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">local</code> identificado (dado ausente/incompleto) — dado incompleto também é motivo de mais cautela, não só gravidade.</li>
+        <li>Na parte 2, e se <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">revisor-deploy</code> tivesse 2 réplicas em vez de 1? Reproduza o cenário e confirme sua previsão.</li>
+        <li>Por que o painel de métricas (não o traço) é a ferramenta certa para perceber "só os casos graves sentem" — o que o traço de uma única ocorrência não mostraria?</li>
+      </ol>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: lab_intermediario()</code>.</p>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 2</p>
+      <ul class="lista-check">
+        <li>Estendi a aresta condicional sem alterar nenhum agente</li>
+        <li>Vi um incidente cujo impacto depende da rota da ocorrência, não do cluster inteiro</li>
+        <li>Expliquei por que o painel de métricas revela um padrão que um traço isolado não revela</li>
+        <li><code class="inline">pytest -q</code> continua verde</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <span class="nivel avancado">Nível avançado</span>
+    <h2>Relatório operacional + projetar uma extensão</h2>
+
+    <h3>Parte A — implementar (priorize esta parte nos 25 min)</h3>
+    <p>Depois de uma operação como a Vetor, ninguém audita lendo o painel de métricas, a lista de rotas e os eventos do guardrail em três lugares separados. É preciso UM relatório.</p>
+    <div class="exercicio">
+      <p class="rotulo">Desafio — Parte A</p>
+      <h3>Requisitos (implemente; o gabarito tem uma referência)</h3>
+      <ol>
+        <li>Escreva <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">gerar_relatorio_operacional(metricas, total_processadas, total_revisao_dupla, total_barrados_guardrail) -> str</code>: combina as três fontes de sinal da aula num texto único.</li>
+        <li>O relatório deve listar, ao final, quais serviços estão "em alerta" (taxa de erro ≥ 50%) — reaproveite o critério do desafio da Aula 9.</li>
+        <li>Prove, com a Operação Vetor reproduzida programaticamente, que o relatório reporta os números certos: 4 processadas, 2 com revisão dupla, 1 barrada.</li>
+      </ol>
+      <div class="tabela-wrap">
+        <table>
+          <tr><th>Critério</th><th>Peso</th></tr>
+          <tr><td>Funcionamento (números batem com a Operação Vetor reproduzida)</td><td>25%</td></tr>
+          <tr><td>Compreensão (explica por que nenhuma fonte de sinal sozinha basta)</td><td>15%</td></tr>
+          <tr><td>Arquitetura (usa só a API pública de <code class="inline">Metricas</code>, sem tocar em campos internos)</td><td>15%</td></tr>
+          <tr><td>Qualidade técnica (código limpo, sem duplicar o cálculo do painel)</td><td>15%</td></tr>
+          <tr><td>Testes (cobre pelo menos: lote saudável, lote com alerta, lote com zero barrados)</td><td>10%</td></tr>
+          <tr><td>Segurança (o relatório não expõe nada que o guardrail já devia ter barrado)</td><td>10%</td></tr>
+          <tr><td>Justificativa das decisões</td><td>10%</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h3>Parte B — projetar (discussão em grupo, sem código obrigatório)</h3>
+    <div class="exercicio">
+      <p class="rotulo">Desafio — Parte B (nível Criar)</p>
+      <h3>Uma exigência institucional nova chega amanhã</h3>
+      <p>A corregedoria pede: "todo dossiê que envolva uma placa de veículo consultada precisa passar por um agente que confira se essa consulta respeitou o escopo de acesso autorizado, antes de o dossiê ser liberado" — uma exigência de auditoria de acesso, não de tipificação. Projete (não precisa implementar):</p>
+      <ol>
+        <li>Esse é um agente novo, uma etapa nova no roteador, ou as duas coisas? Onde ele entra no grafo — antes ou depois do breakpoint humano? Por quê?</li>
+        <li>Que dado ele precisa que nenhum agente atual produz? De onde esse dado deveria vir?</li>
+        <li>Esse agente precisa de réplica própria (Deployment separado) ou pode ser uma etapa dentro de um agente que já existe? Justifique com o vocabulário da Aula 8 (Service, réplica, falha isolada).</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar, reutilizando o vocabulário arquitetural do curso inteiro.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <h2>Trade-offs e riscos — a visão de ponta a ponta</h2>
+
+    <h3>Quando NÃO usar um sistema como o SIGMA</h3>
+    <p>Dez aulas de capacidade têm um preço: mais peças, mais pontos de falha, mais complexidade operacional. Um sistema deste porte só se justifica quando o volume, a diversidade de casos e a necessidade de auditoria compensam essa complexidade. Uma delegacia pequena, com poucos boletins por semana e nenhuma exigência de escala, não precisa de cluster, HPA nem grafo condicional — precisa de um checklist bem feito e um servidor experiente. O SIGMA existe para o volume e a variedade que uma PCDF real enfrenta, não como padrão universal para qualquer triagem.</p>
+
+    <h3>Segurança — o que se acumula quando tudo se integra</h3>
+    <div class="grade col-3">
+      <div class="aviso perigo"><div class="titulo">⛔ Superfície de risco composta</div>
+        <p>Cada peça (guardrail, HPA, roteador, cluster) foi discutida com seus próprios riscos nas Aulas 8-9. Integradas, elas não somam riscos — multiplicam pontos de decisão automatizada. Uma auditoria de segurança de ponta a ponta precisa olhar o sistema INTEIRO, não cada peça isoladamente.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Ponto único em cada etapa nova</div>
+        <p>Cada etapa nova (como <code class="inline">revisor-deploy</code>) reintroduz o mesmo risco de réplica única da Aula 8, se ninguém lembrar de dimensioná-la. Adicionar uma etapa ao grafo sem revisar sua redundância é dívida técnica silenciosa.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Rastreabilidade é obrigatória, não opcional</div>
+        <p>Com rotas diferentes por ocorrência, provar "o que aconteceu com o caso X" depende inteiramente do traço (Aula 9) estar completo e correto. Sem ele, uma auditoria não consegue reconstruir por que um caso passou ou não pela revisão dupla.</p></div>
+    </div>
+
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável (síntese do curso)</div>
+      <p>Em nenhuma das dez aulas o SIGMA decidiu autoria, culpa, indiciamento,
+      prisão ou qualquer medida cautelar. Ele triam, tipificam propostas,
+      escalam casos para mais revisão e sinalizam risco — sempre como insumo
+      para um servidor decidir. A aresta condicional de hoje não muda essa
+      regra: ela decide QUANTOS agentes leem um caso antes do breakpoint
+      humano, nunca decide o caso em si. Escalar, distribuir e automatizar
+      volume nunca é justificativa para reduzir supervisão humana proporcional
+      — é exatamente o oposto: mais volume automatizado exige mais rigor na
+      auditoria de quem supervisiona.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <h2>Fechamento da aula</h2>
+
+    <h3>Perguntas conceituais</h3>
+    <ol>
+      <li>Cite duas aulas cujo conceito está presente nesta aula sem nenhuma linha de código nova — e explique onde ele está.</li>
+      <li>Qual é a diferença entre uma aresta estática e uma aresta condicional, e onde cada uma aparece em <code class="inline">fluxo.py</code>?</li>
+      <li>Por que <code class="inline">revisor_dupla</code> não decide sozinho se concorda ou diverge do Jurídico sem consultar os fatos do Investigador?</li>
+      <li>O que muda no <em>impacto</em> de uma falha quando o sistema tem rotas condicionais, comparado com o pipeline fixo da Aula 9?</li>
+      <li>Cite uma situação em que todo o aparato desta aula seria complexidade desnecessária.</li>
+    </ol>
+
+    <h3>Transferência</h3>
+    <p>O exercício abaixo não é sobre triagem de boletins — é sobre decidir, para um sistema com um perfil de risco diferente, quais peças do SIGMA se aplicam e quais não.</p>
+    <div class="exercicio">
+      <p class="rotulo">Problema de transferência</p>
+      <h3>Central de Disque-Denúncia (canal anônimo)</h3>
+      <p>Um canal de denúncias anônimas recebe relatos sem identificação do comunicante. Diferente do SIGMA (que sempre sabe a origem/delegacia), aqui a origem é sempre desconhecida — o que muda o guardrail. E diferente da triagem de boletins, uma denúncia falsa ou mal-intencionada pode gerar diligência real sobre uma pessoa inocente — o que muda o peso da revisão humana. Projete (não precisa implementar):</p>
+      <ol>
+        <li>O limite de taxa por origem do <code class="inline">Guardrail</code> (Aula 9) funciona quando não existe origem identificável? O que poderia substituí-lo?</li>
+        <li>Uma denúncia anônima precisaria de uma etapa de "revisão dupla" como a de hoje? Se sim, com qual critério de escalonamento (não pode ser gravidade da tipificação — ainda não existe tipificação nesse ponto)?</li>
+        <li>Todo breakpoint HITL da Aula 7 pausava esperando aprovação antes de <em>concluir</em> um dossiê. Uma denúncia anônima precisaria de um breakpoint antes de <em>qualquer</em> ação chegar a gerar diligência sobre alguém identificável? Justifique.</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar, reconhecendo onde o padrão do SIGMA se aplica e onde ele precisa mudar.</p>
+    </div>
+
+    <h3>Exercício prático</h3>
+    <p>Adicione ao <code class="inline">Estado</code> um campo <code class="inline">prioridade: str | None</code> e uma nova aresta condicional, registrada em <code class="inline">ROTEADORES_CONDICIONAIS["investigar"]</code>, que marca <code class="inline">prioridade="urgente"</code> quando <code class="inline">fatos.campos.grave_ameaca</code> é verdadeiro — sem alterar a rota (continua indo para <code class="inline">analisar</code> normalmente). Escreva um teste que prove que a etapa seguinte não muda, só o campo novo.</p>
+
+    <h3>Desafio</h3>
+    <p>Escreva um teste que prove que, processando um lote misto (2 Roubo, 2 Furto) pelo Gateway, exatamente 2 ocorrências têm <code class="inline">"revisar"</code> no traço e exatamente 2 não têm — sem inspecionar a ordem de processamento, só o resultado final.</p>
+
+    <h3>Checklist de aprendizagem</h3>
+    <ul class="lista-check">
+      <li>Explico a arquitetura completa do SIGMA e de onde vem cada peça</li>
+      <li>Implementei uma aresta condicional decidindo a rota dentro do cluster distribuído</li>
+      <li>Diagnostiquei o sistema sob carga e sob entrada maliciosa usando só métricas e traço</li>
+      <li>Projetei (com justificativa) uma extensão do SIGMA para uma exigência nova</li>
+      <li>Sei quando um sistema deste porte vale a complexidade — e quando não vale</li>
+    </ul>
+
+    <h3>Encerramento do curso</h3>
+    <p>O SIGMA começou na Aula 1 como um único agente extraindo campos de um boletim. Chega na Aula 10 como um cluster distribuído, com papéis especializados, comunicação entre serviços, ferramentas com escopo, orçamento de execução, orquestração, um grafo com decisão condicional, aprovação humana obrigatória, auto-scaling, observabilidade e um guardrail na porta de entrada — e, em nenhum momento dessa evolução, deixou de precisar de um servidor para decidir. Essa é a lição que atravessa as dez aulas: mais capacidade técnica não significa menos responsabilidade humana — significa mais superfície para essa responsabilidade ser exercida com informação melhor.</p>
+  </section>
+
+  <!-- ===================== GLOSSÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Referência rápida</p>
+    <h2>Glossário</h2>
+    <div class="glossario">
+      <dl>
+        <dt>Projeto integrador</dt><dd>Integração de capacidades já construídas para resolver um problema que nenhuma delas resolvia sozinha.</dd>
+        <dt>Estudo de caso</dt><dd>Cenário operacional fictício (aqui, a Operação Vetor) usado para ancorar decisões de arquitetura, não só ilustrar um conceito.</dd>
+        <dt>Aresta condicional</dt><dd>Uma transição de grafo cujo destino é decidido em tempo de execução por um roteador — em vez de um caminho fixo (Aula 6).</dd>
+        <dt>Roteador</dt><dd>Função <code class="inline">estado -&gt; nome_do_próximo_nó</code> que implementa uma aresta condicional.</dd>
+        <dt>Revisão dupla</dt><dd>Segunda leitura independente de um caso antes do breakpoint humano — não substitui a decisão do servidor, só a informa melhor.</dd>
+        <dt>Degradação parcial</dt><dd>Quando uma falha afeta só as rotas que dependem do serviço indisponível, não o sistema inteiro — possível justamente por causa do roteamento condicional.</dd>
+        <dt>Rastreabilidade</dt><dd>Capacidade de reconstruir, a partir do traço, exatamente por onde uma ocorrência passou e por quê.</dd>
+        <dt>SIGMA</dt><dd>O sistema fictício construído incrementalmente ao longo das 10 aulas — o fio condutor do curso.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===================== REFERÊNCIAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Fontes</p>
+    <h2>Referências</h2>
+    <ol class="refs">
+      <li><span class="fonte">van der Aalst, W.M.P. et al. — <em>Workflow Patterns</em></span>. <a href="http://www.workflowpatterns.com/">workflowpatterns.com</a>.
+        <span class="assoc">O padrão "Exclusive Choice" — a base formal da aresta condicional usada em <code class="inline">roteador.py</code>.</span></li>
+      <li><span class="fonte">Kubernetes — <em>Documentação oficial</em> (Concepts: Deployments, Services)</span>. <a href="https://kubernetes.io/docs/concepts/">kubernetes.io/docs/concepts</a>.
+        <span class="assoc">Revisitada — o cluster desta aula não muda em relação às Aulas 8-9.</span></li>
+      <li><span class="fonte">OWASP — <em>Top 10 for LLM Applications</em> (2025)</span>. <a href="https://genai.owasp.org/">genai.owasp.org</a>.
+        <span class="assoc">LLM01/LLM10 — a base do guardrail, revisitada no contexto do sistema integrado.</span></li>
+      <li><span class="fonte">NIST — <em>AI Risk Management Framework (AI RMF 1.0)</em> (2023)</span>. <a href="https://www.nist.gov/itl/ai-risk-management-framework">nist.gov/itl/ai-risk-management-framework</a>.
+        <span class="assoc">Governança e supervisão de um sistema de IA completo, não só de um componente isolado.</span></li>
+      <li><span class="fonte">Brasil — <em>Lei nº 13.709/2018 (LGPD)</em></span>. Planalto. <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm">planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm</a>.
+        <span class="assoc">Dados pessoais atravessando um sistema integrado exigem controle de acesso e retenção de ponta a ponta. Referência normativa — não é aconselhamento jurídico.</span></li>
+    </ol>
+  </section>
+
+  <!-- ===================== GABARITO ===================== -->
+  <details class="gabarito reveal">
+    <summary>Gabarito / Orientação ao Instrutor</summary>
+    <div class="conteudo">
+      <h3>Tempos (5h = 300 min)</h3>
+      <p>Abertura 25 (inclui diagnóstico relâmpago de 3 min) · Fundamentos 50 ·
+      Demonstração 50 · Lab básico 45 · Intervalo 15 · Lab intermediário 45 ·
+      Desafio 25 · Debriefing 15 · Avaliação e transferência 30 = 300. Se
+      atrasar: no Bloco 2, mostre só o diagrama e o trecho de
+      <code class="inline">roteador.py</code>, sem detalhar a tabela "onde vive
+      cada aula" linha a linha; no desafio, priorize a Parte A (implementação)
+      e deixe a Parte B (projetar) para uma discussão de 5 min em vez de
+      trabalho individual.</p>
+
+      <h3>Transferência — Central de Disque-Denúncia (sem gabarito fechado)</h3>
+      <p>Avalie pela justificativa. Uma resposta forte reconhece que sem
+      origem identificável o limite de taxa por origem não funciona como está
+      — precisaria de outro sinal (fingerprint de dispositivo, padrão de
+      texto repetido, limite global por período); propõe escalonamento por
+      sinais de padrão suspeito em vez de gravidade de tipificação (que ainda
+      não existe nesse ponto do fluxo); e reconhece que aqui a supervisão
+      humana provavelmente precisa entrar ANTES de qualquer diligência ser
+      aberta, não só antes de concluir um dossiê — o risco de dano a um
+      inocente por denúncia falsa pesa mais cedo no fluxo.</p>
+
+      <h3>Lab básico — mapa de origem</h3>
+      <p><code class="inline">solucao_exercicios.py :: lab_basico()</code> já
+      resolve o item 1. Item 4 (aula sem código visível): A2A (Aula 2), MCP
+      (Aula 3) e os padrões de orquestração (Aula 5) — a razão correta é que
+      elas já têm demonstrações completas e testadas em suas próprias pastas;
+      reescrevê-las aqui seria repetição, não integração (ver
+      <code class="inline">README.md</code> do projeto, seção "Por que este
+      projeto NÃO reimplementa as Aulas 1–5").</p>
+
+      <h3>Lab intermediário — extensão e degradação parcial</h3>
+      <p>Item 1: o <code class="inline">finally</code> existe porque
+      <code class="inline">ROTEADORES_CONDICIONAIS</code> é um dicionário
+      compartilhado por todo o processo — sem restaurar, o roteador estendido
+      vazaria para qualquer código que rodar depois no mesmo processo
+      (inclusive outros testes, se fosse dentro do pytest). Item 4: o traço
+      de uma única ocorrência mostra só o caminho DELA; o padrão "só os casos
+      graves sentem" só aparece comparando taxas de erro entre serviços no
+      painel — exatamente a diferença entre observabilidade agregada e
+      observabilidade pontual.</p>
+
+      <h3>Desafio Parte A — relatório operacional (referência)</h3>
+      <p>Ver <code class="inline">solucao_exercicios.py :: gerar_relatorio_operacional()</code>
+      e <code class="inline">desafio()</code>, que a exercita contra a
+      Operação Vetor reproduzida (4 processadas, 2 com revisão dupla, 1
+      barrada). </p>
+
+      <h3>Desafio Parte B — projetar (sem gabarito fechado)</h3>
+      <p>Uma resposta forte reconhece que "auditoria de escopo de acesso" é
+      uma responsabilidade DIFERENTE de tipificar (não é sobre o crime, é
+      sobre o uso do sistema) — o que sugere um agente novo, não uma etapa
+      dentro de um agente existente; que ele precisa rodar DEPOIS do
+      breakpoint humano (audita o que já foi decidido, não o decide); que o
+      dado que falta (quem consultou, com qual autorização) não existe em
+      nenhum agente atual e precisaria vir de um log de autorização externo
+      ao SIGMA; e que, seguindo o argumento da Aula 8 sobre redundância,
+      merece Deployment próprio se sua indisponibilidade não puder bloquear a
+      liberação de TODOS os dossiês (ou réplica única aceitável, se atrasar a
+      liberação for tolerável — decisão de produto, não só técnica).</p>
+
+      <h3>Avaliação — respostas-guia</h3>
+      <ol>
+        <li>A2A, MCP e orquestração (Aulas 2, 3, 5) — cobertos conceitualmente pelo Service, pela tool determinística e pelo próprio formato de pipeline-com-desvio do SIGMA.</li>
+        <li>Estática: sempre o mesmo destino (<code class="inline">PROXIMA_ETAPA</code>). Condicional: um roteador decide em tempo de execução (<code class="inline">ROTEADORES_CONDICIONAIS</code>), usada hoje só depois de <code class="inline">juridico</code>.</li>
+        <li>Porque decidir sozinho seria o Revisor confiando cegamente na conclusão do Jurídico — a revisão só tem valor se checar uma fonte independente (os fatos brutos), não repetir o mesmo raciocínio.</li>
+        <li>Com rotas condicionais, uma falha pode afetar só um subconjunto das ocorrências (as que passariam por aquele serviço) — o impacto de uma falha deixa de ser "tudo ou nada" e passa a depender da rota.</li>
+        <li>Um volume baixo, previsível, sem exigência de auditoria de gravidade diferenciada — os laboratórios de qualquer aula anterior deste curso, isoladamente, por exemplo.</li>
+      </ol>
+    </div>
+  </details>
+
+  <!-- ===================== FECHAMENTO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Fim da Unidade 8</p>
+    <h2>O SIGMA, da Aula 1 à Aula 10</h2>
+    <p>Não há Aula 11. O que existe agora é um sistema que percorreu, em dez aulas, o caminho de um agente único extraindo campos de um texto até um cluster distribuído com decisão condicional, auto-scaling, observabilidade e um guardrail na entrada — sem que a exigência mais importante do curso inteiro mudasse uma vez sequer: alguém, sempre, decide por último.</p>
+    <div class="mermaid">
+flowchart LR
+  A1["Aula 1: agente único"] --> A2["Aula 2-3: comunicação + MCP"]
+  A2 --> A4["Aula 4-5: loop + orquestração"]
+  A4 --> A6["Aula 6: grafo"]
+  A6 --> A7["Aula 7: papéis + HITL"]
+  A7 --> A8["Aula 8: cluster distribuído"]
+  A8 --> A9["Aula 9: auto-scaling + guardrail"]
+  A9 --> A10["Aula 10: grafo + cluster integrados"]
+  A10 --> HUMANO[("decisão humana — inalterada desde a Aula 1")]
+    </div>
+    <p class="legenda">Cada seta desta linha do tempo é uma aula deste curso. A última caixa nunca muda de posição — é o ponto fixo em torno do qual toda a arquitetura foi construída.</p>
+
+    <blockquote class="ancora">"Um sistema multiagente não é medido pela quantidade de peças que consegue integrar. É medido pela clareza com que continua respondendo, depois de integrar todas elas, a uma pergunta simples: quem decide, e com que informação?"</blockquote>
+
+    <div class="nav-aulas">
+      <a href="aula-09-autoscaling-seguranca.html"><span>Anterior</span>← Aula 9 — Auto-scaling e Segurança</a>
+      <a href="../index.html"><span>Curso completo</span>Voltar ao índice →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · Aula 10 de 10</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="../assets/aula.js"></script>
+</body>
+</html>

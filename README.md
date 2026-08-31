@@ -28,7 +28,10 @@ curso-pcdf/
 │   ├── aula-04-agent-loops.html     # ✅ pronta
 │   ├── aula-05-orquestracao.html    # ✅ pronta
 │   ├── aula-06-grafos-langgraph.html # ✅ pronta
-│   └── aula-07-especializados-hitl.html # ✅ pronta
+│   ├── aula-07-especializados-hitl.html # ✅ pronta
+│   ├── aula-08-kubernetes.html      # ✅ pronta
+│   ├── aula-09-autoscaling-seguranca.html # ✅ pronta
+│   └── aula-10-projeto-integrador.html # ✅ pronta
 └── codigo/
     ├── aula-01-extrator-ocorrencias/ # código da Aula 1 (roda offline, sem chave)
     ├── aula-02-comunicacao-a2a/      # código da Aula 2 (pub/sub offline; MQTT/gRPC opcionais)
@@ -36,7 +39,10 @@ curso-pcdf/
     ├── aula-04-agent-loops/          # código da Aula 4 (loop ReAct offline)
     ├── aula-05-orquestracao/         # código da Aula 5 (os 5 padrões + comparação, offline)
     ├── aula-06-grafos-langgraph/      # código da Aula 6 (motor de grafo mínimo; LangGraph opcional)
-    └── aula-07-especializados-hitl/   # código da Aula 7 (agentes com papel + HITL/checkpoint, offline)
+    ├── aula-07-especializados-hitl/   # código da Aula 7 (agentes com papel + HITL/checkpoint, offline)
+    ├── aula-08-kubernetes/            # código da Aula 8 (cluster mínimo offline; k8s_real/ opcional)
+    ├── aula-09-autoscaling-seguranca/ # código da Aula 9 (HPA + observabilidade + guardrail, offline)
+    └── aula-10-projeto-integrador/    # código da Aula 10 (SIGMA completo + grafo condicional, offline)
 ```
 
 ## Ementa (10 aulas de 5h)
@@ -58,8 +64,8 @@ Fio condutor: o sistema fictício **SIGMA**, construído incrementalmente aula a
 
 ## Stack
 
-Python · OpenAI API · Pydantic · (aulas seguintes) MQTT, gRPC, MCP, LangGraph,
-Docker, Kubernetes, OpenTelemetry, Prometheus, Grafana.
+Python · OpenAI API · Pydantic · MQTT, gRPC, MCP, LangGraph, Docker, Kubernetes
+— cada um opcional na sua aula, com um caminho offline determinístico como padrão.
 
 Os laboratórios rodam **sem chave de API**: quando `OPENAI_API_KEY` não está
 definida, um LLM falso e determinístico (`MockExtrator`) assume.
@@ -85,6 +91,12 @@ pytest -q                          # testes rodam sem chave/broker
 - **Aula 5:** `python main_comparar.py` · `python main.py <padrão>` (offline).
 - **Aula 6:** `python main.py` · `python main_ciclo.py` (offline).
 - **Aula 7:** `python main.py` · `python main_retomar.py iniciar` (offline).
+- **Aula 8:** `python main.py` · `python main_falha.py` (offline). O caminho com
+  Docker/Kubernetes de verdade (`k8s_real/`) é opcional — ver o README da pasta.
+- **Aula 9:** `python main.py` · `python main_incidente.py` (offline). O manifesto
+  `HorizontalPodAutoscaler` real (`k8s_real/hpa.yaml`) é opcional — ver o README da pasta.
+- **Aula 10:** `python main.py` · `python main_estudo_caso.py` (offline). Nenhuma
+  dependência opcional — o projeto integrador reaproveita só o que já existe.
 
 ## Publicar no GitHub Pages
 
@@ -100,4 +112,8 @@ Settings → Pages → Branch `main` / `/root`. Fica em
 - [x] Aula 5 — Padrões de Orquestração Multiagente
 - [x] Aula 6 — Modelagem de Sistemas Baseados em Grafos
 - [x] Aula 7 — Agentes Especializados e Human-in-the-Loop
-- [ ] Aulas 8 a 10 — geradas uma por vez, a partir de `aulas/_modelo-aula.html`
+- [x] Aula 8 — Arquitetura Distribuída e Deploy com Kubernetes
+- [x] Aula 9 — Auto-scaling, Observabilidade e Segurança
+- [x] Aula 10 — Projeto Integrador e Estudo de Caso
+
+**As 10 aulas estão prontas.**
