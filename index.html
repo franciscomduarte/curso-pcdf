@@ -99,6 +99,7 @@
       <div class="barra-ext"><div class="barra-int" style="width:100%"></div></div>
       <div class="mini-links">
         <a href="aulas/aula-01-fundamentos.html">→ Começar pela Aula 1</a>
+        <a href="#prerequisitos">→ Pré-requisitos</a>
         <a href="#codigo">→ Código de exemplo</a>
         <a href="#responsavel">→ Uso responsável</a>
         <a href="https://github.com/franciscomduarte/curso-pcdf">→ Repositório</a>
@@ -253,6 +254,86 @@
         </a>
 
       </div>
+    </div>
+  </section>
+
+  <section class="reveal" id="prerequisitos">
+    <p class="rotulo">Antes de começar</p>
+    <h2>Pré-requisitos</h2>
+    <p style="color:var(--tinta-suave);max-width:660px">
+      O que cada aluno precisa ter instalado e configurado antes da primeira aula.
+      A preparação é feita uma vez só e leva cerca de 20 minutos.
+    </p>
+
+    <div class="grade col-2">
+      <div class="cartao">
+        <div class="ic">🐍</div>
+        <h4>Python 3.10 ou mais novo</h4>
+        <p>A linguagem de todo o código do curso. Já vem com <code class="inline">pip</code> e
+        <code class="inline">venv</code> (ambientes virtuais), usados em toda aula.
+        <a href="https://www.python.org/downloads/">python.org/downloads</a></p>
+      </div>
+      <div class="cartao">
+        <div class="ic">📝</div>
+        <h4>Um editor de código</h4>
+        <p><strong>VS Code</strong> é o recomendado — gratuito, com terminal integrado.
+        PyCharm, Sublime ou similar também servem.
+        <a href="https://code.visualstudio.com/">code.visualstudio.com</a></p>
+      </div>
+      <div class="cartao">
+        <div class="ic">🔀</div>
+        <h4>Git</h4>
+        <p>Para baixar o repositório do curso (<code class="inline">git clone</code>) e
+        acompanhar as atualizações. <a href="https://git-scm.com/downloads">git-scm.com/downloads</a></p>
+      </div>
+      <div class="cartao">
+        <div class="ic">⌨️</div>
+        <h4>Terminal</h4>
+        <p>Saber abrir o terminal do sistema e rodar comandos básicos
+        (<code class="inline">cd</code>, <code class="inline">python</code>,
+        <code class="inline">pip</code>). Windows: PowerShell. macOS/Linux: Terminal.</p>
+      </div>
+    </div>
+
+    <div class="aviso ok" style="margin-top:24px">
+      <div class="titulo">Chave de API da OpenAI — opcional, não obrigatória</div>
+      <p>Todos os laboratórios rodam <strong>offline</strong>, com um LLM falso e determinístico,
+      quando não há chave configurada. A <code class="inline">OPENAI_API_KEY</code> só aparece
+      nas <strong>Aulas 1 a 3</strong>, e apenas para quem quiser ver a resposta do modelo real
+      no lugar do mock. As Aulas 4 a 10 não usam LLM nenhum.</p>
+    </div>
+
+    <div class="painel" style="margin-top:20px">
+      <h4 style="margin-top:0">Quanto comprar de créditos, se for usar a API</h4>
+      <ul class="lista-check">
+        <li>Modelo padrão: <code class="inline">gpt-4.1-mini</code> — cerca de US$ 0,40 por milhão
+        de tokens de entrada e US$ 1,60 por milhão de saída.</li>
+        <li>Os exemplos processam textos curtos de ocorrências sintéticas: cada chamada custa
+        uma fração de centavo.</li>
+        <li>Rodar todos os laboratórios das Aulas 1 a 3 com a API real, várias vezes, sai por
+        <strong>poucos centavos de dólar</strong> no total.</li>
+        <li><strong>Recomendação: comprar o mínimo da OpenAI — US$ 5.</strong> É a menor compra
+        que a plataforma aceita e cobre o curso inteiro com folga de sobra.</li>
+      </ul>
+      <p style="font-size:13px;color:var(--tinta-suave);margin-bottom:0">
+        Preços e valor mínimo verificados em agosto de 2026
+        (<a href="https://developers.openai.com/api/docs/pricing">developers.openai.com/api/docs/pricing</a> ·
+        <a href="https://help.openai.com/en/articles/8264644-how-can-i-set-up-prepaid-billing">Central de Ajuda da OpenAI</a>).
+        Os valores podem mudar — confira no seu painel antes de comprar.</p>
+    </div>
+
+    <div class="painel" style="margin-top:20px">
+      <h4 style="margin-top:0">Integrações opcionais, por aula</h4>
+      <p style="margin-top:0">Cada aula tem um caminho "real" à parte, com a tecnologia de
+      produção de verdade. <strong>Nenhum é obrigatório</strong> — o núcleo de toda aula roda
+      só com Python. Instalam-se com <code class="inline">pip install -r requirements-opcionais.txt</code>
+      dentro da pasta da aula.</p>
+      <ul class="lista-check">
+        <li><strong>Aula 2:</strong> um broker MQTT (via Docker) para <code class="inline">main_mqtt.py</code>; <code class="inline">grpcio</code> para o <code class="inline">grpc_demo/</code>.</li>
+        <li><strong>Aula 3:</strong> o SDK oficial <code class="inline">mcp</code> para o <code class="inline">mcp_real/</code>.</li>
+        <li><strong>Aula 6:</strong> o pacote <code class="inline">langgraph</code> para o <code class="inline">langgraph_real/</code>.</li>
+        <li><strong>Aulas 8 e 9:</strong> Docker + um cluster Kubernetes local (kind ou minikube) para os <code class="inline">k8s_real/</code>.</li>
+      </ul>
     </div>
   </section>
 
