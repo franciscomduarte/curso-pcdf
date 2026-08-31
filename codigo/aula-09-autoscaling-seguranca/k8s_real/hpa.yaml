@@ -1,0 +1,26 @@
+# HorizontalPodAutoscaler real para o mesmo juridico-deploy da Aula 8
+# (k8s_real/deployment.yaml de codigo/aula-08-kubernetes) — a fórmula que
+# app/autoscaler.py::avaliar() reproduz em Python roda aqui dentro do
+# próprio Kubernetes, reavaliada por padrão a cada 15s pelo
+# controller-manager, usando o metrics-server como fonte da métrica.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: juridico-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: juridico-deploy
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70   # equivalente a alvo_por_pod em app/autoscaler.py::HPA
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60   # evita "flapping": não desce de imediato após um pico

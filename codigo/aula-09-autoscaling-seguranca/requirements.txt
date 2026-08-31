@@ -1,0 +1,2 @@
+# Núcleo — autoscaler, métricas e guardrail rodam só com a biblioteca padrão.
+pytest>=8.0
