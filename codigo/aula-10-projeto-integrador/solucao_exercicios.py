@@ -157,10 +157,101 @@ def desafio() -> None:
     print(gerar_relatorio_operacional(metricas, len(lote), revisados, barrados))
 
 
+# ===========================================================================
+# EXERCÍCIOS EXTRAS (se sobrar tempo) — referência
+# ===========================================================================
+
+# --- Extra 1: roteador que combina três sinais (intermediário) ------------
+def decidir_multi_sinal(e: Estado) -> str:
+    """Versão do roteador que combina TRÊS sinais (o README de produção pede
+    exatamente isso): escala para revisão dupla se a tipificação é Roubo, OU
+    o veículo citado consta alerta, OU faltou um dado essencial (o local)."""
+    from app.roteador import ETAPA_APROVACAO, ETAPA_REVISAO
+    proposta = e.tipificacao_proposta or {}
+    campos = (e.fatos or {}).get("campos", {})
+    veiculo = (e.fatos or {}).get("veiculo") or {}
+
+    roubo = proposta.get("natureza") == "Roubo"
+    veiculo_alertado = str(veiculo.get("situacao", "")).startswith("consta")
+    dado_incompleto = not campos.get("local")
+
+    if roubo or veiculo_alertado or dado_incompleto:
+        return ETAPA_REVISAO
+    return ETAPA_APROVACAO
+
+
+def extra_roteador_multi_sinal() -> None:
+    print("== EXTRA 1: roteador que combina três sinais ==")
+    casos = {
+        "roubo puro": "05/09/2026, Ceilândia. Assalto à mão armada, celular levado.",
+        "furto + veículo alertado": "06/09/2026, Taguatinga. Furto de bicicleta. Placa citada: ABC1D23.",
+        "furto + local ausente": "07/09/2026. Furto de bicicleta relatado, sem mais detalhes.",
+        "furto simples": "08/09/2026, Guará. Furto de bicicleta da garagem, sem testemunhas.",
+    }
+    import app.roteador as roteador_mod
+    original = roteador_mod.ROTEADORES_CONDICIONAIS["juridico"]
+    roteador_mod.ROTEADORES_CONDICIONAIS["juridico"] = decidir_multi_sinal
+    try:
+        for rotulo, texto in casos.items():
+            fluxo = Fluxo(_cluster_sigma(), StoreCompartilhado())
+            r = fluxo.iniciar(Estado(id="EXTRA", texto=texto))
+            e = fluxo.store.carregar(r.checkpoint)
+            rota = " -> ".join(p["etapa"] for p in e.atendido_por)
+            print(f"  {rotulo:<26}: {rota}")
+    finally:
+        roteador_mod.ROTEADORES_CONDICIONAIS["juridico"] = original
+
+
+# --- Extra 2: ciclo controlado — Revisor que diverge devolve ao Jurídico ---
+def decidir_apos_revisar(e: Estado) -> str:
+    """Aresta condicional NOVA, na etapa 'revisar': se o Revisor divergiu do
+    Jurídico e ainda não houve uma reanálise, manda de volta para 'juridico'
+    (ciclo controlado — Aula 6 — com trava de 1 volta — Aula 4). Senão,
+    segue para o breakpoint humano com a divergência registrada no dossiê."""
+    from app.roteador import ETAPA_APROVACAO
+    revisao = e.revisao or {}
+    ja_reanalisou = sum(1 for p in e.atendido_por if p["etapa"] == "revisar") >= 2
+    if revisao.get("concorda") is False and not ja_reanalisou:
+        return "juridico"
+    return ETAPA_APROVACAO
+
+
+def extra_revisor_divergente_reanalisa() -> None:
+    print("\n== EXTRA 2: ciclo controlado — Revisor que diverge devolve ao Jurídico ==")
+    import app.roteador as roteador_mod
+    original = roteador_mod.ROTEADORES_CONDICIONAIS.get("revisar")
+    roteador_mod.ROTEADORES_CONDICIONAIS["revisar"] = decidir_apos_revisar
+    try:
+        fluxo = Fluxo(_cluster_sigma(), StoreCompartilhado())
+        # estado deliberadamente inconsistente: hipótese de Roubo, mas os fatos
+        # NÃO sustentam grave ameaça — é o que faz o Revisor divergir
+        e = Estado(id="EXTRA-DIV", texto="(caso didático)")
+        e.fatos = {"campos": {"grave_ameaca": False, "local": "Sobradinho"}, "veiculo": None}
+        e.hipotese = {"natureza_provavel": "Roubo", "linha_do_tempo": []}
+        e.etapa = "juridico"
+        r = fluxo.iniciar(e)
+        est = fluxo.store.carregar(r.checkpoint)
+        rota = " -> ".join(p["etapa"] for p in est.atendido_por)
+        print(f"  rota: {rota}")
+        print(f"  revisão final: concorda={est.revisao['concorda']} — {est.revisao['observacao']}")
+        print("  o Jurídico rodou 2x e o Revisor 2x; sem a trava, isso seria loop infinito.")
+    finally:
+        if original is None:
+            roteador_mod.ROTEADORES_CONDICIONAIS.pop("revisar", None)
+        else:
+            roteador_mod.ROTEADORES_CONDICIONAIS["revisar"] = original
+
+
+def extras() -> None:
+    extra_roteador_multi_sinal()
+    extra_revisor_divergente_reanalisa()
+
+
 LABS = {
     "basico": lab_basico,
     "intermediario": lab_intermediario,
     "desafio": desafio,
+    "extras": extras,
 }
 
 if __name__ == "__main__":

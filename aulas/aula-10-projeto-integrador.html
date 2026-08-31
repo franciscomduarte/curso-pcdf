@@ -18,7 +18,10 @@
     <div class="sep"></div>
     <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
   </div>
-  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 10 de 10 · 5h</div>
+  <div class="lado-direito">
+    <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 10 de 10 · 5h</div>
+    <img class="marca-sec" src="../assets/logo-ibmec.png" alt="Ibmec">
+  </div>
 </header>
 
 <div class="hero">
@@ -485,6 +488,27 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
       <li>Sei quando um sistema deste porte vale a complexidade — e quando não vale</li>
     </ul>
 
+    <h3>Exercícios extras (se sobrar tempo)</h3>
+    <p>Opcionais. Rodam por <code class="inline">python solucao_exercicios.py extras</code>.</p>
+
+    <div class="exercicio">
+      <span class="nivel intermediario">Nível intermediário</span>
+      <p class="rotulo">Extra 1</p>
+      <h3>Roteador que combina três sinais</h3>
+      <p>O <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">decidir_apos_juridico</code> decide só pela <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">natureza</code> da tipificação — o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">README.md</code> do projeto diz que a versão de produção combinaria mais sinais. Escreva <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">decidir_multi_sinal(e)</code> que escala para <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">revisar</code> se: for Roubo, OU o veículo citado consta alerta, OU faltou um dado essencial (o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">local</code>).</p>
+      <p><strong>Critério de sucesso:</strong> uma tabela de 4 casos (roubo puro / furto + veículo alertado / furto + local ausente / furto simples) em que só o último vai direto ao breakpoint. Um teste cobrindo cada combinação.</p>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: decidir_multi_sinal()</code> / <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">extra_roteador_multi_sinal()</code>.</p>
+    </div>
+
+    <div class="exercicio">
+      <span class="nivel avancado">Nível avançado</span>
+      <p class="rotulo">Extra 2</p>
+      <h3>Ciclo controlado: o Revisor que diverge devolve ao Jurídico</h3>
+      <p>Hoje o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">revisor_dupla</code> grava <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">revisao.concorda</code> mas o fluxo ignora o resultado — o caso segue para o breakpoint de qualquer jeito. Registre um roteador em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ROTEADORES_CONDICIONAIS["revisar"]</code> que, quando o Revisor <strong>diverge</strong>, devolve a ocorrência a <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">juridico</code> para <strong>uma</strong> reanálise — e só então segue. É um ciclo do grafo (Aula 6) com trava de passos (Aula 4).</p>
+      <p><strong>Critério de sucesso:</strong> um caso divergente percorre <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">juridico → revisar → juridico → revisar → breakpoint</code> — e para aí, mesmo se o Revisor divergir de novo. Você explica onde estaria o loop infinito sem a trava.</p>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: decidir_apos_revisar()</code> / <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">extra_revisor_divergente_reanalisa()</code>. Testes: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">tests/test_extras.py</code>.</p>
+    </div>
+
     <h3>Encerramento do curso</h3>
     <p>O SIGMA começou na Aula 1 como um único agente extraindo campos de um boletim. Chega na Aula 10 como um cluster distribuído, com papéis especializados, comunicação entre serviços, ferramentas com escopo, orçamento de execução, orquestração, um grafo com decisão condicional, aprovação humana obrigatória, auto-scaling, observabilidade e um guardrail na porta de entrada — e, em nenhum momento dessa evolução, deixou de precisar de um servidor para decidir. Essa é a lição que atravessa as dez aulas: mais capacidade técnica não significa menos responsabilidade humana — significa mais superfície para essa responsabilidade ser exercida com informação melhor.</p>
   </section>
@@ -538,6 +562,15 @@ revisor-svc                    2       0    0.0%      0.0ms     0.0ms</pre>
       cada aula" linha a linha; no desafio, priorize a Parte A (implementação)
       e deixe a Parte B (projetar) para uma discussão de 5 min em vez de
       trabalho individual.</p>
+
+      <h3>Exercícios extras (se sobrar tempo)</h3>
+      <p>Fora do orçamento de 300 min. Referência em <code class="inline">solucao_exercicios.py</code>
+      (<code class="inline">decidir_multi_sinal</code> + <code class="inline">extra_roteador_multi_sinal</code>;
+      <code class="inline">decidir_apos_revisar</code> + <code class="inline">extra_revisor_divergente_reanalisa</code>),
+      com cobertura em <code class="inline">tests/test_extras.py</code>. Extra 1 é a versão
+      "de produção" do roteador que o README do projeto pede (combinar sinais). Extra 2
+      fecha um buraco real do projeto entregue — a divergência do Revisor hoje não tem
+      efeito nenhum no fluxo — usando ciclo de grafo (Aula 6) + trava de passos (Aula 4).</p>
 
       <h3>Transferência — Central de Disque-Denúncia (sem gabarito fechado)</h3>
       <p>Avalie pela justificativa. Uma resposta forte reconhece que sem

@@ -18,7 +18,10 @@
     <div class="sep"></div>
     <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
   </div>
-  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 9 de 10 · 5h</div>
+  <div class="lado-direito">
+    <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 9 de 10 · 5h</div>
+    <img class="marca-sec" src="../assets/logo-ibmec.png" alt="Ibmec">
+  </div>
 </header>
 
 <div class="hero">
@@ -475,6 +478,31 @@ juridico-svc                   4       3   75.0%      0.0ms     0.0ms
     </ul>
   </section>
 
+  <!-- ===================== EXERCÍCIOS EXTRAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Se sobrar tempo</p>
+    <h2>Exercícios extras</h2>
+    <p>Opcionais — para turmas que terminarem os laboratórios antes do previsto. Rodam por <code class="inline">python solucao_exercicios.py extras</code>.</p>
+
+    <div class="exercicio">
+      <span class="nivel avancado">Nível avançado</span>
+      <p class="rotulo">Extra 1</p>
+      <h3>Janela de estabilização: impedir o flapping do HPA</h3>
+      <p>O Bloco 7 menciona <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">stabilizationWindowSeconds</code> mas o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">avaliar()</code> da aula não a implementa. Escreva <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">avaliar_com_estabilizacao(cluster, hpa, carga, agora, estado, janela_s)</code> que recusa <strong>reduzir</strong> réplicas se faz menos de <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">janela_s</code> do último scale-down. Scale-<em>up</em> nunca é bloqueado.</p>
+      <p><strong>Critério de sucesso:</strong> rodando uma sequência de cargas oscilantes (9 → 2 → 9 → 2 → 2), a versão com estabilização faz menos trocas de réplica que <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">avaliar()</code> puro. Você explica por que só o scale-<em>down</em> é atrasado, nunca o scale-<em>up</em>.</p>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: avaliar_com_estabilizacao()</code> / <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">extra_flapping()</code>.</p>
+    </div>
+
+    <div class="exercicio">
+      <span class="nivel intermediario">Nível intermediário</span>
+      <p class="rotulo">Extra 2</p>
+      <h3>Guardrail observável: quem mais bate na porta</h3>
+      <p>Um bloqueio do guardrail não é só uma negação — é um sinal. Escreva <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">gate_contando(guardrail, contador, origem, texto)</code> que conta bloqueios por origem (em vez de deixar a exceção subir) e <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">painel_guardrail(contador)</code> que lista as origens ordenadas por número de bloqueios.</p>
+      <p><strong>Critério de sucesso:</strong> uma origem que tenta injeção 3× aparece no topo do painel; uma origem legítima que só estourou a cota de taxa aparece abaixo. Você discute o que fazer com a origem no topo da lista (não é "só bloquear").</p>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: gate_contando()</code> / <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">painel_guardrail()</code>. Testes: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">tests/test_extras.py</code>.</p>
+    </div>
+  </section>
+
   <!-- ===================== GLOSSÁRIO ===================== -->
   <section class="reveal">
     <p class="rotulo">Referência rápida</p>
@@ -527,6 +555,15 @@ juridico-svc                   4       3   75.0%      0.0ms     0.0ms
       Avaliação e transferência 30 = 300. Se atrasar: no Bloco 2, mostre só a fórmula do
       HPA e o diagrama guardrail/gateway, sem detalhar p95; o desafio pode ficar só no
       item 1 (implementação), com 2–4 para discussão rápida em grupo.</p>
+
+      <h3>Exercícios extras (se sobrar tempo)</h3>
+      <p>Fora do orçamento de 300 min. Referência em <code class="inline">solucao_exercicios.py</code>
+      (<code class="inline">avaliar_com_estabilizacao</code> + <code class="inline">extra_flapping</code>;
+      <code class="inline">gate_contando</code> + <code class="inline">painel_guardrail</code> +
+      <code class="inline">extra_guardrail_observavel</code>), com cobertura em
+      <code class="inline">tests/test_extras.py</code>. Extra 1 transforma em código o
+      <code class="inline">stabilizationWindowSeconds</code> que o Bloco 7 só cita; Extra 2
+      liga guardrail a observabilidade — um bloqueio é um dado, não só uma negação.</p>
 
       <h3>Bug real encontrado nos testes — carga média × total (didático)</h3>
       <p>Um teste inicial do HPA passava <code class="inline">carga_atual=10.0</code> (o

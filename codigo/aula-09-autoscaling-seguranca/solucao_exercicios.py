@@ -8,14 +8,16 @@
 
 from __future__ import annotations
 
+import math
 import sys
+from dataclasses import dataclass
 
 from app.agentes import analista, consolidador, investigador, juridico
 from app.autoscaler import HPA, avaliar
-from app.bases_sinteticas import OCORRENCIAS
+from app.bases_sinteticas import BOLETIM_SUSPEITO, OCORRENCIAS
 from app.cluster import Cluster, ServicoIndisponivel
 from app.fluxo import Fluxo
-from app.guardrail import Guardrail
+from app.guardrail import EntradaRejeitada, Guardrail, TaxaExcedida, gate
 from app.memoria import Estado
 from app.observabilidade import Metricas
 from app.store import StoreCompartilhado
@@ -122,10 +124,112 @@ def desafio() -> None:
     print(f"  ({len(verificar_alertas(metricas))} alerta(s) — 0 seria um cluster saudável)")
 
 
+# ===========================================================================
+# EXERCÍCIOS EXTRAS (se sobrar tempo) — referência
+# ===========================================================================
+
+# --- Extra 1: janela de estabilização evita flapping do HPA (avançado) -----
+@dataclass
+class EstadoEstabilizacao:
+    """Guarda quando foi o último scale-down, para a janela de estabilização."""
+    ultimo_scale_down_em: float | None = None
+
+
+def avaliar_com_estabilizacao(cluster: Cluster, hpa: HPA, carga_atual: float,
+                               agora: float, estab: EstadoEstabilizacao,
+                               janela_estabilizacao_s: float = 60.0) -> dict:
+    """Como avaliar(), mas RECUSA reduzir réplicas se faz menos de
+    `janela_estabilizacao_s` do último scale-down. É o
+    `stabilizationWindowSeconds` que o HPA real usa por padrão no scaleDown
+    (Bloco 7) — evita o 'flapping' quando a carga oscila em torno do alvo.
+    Scale-UP nunca é bloqueado (subir rápido é o comportamento seguro)."""
+    dep = cluster.deployments[hpa.deployment]
+    antes = dep.replicas
+    if carga_atual <= 0:
+        desejadas = hpa.min_replicas
+    else:
+        desejadas = math.ceil(antes * (carga_atual / hpa.alvo_por_pod))
+    desejadas = max(hpa.min_replicas, min(hpa.max_replicas, desejadas))
+
+    if desejadas < antes:   # scale-down: checa a janela
+        ultimo = estab.ultimo_scale_down_em
+        if ultimo is not None and (agora - ultimo) < janela_estabilizacao_s:
+            return {"hpa": hpa.nome, "replicas_antes": antes, "replicas_depois": antes,
+                    "bloqueado_por_estabilizacao": True}
+        estab.ultimo_scale_down_em = agora
+
+    if desejadas != antes:
+        cluster.escalar(hpa.deployment, desejadas)
+    return {"hpa": hpa.nome, "replicas_antes": antes, "replicas_depois": desejadas,
+            "bloqueado_por_estabilizacao": False}
+
+
+def extra_flapping() -> None:
+    print("== EXTRA 1: janela de estabilização evita flapping do HPA ==")
+    sequencia = [("t=0", 0.0, 9.0), ("t=10", 10.0, 2.0), ("t=20", 20.0, 9.0),
+                 ("t=30", 30.0, 2.0), ("t=90", 90.0, 2.0)]
+    hpa = HPA(nome="h", deployment="investigador-deploy", alvo_por_pod=3.0,
+              min_replicas=1, max_replicas=6)
+
+    print("  SEM estabilização (avaliar padrão):")
+    c1 = _cluster_sigma()
+    for rot, _agora, carga in sequencia:
+        r = avaliar(c1, hpa, carga)
+        print(f"    {rot:<5} carga={carga:>4.1f} -> {r['replicas_antes']} -> {r['replicas_depois']}")
+
+    print("  COM estabilização de 60s no scale-down:")
+    c2 = _cluster_sigma()
+    estab = EstadoEstabilizacao()
+    for rot, agora, carga in sequencia:
+        r = avaliar_com_estabilizacao(c2, hpa, carga, agora, estab, janela_estabilizacao_s=60.0)
+        marca = "  (scale-down bloqueado)" if r["bloqueado_por_estabilizacao"] else ""
+        print(f"    {rot:<5} carga={carga:>4.1f} -> {r['replicas_antes']} -> {r['replicas_depois']}{marca}")
+
+
+# --- Extra 2: guardrail observável — contador de bloqueios por origem ------
+def gate_contando(guardrail: Guardrail, contador: dict, origem: str, texto: str) -> bool:
+    """Como gate(), mas conta os bloqueios por origem em `contador` em vez de
+    deixar a exceção subir. Devolve True se passou, False se foi barrado."""
+    try:
+        gate(guardrail, origem, texto)
+        return True
+    except (EntradaRejeitada, TaxaExcedida):
+        contador[origem] = contador.get(origem, 0) + 1
+        return False
+
+
+def painel_guardrail(contador: dict) -> str:
+    linhas = [f"{'ORIGEM':<20} {'BLOQUEIOS':>10}"]
+    for origem, n in sorted(contador.items(), key=lambda kv: (-kv[1], kv[0])):
+        linhas.append(f"{origem:<20} {n:>10}")
+    return "\n".join(linhas)
+
+
+def extra_guardrail_observavel() -> None:
+    print("\n== EXTRA 2: guardrail observável — quem mais bate na porta ==")
+    g = Guardrail(limite_por_janela=2, janela_s=60.0)
+    contador: dict[str, int] = {}
+
+    for _ in range(4):   # legítima, mas estoura a cota de 2 -> 2 bloqueios
+        gate_contando(g, contador, "delegacia-01", "furto simples sem testemunhas")
+    for _ in range(3):   # injeção -> 3 bloqueios
+        gate_contando(g, contador, "fonte-desconhecida", BOLETIM_SUSPEITO)
+    gate_contando(g, contador, "delegacia-02", "veículo abandonado na via")   # ok, 0 bloqueio
+
+    print(painel_guardrail(contador))
+    print("  bloqueio não é só 'negar' — é sinal: a origem no topo da lista merece atenção.")
+
+
+def extras() -> None:
+    extra_flapping()
+    extra_guardrail_observavel()
+
+
 LABS = {
     "basico": lab_basico,
     "intermediario": lab_intermediario,
     "desafio": desafio,
+    "extras": extras,
 }
 
 if __name__ == "__main__":

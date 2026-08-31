@@ -18,7 +18,10 @@
     <div class="sep"></div>
     <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
   </div>
-  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 8 de 10 · 5h</div>
+  <div class="lado-direito">
+    <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 8 de 10 · 5h</div>
+    <img class="marca-sec" src="../assets/logo-ibmec.png" alt="Ibmec">
+  </div>
 </header>
 
 <div class="hero">
@@ -495,6 +498,31 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
     </ul>
   </section>
 
+  <!-- ===================== EXERCÍCIOS EXTRAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Se sobrar tempo</p>
+    <h2>Exercícios extras</h2>
+    <p>Opcionais — para turmas que terminarem os laboratórios antes do previsto. Cada um roda pela mesma referência: <code class="inline">python solucao_exercicios.py extras</code>.</p>
+
+    <div class="exercicio">
+      <span class="nivel intermediario">Nível intermediário</span>
+      <p class="rotulo">Extra 1</p>
+      <h3>Escalar um agente a zero e trazer de volta</h3>
+      <p>Escale um Deployment para <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">replicas=0</code> e mostre que: (a) chamar o Service levanta <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ServicoIndisponivel</code>; (b) <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">reconciliar()</code> <strong>não</strong> recria nada — zero é o número desejado; (c) só <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">escalar(dep, 1)</code> traz o serviço de volta.</p>
+      <p><strong>Critério de sucesso:</strong> você explica quando escalar um agente a zero faz sentido (dica: o Consolidador só age depois da aprovação humana — poderia ficar a zero até haver o que consolidar) e quando seria um erro.</p>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: extra_escala_a_zero()</code>.</p>
+    </div>
+
+    <div class="exercicio">
+      <span class="nivel intermediario">Nível intermediário</span>
+      <p class="rotulo">Extra 2</p>
+      <h3>Round-robin se re-adapta quando um pod morre no meio</h3>
+      <p>Com 3 réplicas, dispare 9 chamadas ao Service e mate 1 pod na 4ª chamada, <strong>sem</strong> chamar <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">reconciliar()</code>. Nenhuma chamada deve falhar — mas a distribuição final de <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">chamadas_atendidas</code> fica desigual.</p>
+      <p><strong>Critério de sucesso:</strong> 0 falhas; o pod morto para de receber na hora; as réplicas vivas absorvem o resto. Você explica por que "0 falhas" não é o mesmo que "distribuição saudável", e o que <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">reconciliar()</code> corrigiria.</p>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: extra_balanceamento_sob_falha()</code>. Testes: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">tests/test_extras.py</code>.</p>
+    </div>
+  </section>
+
   <!-- ===================== GLOSSÁRIO ===================== -->
   <section class="reveal">
     <p class="rotulo">Referência rápida</p>
@@ -556,6 +584,15 @@ Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.<
       Avaliação e transferência 30 = 300. Se atrasar: no Bloco 2, apresente a tabela
       "motor mínimo × Kubernetes real" em vez de detalhar cada linha; o desafio pode ser
       só os itens 1–3 (implementação), deixando 4–5 para leitura em casa.</p>
+
+      <h3>Exercícios extras (se sobrar tempo)</h3>
+      <p>Fora do orçamento de 300 min — para turmas rápidas. Referência em
+      <code class="inline">solucao_exercicios.py</code> (<code class="inline">extra_escala_a_zero</code>,
+      <code class="inline">extra_balanceamento_sob_falha</code>), com cobertura em
+      <code class="inline">tests/test_extras.py</code>. Extra 1 fecha o entendimento de
+      "réplicas declaradas × pods Running" no caso limite (0); Extra 2 mostra que
+      "nenhuma chamada falhou" e "distribuição saudável" são coisas diferentes — a ponte
+      para observabilidade da Aula 9.</p>
 
       <h3>Transferência — central de agendamento de perícias (sem gabarito fechado)</h3>
       <p>Avalie pela justificativa. Uma resposta forte dimensiona réplicas pela carga

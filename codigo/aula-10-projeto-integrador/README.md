@@ -20,6 +20,7 @@ pip install -r requirements.txt
 python main.py                     # o SIGMA completo, roteamento + guardrail + HPA + painel
 python main_estudo_caso.py         # a Operação Vetor — um lote misto, fim a fim
 python solucao_exercicios.py       # gabarito dos laboratórios (+ relatório operacional)
+python solucao_exercicios.py extras # exercícios extras (se sobrar tempo)
 pytest -q                          # 43 testes
 ```
 

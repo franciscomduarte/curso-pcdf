@@ -18,6 +18,7 @@ pip install -r requirements.txt
 python main.py                     # Gateway + guardrail + HPA + painel de métricas
 python main_incidente.py           # diagnostique uma falha usando só painel + traço
 python solucao_exercicios.py       # gabarito dos laboratórios (+ verificar_alertas)
+python solucao_exercicios.py extras # exercícios extras (se sobrar tempo)
 pytest -q                          # 37 testes
 ```
 

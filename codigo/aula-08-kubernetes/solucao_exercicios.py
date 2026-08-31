@@ -12,7 +12,7 @@ import sys
 
 from app.agentes import analista, consolidador, investigador, juridico
 from app.bases_sinteticas import OCORRENCIAS
-from app.cluster import Cluster
+from app.cluster import Cluster, ServicoIndisponivel
 from app.fluxo import Fluxo
 from app.memoria import Estado
 from app.store import DecisaoHumana, Pausado, StoreCompartilhado
@@ -132,10 +132,67 @@ def desafio() -> None:
     print(f"  'juridico-deploy' (antigo) ainda existe? {'juridico-deploy' in c.deployments}")
 
 
+# ===========================================================================
+# EXERCÍCIOS EXTRAS (se sobrar tempo) — referência
+# ===========================================================================
+
+# --- Extra 1: escalar um agente a zero e trazer de volta (intermediário) ----
+def extra_escala_a_zero() -> None:
+    print("== EXTRA 1: escalar um agente a zero e trazer de volta ==")
+    c = _montar_cluster_sigma()
+    texto = OCORRENCIAS["PCDF-SIM-0002"]
+
+    c.escalar("investigador-deploy", 0)
+    try:
+        c.chamar("investigador-svc", Estado(id="X", texto=texto))
+        print("  (não deveria chegar aqui)")
+    except ServicoIndisponivel as exc:
+        print(f"  com 0 réplicas -> {exc}")
+
+    recriados = c.reconciliar()
+    print(f"  reconciliar(): {recriados or 'não recriou nada — 0 É o número desejado'}")
+
+    c.escalar("investigador-deploy", 1)
+    _, pod = c.chamar("investigador-svc", Estado(id="X", texto=texto))
+    print(f"  escalar(..., 1) -> atendido por {pod}")
+    print("  quando faz sentido: um agente que só roda sob demanda (ex.: o Consolidador,")
+    print("  que só age depois da aprovação humana) pode ficar a zero até haver trabalho.")
+
+
+# --- Extra 2: round-robin se re-adapta quando um pod morre no meio ---------
+def extra_balanceamento_sob_falha() -> None:
+    print("\n== EXTRA 2: round-robin se re-adapta quando um pod morre no meio ==")
+    c = Cluster()
+    c.criar_deployment("investigador-deploy", investigador, replicas=3)
+    c.criar_service("investigador-svc", "investigador-deploy")
+    texto = OCORRENCIAS["PCDF-SIM-0002"]
+
+    falhas = 0
+    for i in range(9):
+        if i == 3:
+            morto = c.matar_pod("investigador-deploy", 0)
+            print(f"  [chamada {i}] matei {morto} (sem reconciliar)")
+        try:
+            c.chamar("investigador-svc", Estado(id=f"X{i}", texto=texto))
+        except ServicoIndisponivel:
+            falhas += 1
+
+    print(f"  9 chamadas, {falhas} falha(s) — o Service respondeu pelos pods vivos")
+    for linha in c.status().splitlines()[1:]:
+        print(f"    {linha}")
+    print("  a réplica morta parou de receber; as vivas cobriram — distribuição fica desigual.")
+
+
+def extras() -> None:
+    extra_escala_a_zero()
+    extra_balanceamento_sob_falha()
+
+
 LABS = {
     "basico": lab_basico,
     "intermediario": lab_intermediario,
     "desafio": desafio,
+    "extras": extras,
 }
 
 if __name__ == "__main__":

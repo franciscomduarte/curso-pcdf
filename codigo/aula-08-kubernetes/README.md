@@ -17,6 +17,7 @@ pip install -r requirements.txt
 python main.py                     # sobe o cluster mínimo, roda o SIGMA nele
 python main_falha.py               # mata um pod — self-healing e indisponibilidade
 python solucao_exercicios.py       # gabarito dos laboratórios (+ rolling update)
+python solucao_exercicios.py extras # exercícios extras (se sobrar tempo)
 pytest -q                          # 17 testes
 ```
 
