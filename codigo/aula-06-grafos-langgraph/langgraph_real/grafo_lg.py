@@ -10,7 +10,8 @@ Diferenças em relação ao motor mínimo (app/grafo.py):
     devolve um rótulo, o dicionário mapeia rótulo -> nó;
   - `recursion_limit` é a trava de passos (equivale ao nosso max_passos).
 
-A API do LangGraph muda entre versões menores; testado com langgraph 0.2+.
+A API do LangGraph muda entre versões maiores; revalidado com langgraph 1.2.11
+(2026-08). `requirements-opcionais.txt` pina `langgraph>=1.0,<2`.
 """
 
 from __future__ import annotations
