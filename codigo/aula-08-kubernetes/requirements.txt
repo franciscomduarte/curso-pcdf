@@ -1,0 +1,2 @@
+# Núcleo — o cluster mínimo e o fluxo do SIGMA rodam só com a biblioteca padrão.
+pytest>=8.0

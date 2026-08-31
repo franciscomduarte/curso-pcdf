@@ -1,0 +1,13 @@
+# O mesmo ConfigMap "juridico-config" do motor mínimo, agora como recurso
+# real do Kubernetes. Troque "padrao" por "verboso" e reaplique — mas veja
+# o README: aqui a mudança só vale para pods NOVOS (a config chega por
+# variável de ambiente, lida só na inicialização do processo).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: juridico-config
+  labels:
+    app: sigma
+    componente: juridico
+data:
+  DETALHE: "padrao"

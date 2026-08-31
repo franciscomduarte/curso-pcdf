@@ -1,0 +1,18 @@
+# Service ClusterIP — o "svc.chamar()" do motor mínimo, de verdade. Qualquer
+# pod no cluster pode chamar http://juridico-svc:8080/juridico; o Kubernetes
+# resolve o nome via DNS interno e faz o load balancing entre as réplicas.
+apiVersion: v1
+kind: Service
+metadata:
+  name: juridico-svc
+  labels:
+    app: sigma
+    componente: juridico
+spec:
+  selector:
+    app: sigma
+    componente: juridico
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

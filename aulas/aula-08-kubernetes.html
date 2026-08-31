@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 8 — Kubernetes · Unidade 8 · PCDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/estilo.css">
+</head>
+<body>
+<div id="progresso"></div>
+
+<header class="topbar">
+  <div class="marca">
+    <img src="../assets/logo-pcdf.png" alt="Polícia Civil do Distrito Federal">
+    <div class="sep"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tinta-suave)">Unidade 8 · Multiagentes</span>
+  </div>
+  <div class="prof"><strong>Prof. Francisco Molina Jr</strong>Aula 8 de 10 · 5h</div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Aula 8 · Arquitetura Distribuída e Deploy com Kubernetes</p>
+    <h1>Cada agente vira um <span class="destaque">serviço</span> no cluster</h1>
+    <p class="sub">Na Aula 7 os quatro agentes do SIGMA rodavam num processo só, e o checkpoint ficava no disco desse processo. Hoje cada agente vira um <strong>Deployment</strong> — um ou mais <em>pods</em> rodando a mesma imagem —, exposto por um <strong>Service</strong> com nome estável, configurado por um <strong>ConfigMap</strong>. E o checkpoint sai da memória de um processo para um store que qualquer réplica enxerga.</p>
+    <div class="meta">
+      <span class="tag">5h · laboratório</span>
+      <span class="tag">Python · Docker · Kubernetes</span>
+      <span class="tag">pré: Aula 7</span>
+      <span class="tag">dados sintéticos</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== BLOCO 1 · ABERTURA ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 1 · Abertura e contextualização · 25 min</p>
+    <h2>O problema: um processo só não aguenta a PCDF inteira</h2>
+    <p>O SIGMA da Aula 7 roda muito bem — para <strong>uma</strong> investigação de cada vez, num <strong>único</strong> processo, numa <strong>única</strong> máquina. Isso quebra em três situações concretas: (1) o processo cai — deploy, falha, reinício — e leva junto tudo que estava rodando; (2) o volume cresce — 500 ocorrências por hora não cabem num processo só; (3) o breakpoint HITL fica aberto por horas, e o operador que aprova pode estar noutra máquina, minutos ou dias depois.</p>
+    <p>A resposta não é reescrever os agentes. É mudar <strong>onde e como</strong> eles rodam: várias cópias de cada agente, atrás de um nome estável, com o estado guardado fora de qualquer uma delas. É exatamente o que o <strong>Kubernetes</strong> orquestra — hoje construímos a versão mínima do mecanismo, e vemos o real ao lado.</p>
+
+    <div class="painel">
+      <div class="grade-painel">
+        <div>
+          <h4>Objetivos</h4>
+          <p style="margin:0 0 8px;font-size:13px;color:var(--tinta-suave)">Ao final, o estudante será capaz de:</p>
+          <ul>
+            <li><strong>Distinguir</strong> Pod, Deployment, Service e ConfigMap, explicando o papel de cada um</li>
+            <li><strong>Implementar</strong> um Deployment com N réplicas e um Service que roteia chamadas entre elas</li>
+            <li><strong>Aplicar</strong> self-healing: reconciliar um Deployment depois de um pod morrer, sem downtime quando há redundância</li>
+            <li><strong>Migrar</strong> o checkpoint da Aula 7 (disco de um processo) para um store que qualquer réplica acessa</li>
+            <li><strong>Configurar</strong> um agente por ConfigMap, mudando comportamento sem alterar o código</li>
+            <li><strong>Avaliar e justificar</strong> quando Kubernetes compensa a complexidade extra sobre um deploy mais simples</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Pré-requisitos</h4>
+          <ul>
+            <li>Aula 7 (agentes com papel único, checkpoint, breakpoint HITL)</li>
+            <li>Python: dataclasses, JSON, funções como valor</li>
+            <li>Noção de processo e de container (Docker foi citado como "produção" desde a Aula 1)</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Stack</h4>
+          <ul>
+            <li>Python 3.11+ (funciona em 3.10) — só a biblioteca padrão</li>
+            <li>Docker + Kubernetes (<code class="inline">kubectl</code>) <em>— opcional, em <code class="inline">k8s_real/</code></em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="agenda">
+      <ol>
+        <li><span class="hora">00:00</span><span class="bloco-nome">Abertura<small>diagnóstico da Aula 7; um processo só não aguenta a PCDF inteira</small></span></li>
+        <li><span class="hora">00:25</span><span class="bloco-nome">Fundamentos<small>Pod, Deployment, Service, ConfigMap; self-healing; motor mínimo × Kubernetes real</small></span></li>
+        <li><span class="hora">01:15</span><span class="bloco-nome">Demonstração<small>o cluster mínimo, o SIGMA rodando nele, kubectl get pods (simulado)</small></span></li>
+        <li><span class="hora">02:05</span><span class="bloco-nome">Laboratório básico<small>escalar réplicas; observar o round-robin</small></span></li>
+        <li><span class="hora">02:50</span><span class="bloco-nome">Intervalo (15 min)</span></li>
+        <li><span class="hora">03:05</span><span class="bloco-nome">Laboratório intermediário<small>self-healing; store compartilhado; ConfigMap sem redeploy</small></span></li>
+        <li><span class="hora">03:50</span><span class="bloco-nome">Desafio avançado<small>rolling update de um Deployment sem downtime</small></span></li>
+        <li><span class="hora">04:15</span><span class="bloco-nome">Debriefing<small>quando não usar Kubernetes; secrets, rede, limites de recurso</small></span></li>
+        <li><span class="hora">04:30</span><span class="bloco-nome">Avaliação e transferência<small>perguntas, transferência, exercício, desafio, checklist</small></span></li>
+      </ol>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Diagnóstico rápido — recuperando a Aula 7</p>
+      <p style="margin-bottom:10px">3 minutos, em voz alta:</p>
+      <ul class="lista-check">
+        <li>O que o <code class="inline">Checkpoint</code> da Aula 7 salvava, e por que era preciso salvar <em>antes</em> de parar no breakpoint?</li>
+        <li>Por que "outro processo" conseguia retomar uma investigação pausada?</li>
+        <li>O que ficava na <em>memória de um agente</em> versus no <em>estado compartilhado</em>?</li>
+      </ul>
+    </div>
+
+    <div class="aviso instrutor">
+      <div class="titulo">🎓 Nota do instrutor</div>
+      <p>Abra perguntando: "se a triagem da PCDF precisasse processar 2 mil boletins por
+      hora, o que quebraria primeiro no SIGMA da Aula 7?". Deixe a turma chegar em "um
+      processo só" e "um disco só" sozinha — são exatamente os dois problemas que
+      Deployment (réplicas) e o store compartilhado resolvem. Turmas mistas: quem não
+      programa desenha "várias cópias de cada agente, atrás de um nome" no quadro antes
+      de ver qualquer código.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 2 · FUNDAMENTOS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 2 · Fundamentos teóricos · 50 min</p>
+    <h2>Pod, Deployment, Service, ConfigMap</h2>
+    <p>Um <strong>container</strong> empacota um processo com tudo que ele precisa para rodar igual em qualquer máquina (a Aula 1 já citava Docker como "o caminho de produção"). Um <strong>Pod</strong> é a menor unidade que o Kubernetes agenda — um ou mais containers que sempre rodam juntos, na mesma máquina virtual. Pods são <em>efêmeros</em>: podem morrer, e não é para reiniciar o mesmo — é para nascer outro igual.</p>
+
+    <div class="grade col-3">
+      <div class="cartao"><div class="ic">📦</div><h4>Pod</h4><p>Uma cópia rodando de uma imagem. Efêmero — pode morrer a qualquer momento, de propósito ou não.</p></div>
+      <div class="cartao"><div class="ic">🔁</div><h4>Deployment</h4><p>Declara "quero N réplicas desta imagem, sempre". Um controlador reconcilia continuamente — mata sobra, recria falta.</p></div>
+      <div class="cartao"><div class="ic">🧭</div><h4>Service</h4><p>Um nome estável na frente de um Deployment. Quem chama não sabe (nem precisa saber) qual pod atendeu.</p></div>
+    </div>
+
+    <h3>Deployment: garantir N réplicas, sempre</h3>
+    <p>Isto é o oposto do que a Aula 4 ensinou. Lá, o <code class="inline">Orcamento</code> garantia que um agente <em>parasse</em>. Aqui, o Deployment garante que um agente <strong>nunca deixe de existir</strong> — na contagem certa. Se um pod morre, o <em>controller loop</em> nota a diferença entre "réplicas declaradas" e "pods Running" e cria outro. Isso é <strong>self-healing</strong>.</p>
+    <div class="mermaid">
+flowchart LR
+  D["Deployment: replicas=3"] --> P1["pod-1 Running"]
+  D --> P2["pod-2 Running"]
+  D --> P3["pod-3 CrashLoopBackOff"]
+  CTRL{{"controller loop"}} -. "observa" .-> D
+  CTRL -- "3 declaradas, 2 Running -> falta 1" --> NOVO["cria pod-4"]
+    </div>
+    <p class="legenda">O controller loop compara continuamente "o que foi declarado" com "o que está rodando" e age na diferença — é o mesmo princípio da trava de passos da Aula 4 (checar e corrigir), só que "corrigir" aqui é recriar, não parar.</p>
+
+    <h3>Service: um nome, várias réplicas</h3>
+    <p>Sem Service, quem quisesse falar com o Jurídico precisaria saber o IP exato de um pod específico — que muda toda vez que ele é recriado. O Service resolve isso: um nome DNS estável (<code class="inline">juridico-svc</code>) que o Kubernetes mantém apontando para os pods <em>Running</em> do Deployment certo, distribuindo as chamadas entre eles.</p>
+    <div class="mermaid">
+flowchart LR
+  CHAMA["quem chama"] -- "juridico-svc" --> SVC{{"Service"}}
+  SVC --> P1["pod-1"]
+  SVC --> P2["pod-2"]
+    </div>
+    <p class="legenda">É o mesmo problema que o <code class="inline">BarramentoLocal</code> da Aula 2 resolvia dentro de um processo — desacoplar quem publica de quem escuta. O Service faz isso entre processos, em máquinas diferentes, com um nome em vez de uma referência de objeto Python.</p>
+
+    <h3>ConfigMap: configuração fora do código</h3>
+    <p>A mesma imagem do Jurídico deveria se comportar igual em qualquer ambiente — o que muda é a <em>configuração</em> ao redor dela, nunca o código. Um <code class="inline">ConfigMap</code> é exatamente isso: pares chave-valor externos à imagem, que o Deployment injeta no Pod. Trocar o ConfigMap muda o comportamento sem recompilar nada.</p>
+    <p style="font-size:14px;color:var(--tinta-suave)">Este é o mesmo princípio do <em>fator III</em> do Twelve-Factor App: "armazene configuração no ambiente" — nunca dentro do código-fonte. Ver Referências.</p>
+
+    <h3>Por que o estado não pode morar num pod</h3>
+    <p>O checkpoint HITL da Aula 7 salvava o estado no disco de <strong>um</strong> processo — funcionava porque só havia um processo. Aqui, um Deployment pode ter várias réplicas atrás do mesmo Service, e o round-robin escolhe qual delas atende cada chamada. Se o Jurídico pausar num pod, e a decisão do humano chegar horas depois, a chamada de <code class="inline">retomar()</code> pode cair em <strong>qualquer</strong> réplica — inclusive uma que nunca existiu quando o fluxo pausou (foi recriada no meio do caminho por self-healing, ou surgiu de um <code class="inline">escalar()</code>). Se o estado morasse na memória de um pod específico, a réplica errada simplesmente não saberia do que se trata.</p>
+    <p class="legenda">A solução é a mesma da Aula 7, um nível abaixo: o estado sai da memória do processo (lá) / do pod (aqui) para algo externo a qualquer um deles — um <code class="inline">StoreCompartilhado</code>, que na prática seria um volume compartilhado (PVC) ou um banco. É por isso que Pods, por design, devem ser tratados como <em>descartáveis</em>: qualquer coisa que precise sobreviver a um pod específico não pode estar só nele.</p>
+
+    <h3>Motor mínimo × Kubernetes real</h3>
+    <div class="tabela-wrap">
+      <table>
+        <tr><th>Motor mínimo (nosso)</th><th>Kubernetes real</th></tr>
+        <tr><td><code class="inline">reconciliar()</code> chamado explicitamente</td><td>controller loop contínuo, roda sozinho, sempre</td></tr>
+        <tr><td>ConfigMap = dicionário lido a cada chamada</td><td>chega como variável de ambiente (só na inicialização) ou volume montado (atualiza sozinho)</td></tr>
+        <tr><td>Service = round-robin em memória, no mesmo processo</td><td>DNS interno + <code class="inline">kube-proxy</code>, entre máquinas de verdade</td></tr>
+        <tr><td>Pod = um objeto Python</td><td>um namespace de Linux isolado, com IP próprio, num node real</td></tr>
+        <tr><td>Sem rede, sem scheduler, sem etcd</td><td>API server, scheduler, etcd (o "banco" do estado do cluster), kubelet em cada node</td></tr>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">Kubernetes: documentação oficial (Pods, Deployments, Services, ConfigMaps). Twelve-Factor App: Wiggins (2011). Ver Referências.</p>
+  </section>
+
+  <!-- ===================== BLOCO 3 · DEMONSTRAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 3 · Demonstração prática · 50 min</p>
+    <h2>O cluster mínimo rodando o SIGMA</h2>
+
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">terminal</span></div>
+<pre>cd codigo/aula-08-kubernetes
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt    # só pytest
+python -c "print('ambiente ok')"</pre>
+    </div>
+    <p>O laboratório principal roda <strong>sem Docker e sem cluster</strong>. O caminho real (imagem de verdade, manifestos, um cluster local) está em <code class="inline">k8s_real/</code> — opcional.</p>
+
+    <h3>Peça 1 — os recursos: ConfigMap, Deployment, Service</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/cluster.py — trechos</span></div>
+<pre data-lang="python">@dataclass
+class Deployment:
+    nome: str
+    imagem: Callable            # a função do agente
+    replicas: int = 1
+    config_map: str | None = None
+    pods: list[Pod] = field(default_factory=list)
+
+@dataclass
+class Service:
+    nome: str
+    deployment: str             # seletor — qual Deployment este Service expõe
+
+class Cluster:
+    def chamar(self, servico, *args, **kwargs):
+        svc = self.services[servico]
+        dep = self.deployments[svc.deployment]
+        vivos = [p for p in dep.pods if p.status == "Running"]
+        if not vivos:
+            raise ServicoIndisponivel(f"...")
+        pod = vivos[self._proximo[dep.nome] % len(vivos)]   # round-robin
+        config = self.configmaps[dep.config_map].dados if dep.config_map else {}
+        return dep.imagem(*args, config=config, **kwargs), pod.nome</pre>
+    </div>
+
+    <h3>Peça 2 — a imagem: o mesmo agente, com config</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/agentes.py — trecho</span></div>
+<pre data-lang="python">def juridico(e: Estado, config: dict | None = None) -> Estado:
+    config = config or {}
+    natureza = (e.hipotese or {}).get("natureza_provavel", "Furto")
+    tip = TIPIFICACOES["com_ameaca"] if natureza == "Roubo" else TIPIFICACOES["sem_ameaca"]
+    proposta = {
+        "artigo": tip["artigo"], "natureza": tip["natureza"],
+        "requer_decisao_humana": True,   # NUNCA vem do ConfigMap — é sempre True
+        ...
+    }
+    if config.get("detalhe") == "verboso":       # <- comportamento vem do ConfigMap
+        proposta["fundamento_detalhado"] = f"..."
+    e.tipificacao_proposta = proposta
+    return e</pre>
+    </div>
+    <p><code class="inline">requer_decisao_humana</code> é sempre <code class="inline">True</code> — de propósito, não é algo que um ConfigMap deveria poder desligar (CLAUDE.md §19). O que o ConfigMap controla aqui é só o nível de detalhe da fundamentação.</p>
+
+    <h3>Peça 3 — o fluxo: agora via Service, não via chamada direta</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">app/fluxo.py — trecho</span></div>
+<pre data-lang="python">SERVICO_DA_ETAPA = {"investigar": "investigador-svc", "analisar": "analista-svc",
+                    "juridico": "juridico-svc", "consolidar": "consolidador-svc"}
+
+def _rodar(self, e):
+    while e.etapa not in ("fim", "aguardando_aprovacao"):
+        servico = SERVICO_DA_ETAPA[e.etapa]
+        e, pod = self.cluster.chamar(servico, e)      # <- comunicação entre pods
+        e.atendido_por.append(f"{e.etapa}:{pod}")
+        e.etapa = PROXIMA_ETAPA[e.etapa]
+    if e.etapa == "aguardando_aprovacao":
+        cid = self.store.salvar(e)                    # <- NÃO fica na memória do pod
+        raise PausaParaHumano(cid, e.tipificacao_proposta, "...")
+    return Concluido(e)</pre>
+    </div>
+    <p class="legenda">Compare com a Aula 7: lá era <code class="inline">e = ORDEM[e.etapa](e)</code> — chamada de função direta. Aqui é <code class="inline">self.cluster.chamar(servico, e)</code> — o Fluxo não sabe (nem precisa saber) quantas réplicas existem, nem qual delas atendeu.</p>
+
+    <h3>Rodando</h3>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main.py</span></div>
+<pre>* Todos os dados desta aula são FICTÍCIOS e destinados exclusivamente ao treinamento.
+
+kubectl get pods (simulado) — depois de subir os 4 Deployments:
+NAME                         STATUS               CHAMADAS
+investigador-deploy-0001     Running              0
+investigador-deploy-0002     Running              0
+analista-deploy-0003         Running              0
+juridico-deploy-0004         Running              0
+consolidador-deploy-0005     Running              0
+
+--- PCDF-SIM-0002 ---
+  pausou: Aprovar a tipificação proposta para PCDF-SIM-0002? (aprovar / corrigir / rejeitar-com-nota)
+  checkpoint: PCDF-SIM-0002--6417570b
+  tipificação final: {'artigo': 'Art. 157 do CP (roubo)', 'natureza': 'Roubo', 'fundamento':
+      'presença de grave ameaça', 'requer_decisao_humana': True, 'considerou_nota_do_operador': None}
+  atendido por: ['investigar:investigador-deploy-0001', 'analisar:analista-deploy-0003',
+      'juridico:juridico-deploy-0004', 'consolidar:consolidador-deploy-0005']
+
+--- PCDF-SIM-0009 ---
+  pausou: Aprovar a tipificação proposta para PCDF-SIM-0009? (aprovar / corrigir / rejeitar-com-nota)
+  checkpoint: PCDF-SIM-0009--a9a63168
+  tipificação final: {'artigo': 'Art. 155 do CP (furto)', 'natureza': 'Furto', 'fundamento':
+      'ausência de violência ou grave ameaça', 'requer_decisao_humana': True, 'considerou_nota_do_operador': None}
+  atendido por: ['investigar:investigador-deploy-0002', 'analisar:analista-deploy-0003',
+      'juridico:juridico-deploy-0004', 'consolidar:consolidador-deploy-0005']
+
+kubectl get pods (simulado) — depois de 2 ocorrências:
+NAME                         STATUS               CHAMADAS
+investigador-deploy-0001     Running              1
+investigador-deploy-0002     Running              1
+analista-deploy-0003         Running              2
+juridico-deploy-0004         Running              2
+consolidador-deploy-0005     Running              2
+
+Repare no investigador: as 2 réplicas dividiram as 2 chamadas — round-robin.</pre>
+    </div>
+    <p style="font-size:14px;color:var(--tinta-suave)">O sufixo de cada checkpoint (<code class="inline">--6417570b</code>) é gerado a cada execução (<code class="inline">uuid4</code>) — vai variar se você rodar de novo. Os nomes dos pods e a distribuição das chamadas são determinísticos (mesma ordem de criação, mesmo round-robin). As linhas <code class="inline">INFO sigma.cluster: ...</code> saem no <em>stderr</em> a cada evento — omitidas aqui para caber.</p>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 1</p>
+      <ul class="lista-check">
+        <li><code class="inline">python main.py</code> mostra os 4 Deployments subindo e as 2 ocorrências sendo processadas</li>
+        <li>Você aponta no código onde o Service escolhe o pod, e onde o ConfigMap chega até a imagem</li>
+        <li>Entende por que <code class="inline">investigador-deploy</code> tem 2 réplicas e os outros só 1 (é o único com 2 chamadas nesta demo — decisão arbitrária para mostrar o round-robin; em produção seria dimensionado pela carga real de cada etapa)</li>
+        <li><code class="inline">pytest -q</code> passa (17 testes)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 4 · LAB BÁSICO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 4 · Laboratório · 45 min</p>
+    <span class="nivel basico">Nível básico</span>
+    <h2>Escalar e ver o round-robin de perto</h2>
+    <div class="exercicio">
+      <p class="rotulo">Exercício guiado</p>
+      <h3>3 réplicas, 3 ocorrências</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python main.py</code> de novo e confirme a distribuição 1/1 entre as 2 réplicas do investigador.</li>
+        <li>Em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">main.py</code>, troque <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">replicas=2</code> por <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">replicas=3</code> no <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">investigador-deploy</code>.</li>
+        <li>O módulo <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">app/bases_sinteticas.py</code> tem uma 3ª ocorrência, <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">PCDF-SIM-0015</code> — processe as 3 e confira <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">cluster.status()</code>: cada réplica deveria atender exatamente 1.</li>
+        <li>Agora processe só <strong>2</strong> ocorrências com 3 réplicas. Uma fica sem atender nenhuma — isso é um problema? Por quê ou por que não?</li>
+      </ol>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: lab_basico()</code>.</p>
+    </div>
+    <h3>Problemas comuns</h3>
+    <div class="tabela-wrap">
+      <table class="problemas">
+        <tr><th>Erro</th><th>Causa</th><th>Diagnóstico</th><th>Solução</th></tr>
+        <tr><td><code class="inline">KeyError</code> num Service</td><td>criou o Service antes do Deployment, ou nome digitado errado</td><td><code class="inline">cluster.deployments.keys()</code></td><td><code class="inline">criar_deployment()</code> sempre antes do <code class="inline">criar_service()</code> correspondente</td></tr>
+        <tr><td>round-robin sempre no mesmo pod</td><td>só 1 réplica — não há entre o que alternar</td><td><code class="inline">len(dep.pods)</code></td><td>escalar para 2+ antes de esperar alternância</td></tr>
+        <tr><td><code class="inline">ServicoIndisponivel</code> inesperado</td><td>todas as réplicas foram mortas e ninguém chamou <code class="inline">reconciliar()</code></td><td><code class="inline">cluster.status()</code> mostra tudo <code class="inline">CrashLoopBackOff</code></td><td>chamar <code class="inline">reconciliar()</code> — no Kubernetes real isso roda sozinho</td></tr>
+        <tr><td>ModuleNotFoundError: app</td><td>rodando de dentro de <code class="inline">app/</code></td><td>confira o diretório atual</td><td>rodar da raiz do projeto da aula</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== INTERVALO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Intervalo</p>
+    <h2>15 minutos</h2>
+    <p>Ao voltar: <em>se dois pods do mesmo Deployment atendem chamadas diferentes da MESMA investigação — um processa "investigar", outro por acaso pega "juridico" — onde é que o resultado do primeiro precisa estar para o segundo enxergar?</em> Segure a resposta para o lab intermediário.</p>
+  </section>
+
+  <!-- ===================== BLOCO 5 · LAB INTERMEDIÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 5 · Laboratório · 45 min</p>
+    <span class="nivel intermediario">Nível intermediário</span>
+    <h2>Self-healing, store compartilhado, ConfigMap ao vivo</h2>
+    <div class="codigo">
+      <div class="barra"><span class="ponto p1"></span><span class="ponto p2"></span><span class="ponto p3"></span><span class="arq">python main_falha.py</span></div>
+<pre>=== Cenário 1: 2 réplicas, uma morre ===
+  matei: investigador-deploy-0001
+  status:
+    NAME                         STATUS               CHAMADAS
+    investigador-deploy-0001     CrashLoopBackOff     0
+    investigador-deploy-0002     Running              0
+  a chamada AINDA funcionou — atendida por investigador-deploy-0002 (a réplica sobrevivente)
+  reconciliar() recriou: ['investigador-deploy-0003']
+  status depois de reconciliar:
+    NAME                         STATUS               CHAMADAS
+    investigador-deploy-0002     Running              1
+    investigador-deploy-0003     Running              0
+
+=== Cenário 2: 1 réplica, a única morre ===
+  matei: analista-deploy-0001
+  a chamada FALHOU: service/analista-svc não tem nenhum pod Running em deployment/analista-deploy
+  depois de reconciliar(), a chamada funciona de novo — atendida por analista-deploy-0002</pre>
+    </div>
+    <p>Com 2 réplicas, matar uma <strong>não</strong> derruba o Service — a chamada seguinte cai na sobrevivente. Com 1 réplica, matar a única deixa o Service sem ninguém até o próximo <code class="inline">reconciliar()</code>. É o argumento concreto, não de opinião, para redundância em serviços críticos.</p>
+
+    <div class="exercicio">
+      <p class="rotulo">Exercício</p>
+      <h3>O checkpoint sobrevive a um Cluster inteiro</h3>
+      <ol>
+        <li>Rode <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">python solucao_exercicios.py intermediario</code>. A primeira parte sobe um <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">cluster_a</code>, pausa no breakpoint, e um <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">cluster_b</code> — objeto <strong>novo</strong>, sem nenhum pod em comum com o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">cluster_a</code> — retoma e conclui.</li>
+        <li>Por que isso só funciona porque o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">StoreCompartilhado</code> não pertence a nenhum dos dois clusters?</li>
+        <li>A segunda parte roda o mesmo <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">juridico()</code> em dois clusters com ConfigMaps diferentes (<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">padrao</code> × <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">verboso</code>) — confirme que <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">fundamento_detalhado</code> só aparece num deles, sem nenhuma linha de código diferente entre os dois.</li>
+        <li>Escreva um teste que prove que matar as duas réplicas de um Deployment e chamar o Service levanta <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">ServicoIndisponivel</code>, e que <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">reconciliar()</code> resolve.</li>
+      </ol>
+      <p style="margin-bottom:0">Solução: <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">solucao_exercicios.py :: lab_intermediario()</code>.</p>
+    </div>
+
+    <div class="checkpoint">
+      <p class="rotulo">Checkpoint 2</p>
+      <ul class="lista-check">
+        <li>Vi um Deployment com redundância sobreviver à morte de uma réplica sem derrubar o Service</li>
+        <li>Vi um Deployment sem redundância ficar indisponível até <code class="inline">reconciliar()</code></li>
+        <li>Um checkpoint salvo por um cluster foi retomado por outro, sem nenhum estado em comum além do store</li>
+        <li>Mudei o comportamento de um agente só trocando o ConfigMap, sem tocar em <code class="inline">agentes.py</code></li>
+        <li><code class="inline">pytest -q</code> continua verde</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 6 · DESAFIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 6 · Desafio · 25 min + discussão</p>
+    <span class="nivel avancado">Nível avançado</span>
+    <h2>Rolling update: trocar sem desligar</h2>
+    <p>O Jurídico precisa passar de <code class="inline">detalhe=padrao</code> para <code class="inline">detalhe=verboso</code> em produção. Desligar tudo, trocar, religar significa um intervalo sem ninguém atendendo <code class="inline">juridico-svc</code> — inaceitável para um serviço em uso. A resposta é um <strong>rolling update</strong>: subir o novo ao lado do antigo, deslizar réplicas gradualmente, só então desligar o antigo.</p>
+    <div class="exercicio">
+      <p class="rotulo">Desafio</p>
+      <h3>Requisitos (implemente; o gabarito tem uma referência)</h3>
+      <ol>
+        <li>Escreva <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">rolling_update(cluster, servico, deployment_novo, nova_imagem, novo_config_map, passos)</code>: sobe o Deployment novo com 0 réplicas, e em <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">passos</code> incrementos desliza réplicas do antigo para o novo.</li>
+        <li>Prove que em <strong>nenhum</strong> passo intermediário o total de réplicas Running cai abaixo do que era antes da atualização.</li>
+        <li>Só depois de todas as réplicas migradas, o Service deve apontar para o Deployment novo e o antigo deve deixar de existir.</li>
+        <li>E se, no meio do rolling update, uma réplica do Deployment <em>novo</em> morrer? O que deveria acontecer — parar o rollout, ou seguir e deixar o <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">reconciliar()</code> recriar? Justifique.</li>
+        <li>No Kubernetes real, isso é <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">kubectl set image</code> + <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">kubectl rollout status</code>/<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">rollout undo</code>. Leia sobre <code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">maxUnavailable</code>/<code class="inline" style="background:rgba(255,255,255,.12);color:#EAF0FA">maxSurge</code> na documentação.</li>
+      </ol>
+      <p style="margin-bottom:8px">Em 25 min, priorize os itens 1–3; 4–5 ficam para quem terminar cedo. Orientação no gabarito.</p>
+      <div class="tabela-wrap">
+        <table>
+          <tr><th>Critério</th><th>Peso</th></tr>
+          <tr><td>Funcionamento (o Service acaba apontando só para o novo Deployment, sem erro)</td><td>30%</td></tr>
+          <tr><td>Compreensão (explica por que nenhum passo fica com menos réplicas que o total original)</td><td>20%</td></tr>
+          <tr><td>Arquitetura (reaproveita <code class="inline">criar_deployment</code>/<code class="inline">escalar</code> em vez de mexer em <code class="inline">Cluster</code>)</td><td>20%</td></tr>
+          <tr><td>Testes (prova a invariante "nunca abaixo do total" em pelo menos um passo intermediário)</td><td>20%</td></tr>
+          <tr><td>Justificativa da decisão do item 4</td><td>10%</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 7 · DEBRIEFING ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 7 · Debriefing · 15 min</p>
+    <h2>Trade-offs e riscos</h2>
+
+    <h3>Quando NÃO usar Kubernetes</h3>
+    <p>Kubernetes resolve um problema real — mas cobra um preço real: um cluster para operar, manifestos para versionar, uma curva de aprendizado por sistema. <strong>Não vale a pena</strong> quando o sistema cabe confortavelmente numa máquina, o volume é baixo e previsível, e não há requisito forte de disponibilidade — aí um <code class="inline">systemd</code>, um <code class="inline">docker compose</code>, ou um serviço gerenciado (PaaS) resolvem com muito menos operação. Todos os laboratórios das Aulas 1–7 deste curso, por exemplo, nunca precisariam de um cluster.</p>
+
+    <h3>Segurança</h3>
+    <div class="grade col-3">
+      <div class="aviso perigo"><div class="titulo">⛔ Segredo em ConfigMap</div>
+        <p>ConfigMap não é criptografado por padrão e não tem controle de acesso separado. Uma credencial de banco ali é visível a quem lê o recurso. Segredos vão em <code class="inline">Secret</code> — e mesmo assim, em produção, com criptografia em repouso habilitada (CIS Kubernetes Benchmark, seção Secrets).</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Sem NetworkPolicy</div>
+        <p>Por padrão, qualquer pod do cluster pode chamar qualquer Service. Um pod comprometido (ex.: dependência com vulnerabilidade) tem acesso lateral a tudo. <code class="inline">NetworkPolicy</code> restringe quem fala com quem — o "menor privilégio" da Aula 3, agora em nível de rede.</p></div>
+      <div class="aviso perigo"><div class="titulo">⛔ Sem limites de recurso</div>
+        <p>Um pod sem <code class="inline">resources.limits</code> pode consumir CPU/memória do node inteiro, derrubando os vizinhos — o "consumo ilimitado" da Aula 4 (lá, um agente sem orçamento; aqui, um container sem teto), agora em nível de infraestrutura.</p></div>
+    </div>
+    <ul>
+      <li><strong>Imagem sem verificação de origem.</strong> Puxar de um registro não confiável é a mesma lógica de risco de um servidor MCP não confiável (Aula 3) — a imagem pode conter o que quiser.</li>
+      <li><strong>Protótipo ≠ produção.</strong> Nosso <code class="inline">reconciliar()</code> é chamado à mão; no Kubernetes real, o controller loop roda sozinho, continuamente. Falta também: RBAC (quem pode fazer o quê no cluster), auto-scaling por carga, observabilidade real — Aula 9.</li>
+    </ul>
+
+    <div class="aviso responsavel">
+      <div class="titulo">⚠️ Ponto de atenção — uso responsável</div>
+      <p>Distribuir o SIGMA em réplicas e serviços <strong>não muda quem decide</strong>. O
+      breakpoint HITL da Aula 7 continua existindo — só o checkpoint que ele grava agora
+      está num store que qualquer pod pode ler, não na memória de um processo específico.
+      Escalar o Investigador para 10 réplicas processa mais boletins em paralelo; não
+      significa, em nenhuma hipótese, aprovar mais tipificações por hora sem supervisão
+      humana proporcional. Infraestrutura resolve volume e disponibilidade — nunca decide
+      por uma pessoa.</p>
+    </div>
+  </section>
+
+  <!-- ===================== BLOCO 8 · AVALIAÇÃO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Bloco 8 · Avaliação e transferência · 30 min</p>
+    <h2>Fechamento da aula</h2>
+
+    <h3>Perguntas conceituais</h3>
+    <ol>
+      <li>Diferença entre Pod e Deployment, em uma frase cada.</li>
+      <li>Por que um Service usa nome em vez de apontar direto para um pod?</li>
+      <li>O que muda no comportamento de um agente quando você troca o ConfigMap dele?</li>
+      <li>Por que o checkpoint da Aula 7 precisou sair da memória de um processo para um store compartilhado?</li>
+      <li>Cite uma situação em que Kubernetes é complexidade desnecessária.</li>
+    </ol>
+
+    <h3>Transferência</h3>
+    <p>Os exercícios acima ainda são sobre o SIGMA de triagem. Este é <strong>outro serviço</strong>, com um perfil de carga e de risco diferente.</p>
+    <div class="exercicio">
+      <p class="rotulo">Problema de transferência</p>
+      <h3>Central de agendamento de perícias</h3>
+      <p>Um novo serviço (fora do fluxo de triagem) recebe pedidos de agendamento de perícia, consulta a agenda de peritos disponíveis, e confirma um horário. Projete a arquitetura Kubernetes (não precisa implementar):</p>
+      <ol>
+        <li>Quantas réplicas do Deployment desse serviço, e por quê? O que muda se o volume for 5 pedidos/dia versus 500/dia?</li>
+        <li>O que vai em <code class="inline">ConfigMap</code> e o que vai em <code class="inline">Secret</code> — dê um exemplo concreto de cada.</li>
+        <li>A agenda confirmada precisa sobreviver a um pod morrendo? Se sim, onde ela deveria morar (não pode ser a memória de um pod específico — por quê)?</li>
+      </ol>
+      <p style="margin-bottom:0">Não há gabarito único — o objetivo é decidir e justificar.</p>
+    </div>
+
+    <h3>Exercício prático</h3>
+    <p>Acrescente ao <code class="inline">Cluster</code> um método <code class="inline">reconciliar_tudo(intervalo_s)</code> que, numa versão didática de "loop contínuo", chama <code class="inline">reconciliar()</code> em todos os Deployments — e um teste que prove que, depois de matar pods em 2 Deployments diferentes, uma única chamada recupera os dois.</p>
+
+    <h3>Desafio</h3>
+    <p>Escreva um teste que prove que escalar um Deployment de 1 para 4 réplicas e então processar 4 chamadas resulta em <code class="inline">chamadas_atendidas == 1</code> para cada uma das 4 — sem nenhuma ficar de fora nem nenhuma atender 2.</p>
+
+    <h3>Checklist de aprendizagem</h3>
+    <ul class="lista-check">
+      <li>Distingo Pod, Deployment, Service e ConfigMap</li>
+      <li>Implementei um Deployment com réplicas e um Service que roteia entre elas</li>
+      <li>Vi self-healing recriar um pod morto, e vi um Service ficar indisponível sem redundância</li>
+      <li>Migrei um checkpoint de processo único para um store compartilhado</li>
+      <li>Mudei o comportamento de um agente só pelo ConfigMap</li>
+      <li>Sei quando Kubernetes vale a complexidade — e quando não vale</li>
+    </ul>
+  </section>
+
+  <!-- ===================== GLOSSÁRIO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Referência rápida</p>
+    <h2>Glossário</h2>
+    <div class="glossario">
+      <dl>
+        <dt>Container</dt><dd>Um processo empacotado com tudo que precisa para rodar igual em qualquer máquina.</dd>
+        <dt>Imagem</dt><dd>O "molde" congelado de um container — código + dependências + como iniciar.</dd>
+        <dt>Pod</dt><dd>A menor unidade que o Kubernetes agenda: um ou mais containers rodando juntos. Efêmero.</dd>
+        <dt>Deployment</dt><dd>Declara quantas réplicas de uma imagem devem existir; um controller mantém isso verdadeiro.</dd>
+        <dt>ReplicaSet</dt><dd>O objeto que o Deployment gerencia por baixo — a contagem de pods de uma versão da imagem.</dd>
+        <dt>Self-healing</dt><dd>Recriar automaticamente um pod que morreu, para manter a contagem de réplicas declarada.</dd>
+        <dt>Controller loop / reconciliação</dt><dd>Comparar continuamente "o que foi declarado" com "o que existe" e agir na diferença.</dd>
+        <dt>Service</dt><dd>Nome estável que roteia chamadas para os pods Running de um Deployment.</dd>
+        <dt>ClusterIP</dt><dd>O tipo de Service mais comum — só acessível de dentro do cluster.</dd>
+        <dt>Service discovery</dt><dd>Achar o endereço de um serviço pelo nome, sem hard-code de IP.</dd>
+        <dt>ConfigMap</dt><dd>Configuração (não sensível) externa à imagem, injetada no pod.</dd>
+        <dt>Secret</dt><dd>Como o ConfigMap, mas para dados sensíveis — controle de acesso e criptografia diferentes.</dd>
+        <dt>Rolling update</dt><dd>Trocar a versão de um Deployment gradualmente, sem downtime.</dd>
+        <dt>Node</dt><dd>Uma máquina (física ou virtual) que roda pods.</dd>
+        <dt>Cluster</dt><dd>O conjunto de nodes gerenciado como uma unidade pelo Kubernetes.</dd>
+        <dt>NetworkPolicy</dt><dd>Regra que restringe quais pods podem se comunicar com quais.</dd>
+        <dt>Twelve-Factor App</dt><dd>Conjunto de práticas para aplicações portáveis; o fator III trata de config no ambiente, não no código.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===================== REFERÊNCIAS ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Fontes</p>
+    <h2>Referências</h2>
+    <ol class="refs">
+      <li><span class="fonte">Kubernetes — <em>Documentação oficial</em> (Concepts: Pods, Deployments, Services, ConfigMaps, Secrets)</span>. <a href="https://kubernetes.io/docs/concepts/">kubernetes.io/docs/concepts</a>.
+        <span class="assoc">Definições e comportamento de cada recurso usado nesta aula.</span></li>
+      <li><span class="fonte">Kubernetes — <em>Rolling Update de um Deployment</em></span>. <a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/">kubernetes.io/docs/tutorials/kubernetes-basics/update</a>.
+        <span class="assoc"><code class="inline">maxUnavailable</code>/<code class="inline">maxSurge</code>, o mecanismo real do Desafio.</span></li>
+      <li><span class="fonte">Docker — <em>Documentação oficial</em> (Get Started, Dockerfile reference)</span>. <a href="https://docs.docker.com/">docs.docker.com</a>.
+        <span class="assoc">Containerização; base do <code class="inline">k8s_real/Dockerfile</code>.</span></li>
+      <li><span class="fonte">Wiggins, A. — <em>The Twelve-Factor App</em> (2011)</span>. <a href="https://12factor.net/config">12factor.net/config</a>.
+        <span class="assoc">Fator III — configuração no ambiente, nunca no código; a base do ConfigMap.</span></li>
+      <li><span class="fonte">CIS — <em>Kubernetes Benchmark</em></span>. Center for Internet Security. <a href="https://www.cisecurity.org/benchmark/kubernetes">cisecurity.org/benchmark/kubernetes</a>.
+        <span class="assoc">Endurecimento: Secrets, RBAC, containers sem root, limites de recurso.</span></li>
+      <li><span class="fonte">NIST — <em>SP 800-190, Application Container Security Guide</em> (2017)</span>. <a href="https://csrc.nist.gov/pubs/sp/800/190/final">csrc.nist.gov/pubs/sp/800/190/final</a>.
+        <span class="assoc">Riscos de imagem, registro, orquestrador e host.</span></li>
+      <li><span class="fonte">OWASP — <em>Top 10 for LLM Applications</em> (2025)</span>. <a href="https://genai.owasp.org/">genai.owasp.org</a>.
+        <span class="assoc">LLM10 Unbounded Consumption — agora também em nível de container/node.</span></li>
+      <li><span class="fonte">Brasil — <em>Lei nº 13.709/2018 (LGPD)</em></span>. Planalto. <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm">planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm</a>.
+        <span class="assoc">Dados pessoais no store compartilhado exigem controle de acesso e retenção. Referência normativa — não é aconselhamento jurídico.</span></li>
+    </ol>
+  </section>
+
+  <!-- ===================== GABARITO ===================== -->
+  <details class="gabarito reveal">
+    <summary>Gabarito / Orientação ao Instrutor</summary>
+    <div class="conteudo">
+      <h3>Tempos (5h = 300 min)</h3>
+      <p>Abertura 25 (inclui diagnóstico de 3 min) · Fundamentos 50 · Demonstração 50 ·
+      Lab básico 45 · Intervalo 15 · Lab intermediário 45 · Desafio 25 · Debriefing 15 ·
+      Avaliação e transferência 30 = 300. Se atrasar: no Bloco 2, apresente a tabela
+      "motor mínimo × Kubernetes real" em vez de detalhar cada linha; o desafio pode ser
+      só os itens 1–3 (implementação), deixando 4–5 para leitura em casa.</p>
+
+      <h3>Transferência — central de agendamento de perícias (sem gabarito fechado)</h3>
+      <p>Avalie pela justificativa. Uma resposta forte dimensiona réplicas pela carga
+      (poucas para 5/dia, várias + auto-scaling — Aula 9 — para 500/dia), separa
+      claramente config não sensível (janela de atendimento, regiões atendidas) de
+      credenciais (acesso ao sistema de agenda dos peritos, que vai em <code class="inline">Secret</code>),
+      e reconhece que a agenda confirmada é exatamente o tipo de estado que não pode
+      morar num pod — precisa de um store externo (banco, ou o mesmo padrão do
+      <code class="inline">StoreCompartilhado</code> desta aula), pela mesma razão do checkpoint.</p>
+
+      <h3>Lab básico — 3 réplicas, 3 ocorrências</h3>
+      <p><code class="inline">solucao_exercicios.py :: lab_basico()</code> já demonstra o
+      padrão N réplicas / N chamadas = 1 cada. Sobre o item 4 (2 chamadas, 3 réplicas):
+      não é um problema em si — só significa que a 3ª réplica ficou ociosa nesse instante;
+      o ponto de reflexão é que dimensionar réplicas é uma estimativa de carga, não uma
+      garantia de uso perfeito de cada uma.</p>
+
+      <h3>Lab intermediário — store e ConfigMap</h3>
+      <p>O motivo de <code class="inline">cluster_b</code> conseguir retomar é que
+      <code class="inline">StoreCompartilhado</code> só depende do diretório em
+      <code class="inline">saida/</code> — nenhuma referência a objetos do
+      <code class="inline">cluster_a</code>. Ligar os dois pelo MESMO
+      <code class="inline">StoreCompartilhado(caminho)</code> é o que simula "outro pod,
+      outra hora" de verdade. Teste do item 4: <code class="inline">test_service_indisponivel_sem_nenhum_pod_running</code>
+      e <code class="inline">test_reconciliar_recria_pods_mortos_ate_bater_replicas</code>
+      em <code class="inline">tests/test_cluster.py</code> já cobrem exatamente isso.</p>
+
+      <h3>Desafio — rolling update (referência)</h3>
+      <p>Ver <code class="inline">solucao_exercicios.py :: rolling_update()</code> e o
+      teste <code class="inline">test_rolling_update_troca_deployment_sem_deixar_service_sem_pod</code>
+      em <code class="inline">tests/test_fluxo.py</code>. Sobre o item 4 (réplica nova
+      morre no meio do rollout): a resposta mais defensável é <strong>seguir e deixar
+      <code class="inline">reconciliar()</code> recriar</strong> — parar o rollout
+      automaticamente na primeira falha é o comportamento de um sistema mais sofisticado
+      (é o que <code class="inline">kubectl rollout status</code> monitora, permitindo
+      <code class="inline">rollout undo</code> manual); para o escopo desta aula, tratar
+      a réplica nova como qualquer pod (sujeita a self-healing) é suficiente e consistente
+      com o resto do motor mínimo.</p>
+
+      <h3>Avaliação — respostas-guia</h3>
+      <ol>
+        <li>Pod = uma cópia rodando; Deployment = a declaração de quantas cópias devem existir, sempre.</li>
+        <li>Porque o pod que atende muda (é recriado, escalado); um nome estável não quebra quando o pod por trás dele muda.</li>
+        <li>Comportamento parametrizável sem tocar no código — aqui, o nível de detalhe da fundamentação do Jurídico.</li>
+        <li>Porque com múltiplas réplicas atrás de um Service, a réplica que retoma pode não ser a mesma que pausou.</li>
+        <li>Qualquer sistema de baixo volume, previsível, que cabe numa máquina — os laboratórios das Aulas 1–7, por exemplo.</li>
+      </ol>
+    </div>
+  </details>
+
+  <!-- ===================== FECHAMENTO ===================== -->
+  <section class="reveal">
+    <p class="rotulo">Próximos passos</p>
+    <h2>Evolução do SIGMA — Aula 8</h2>
+    <p>O SIGMA agora roda distribuído: cada agente é um Deployment com N réplicas, exposto por um Service, configurado por um ConfigMap — e o checkpoint HITL sobrevive a qualquer pod específico. O que ainda falta: escalar automaticamente conforme a carga (em vez de decidir o número de réplicas na mão), enxergar o que está acontecendo dentro do cluster (métricas, tracing de cada investigação passo a passo), e fechar os riscos de segurança que ficaram em aberto nesta aula — quem pode aprovar, no nível de autenticação real. É a Aula 9.</p>
+    <div class="mermaid">
+flowchart LR
+  O[("Boletim sintético")] --> INV{{"investigador-svc"}}
+  INV --> ANA{{"analista-svc"}} --> JUR{{"juridico-svc"}}
+  JUR --> BP{{"aprovação humana (breakpoint)"}}
+  BP --> CON{{"consolidador-svc"}} --> DOS[("Dossiê")]
+  BP -. "checkpoint" .-> STORE[("store compartilhado")]
+  INV -. "N réplicas" .-> INV
+  CFG[("ConfigMap")] -. "config" .-> JUR
+    </div>
+    <p class="legenda">O que a Aula 8 acrescentou: cada agente virou um Service na frente de um Deployment com réplicas; o checkpoint saiu da memória de um processo para um store compartilhado; e um ConfigMap passou a controlar comportamento sem tocar em código.</p>
+
+    <blockquote class="ancora">"Um agente que só roda numa máquina, numa cópia, é uma demonstração. O mesmo agente, com réplicas, um nome estável e o estado fora dele, é um serviço."</blockquote>
+
+    <div class="nav-aulas">
+      <a href="aula-07-especializados-hitl.html"><span>Anterior</span>← Aula 7 — Especializados e HITL</a>
+      <a href="aula-09-autoscaling-seguranca.html"><span>Próxima</span>Aula 9 — Auto-scaling e Segurança →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Curso PCDF · Unidade 8 — Sistemas Multiagentes em Segurança Pública</strong></p>
+  <p>Prof. Francisco Molina Jr · Aula 8 de 10</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="../assets/aula.js"></script>
+</body>
+</html>

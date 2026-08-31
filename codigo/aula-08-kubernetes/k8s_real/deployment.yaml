@@ -1,0 +1,52 @@
+# Deployment do agente Jurídico — 2 réplicas, config vinda do ConfigMap,
+# limites de recurso (Bloco 7: "consumo ilimitado" não é só risco de LLM —
+# um pod sem limits pode consumir o node inteiro) e sem privilégio de root.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juridico-deploy
+  labels:
+    app: sigma
+    componente: juridico
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sigma
+      componente: juridico
+  template:
+    metadata:
+      labels:
+        app: sigma
+        componente: juridico
+    spec:
+      containers:
+        - name: juridico
+          image: sigma/juridico:latest      # construa com: docker build -f k8s_real/Dockerfile -t sigma/juridico:latest .
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: juridico-config
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          readinessProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            initialDelaySeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /saude
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
